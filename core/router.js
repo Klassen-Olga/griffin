@@ -33,7 +33,7 @@ class Router {
 		const self=this;
 		self.app[method](path, (request, response)=>{
 			let actionName='action'+action.charAt(0).toUpperCase()+action.substr(1);
-			let controller = new controllerName(request, response);
+			let controller = new controllerName(request, response, action);
 			controller[actionName]();
 		});
 	}
