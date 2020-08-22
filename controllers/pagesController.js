@@ -14,5 +14,24 @@ class PagesController extends Controller{
 			title:"Home"
 		});
 	}
+	actionVideoStream(){
+		const self=this;
+		self.render({
+			title:"Video Stream"
+		});
+	}
+	actionBroadcast(){
+		const self=this;
+		self.render({
+			title:"Broadcast"
+		});
+	}
+	actionWatch(){
+		const self=this;
+		self.render({
+			title:"Watch"
+		});
+	}
+
 }
 module.exports=PagesController;

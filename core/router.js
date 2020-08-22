@@ -6,7 +6,9 @@ let routes=[
 		controllerName:PagesController,
 		actions:[
 			{ path: '/', action: 'home', method: 'get' },
-			{ path: '/imprint', action: 'imprint', method: 'get' },
+			{ path: '/videoStream', action: 'videoStream', method: 'get' },
+			{path:'/broadcast', action: 'broadcast', method: 'get'},
+			{path:'/watch', action: 'watch', method: 'get'},
 			{ path: '/sign-in', action: 'signin', method: 'get' }
 		]
 	}

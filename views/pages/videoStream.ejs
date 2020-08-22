@@ -1,0 +1,47 @@
+<html>
+<body>
+<h2>Local video playback</h2>
+
+<video style=" margin:auto;display: block; width: 40%" id="localVideo" autoplay playsinline ></video>
+<video style=" margin:auto;display: block; width: 40%" id="screenVideo" autoplay playsinline ></video>
+
+<button style="width: 80px; height: 30px" onclick="playVideoFromCamera()">Stream</button>
+</body>
+<script>
+	async function getConnectedDevices(type) {
+		const devices = await navigator.mediaDevices.enumerateDevices();
+		return devices.filter(device => device.kind === type)
+	}
+	async function openCamera(cameraId) {
+		const constraints = {
+			'audio': {'echoCancellation': true},
+			'video': {'deviceId': cameraId}
+		}
+		return await navigator.mediaDevices.getUserMedia(constraints);
+	}
+
+	async function playVideoFromCamera() {
+		const constraints = {'video': true, 'audio': true};
+		const captConstrain={
+			video: {
+				cursor: 'always' | 'motion' | 'never',
+				displaySurface: 'application' | 'browser' | 'monitor' | 'window'
+			}
+		};
+		try {
+			const stream = await navigator.mediaDevices.getUserMedia(constraints);
+			const captureStream = await navigator.mediaDevices.getDisplayMedia(captConstrain);
+
+			const videoElement = document.querySelector('video#localVideo');
+			const videoElement2 = document.querySelector('video#screenVideo');
+
+			//srcObject-sets or returns object which serves as the source of the media
+			videoElement.srcObject = stream;
+			videoElement2.srcObject = captureStream;
+
+		} catch(error) {
+			console.error('Error opening video camera.', error);
+		}
+	}
+</script>
+</html>
