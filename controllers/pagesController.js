@@ -7,6 +7,7 @@ class PagesController extends Controller{
 		const self=this;
 		self.req=req;
 		self.res=res;
+		self.broadcaster=null;
 	}
 	actionHome(){
 		const self=this;
@@ -32,6 +33,17 @@ class PagesController extends Controller{
 			title:"Watch"
 		});
 	}
-
+	actionDuplex(){
+		const self=this;
+		self.render({
+			title:"Duplex"
+		});
+	}
+	actionExample(){
+		const self=this;
+		self.render({
+			title:"Example"
+		});
+	}
 }
 module.exports=PagesController;
