@@ -2,148 +2,167 @@
 <html>
 <head>
     <title>Duplex</title>
-    <meta charset="UTF-8" />
+    <meta charset="UTF-8"/>
     <link href="/styles.css" rel="stylesheet">
 </head>
 
 
 <body>
 <video id="selfStream" playsinline autoplay muted></video>
-<button onclick="stream()">Stream</button><br>
-<button onclick="unmute()" id="enable-audio">Enable audio</button><br>
+<button>Stream</button>
+<br>
+<button onclick="unmute()" id="enable-audio">Enable audio</button>
+<br>
+<div id="foreignVideoContainer">
+
+</div>
 <video id="foreignStream" playsinline autoplay muted></video>
 <script src="/socket.io/socket.io.js"></script>
 </body>
 </html>
 <script>
 
-	const peerConnections = {};
-	const config = {
-		iceServers: [
-			{
-				urls: ["stun:stun.l.google.com:19302"]
-			}
-		]
-	};
-	// Media contrains
-	const constraints = {
-		video: { facingMode: "user" },
-		audio: true,
-	};
-	const socket = io.connect(window.location.origin);
-	const videoB = document.getElementById("selfStream");
-	function stream() {
-		console.log(JSON.stringify(navigator.mediaDevices));
-		navigator.mediaDevices.getUserMedia(constraints)
-			.then(stream => {
-				videoB.srcObject = stream;
-				socket.emit("broadcaster");
-			})
-			.catch(error => console.error(error));
-	}
-
-	socket.on("watcher", id => {
-
-		//create peer connection
-		const peerConnection = new RTCPeerConnection(config);
-		peerConnections[id] = peerConnection;
-
-		//take stream of my video
-		let stream = videoB.srcObject;
-		//Then we add the local stream to the connection
-		//point where we connect the stream we receive from getUserMedia() to the RTCPeerConnection.
-		// A media stream consi	sts of at least one media track,
-		// and these are individually added to the RTCPeerConnection
-		// when we want to transmit the media to the remote peer.
-		stream.getTracks().forEach(track => peerConnection.addTrack(track, stream));
-
-		//if there is any iceCandidate appears, emit candidate event
-		peerConnection.onicecandidate = event => {
-			if (event.candidate) {
-				socket.emit("candidateOfW", id, event.candidate);
-			}
-		};
-
-		//create session description and send it to watcher
-		peerConnection
-			.createOffer()
-			.then(sdp => peerConnection.setLocalDescription(sdp))
-			.then(() => {
-				socket.emit("offer", id, peerConnection.localDescription);
-			});
-	});
-
-	socket.on("answer", (id, description) => {
-		peerConnections[id].setRemoteDescription(description);
-	});
-
-	socket.on("candidateOfB", (id, candidate) => {
-		peerConnections[id].addIceCandidate(new RTCIceCandidate(candidate));
-	});
-	socket.on("disconnectPeer", id => {
-		peerConnections[id].close();
-		delete peerConnections[id];
-	});
-
-	window.onunload = window.onbeforeunload = () => {
-		socket.close();
-	}
-
-	//watcher
-
-	function unmute() {
-		console.log("Enabling audio")
-		videoB.muted = false;
-	}
-	let peerConnection;
 
 
-	const videoW = document.getElementById("foreignStream");
-	function unmute() {
-		console.log("Enabling audio")
-		videoW.muted = false;
-	}
-	socket.on("offer", (id, description) => {
-		peerConnection = new RTCPeerConnection(config);
-		peerConnection
-			.setRemoteDescription(description)
-			.then(() => peerConnection.createAnswer())
-			.then(sdp => peerConnection.setLocalDescription(sdp))
-			.then(() => {
-				socket.emit("answer", id, peerConnection.localDescription);
-			});
-		peerConnection.ontrack = event => {
-			videoW.srcObject = event.streams[0];
-		};
-		peerConnection.onicecandidate = event => {
-			if (event.candidate) {
-				socket.emit("candidateOfB", id, event.candidate);
-			}
-		};
-	});
 
-	socket.on("candidateOfW", (id, candidate) => {
-		peerConnection
-			.addIceCandidate(new RTCIceCandidate(candidate))
-			.catch(e => console.error(e));
-	});
-
-	socket.on("connect", () => {
-		socket.emit("watcher");
-	});
-
-	socket.on("broadcaster", () => {
-		console.log("trololo");
-		socket.emit("watcher");
-	});
-
-	socket.on("disconnectPeer", () => {
-		peerConnection.close();
-	});
-
-	window.onunload = window.onbeforeunload = () => {
-		socket.close();
-	};
+  const peerConnections = {};
+  const config = {
+    iceServers: [
+      {
+        urls: ["stun:stun.l.google.com:19302"]
+      }
+    ]
+  };
+  const constraints = {
+    video: {facingMode: "user"},
+    audio: true,
+  };
+  const socket = io.connect(window.location.origin);
 
 
+
+
+
+
+  const selfStream = document.getElementById("selfStream");
+  const foreignStream = document.getElementById("foreignStream");
+
+
+
+  // 1)
+  navigator.mediaDevices.getUserMedia(constraints)
+    .then(stream => {
+      selfStream.srcObject = stream;
+      socket.emit("newUser");
+    })
+    .catch(error => console.error(error));
+
+  // 1)
+  socket.on("newUser", () => {
+    socket.emit("requestForOffer");
+  });
+
+
+
+  // 2) my conn
+  socket.on("requestForOffer", watcherId => {
+    //create peer connection
+    const peerConnection = new RTCPeerConnection(config);
+
+    peerConnections[watcherId] = peerConnection;
+
+    let stream = selfStream.srcObject;
+
+    stream.getTracks().forEach(track => peerConnection.addTrack(track, stream));
+    //if  any iceCandidate appears, emit candidate event
+    peerConnection.onicecandidate = event => {
+      if (event.candidate) {
+        console.log("event-candiate-client: " + event.candidate)
+        socket.emit("candidate", watcherId, event.candidate);
+      }
+    };
+    //create session description and send it to watcher
+    peerConnection
+      .createOffer()
+      .then(sdp => peerConnection.setLocalDescription(sdp))
+      .then(() => {
+        socket.emit("offer", watcherId, peerConnection.localDescription);
+      });
+  });
+
+
+
+
+  // 3-4) their
+  socket.on("offer", (broadcasterId, description) => {
+    const peerConnection = new RTCPeerConnection(config);
+
+    peerConnections[broadcasterId] = peerConnection;
+    peerConnection
+      .setRemoteDescription(description)
+      .then(() => peerConnection.createAnswer())
+      .then(sdp => peerConnection.setLocalDescription(sdp))
+      .then(() => {
+        socket.emit("answer", peerConnection.localDescription);
+      });
+    peerConnection.ontrack = event => {
+    /*  let foreignVideoContainer= document.getElementById("foreignVideoContainer");
+      let video=document.createElement("video");
+/!*      video.setAttribute("autoplay", true);
+      video.setAttribute("muted", true);
+      video.setAttribute("playsinline", true);*!/
+      video.setAttribute("controls", false);
+      video.srcObject = event.streams[0];
+      foreignVideoContainer.appendChild(video);*/
+    foreignStream.srcObject=event.streams[0];
+
+    };
+    peerConnection.onicecandidate = event => {
+      if (event.candidate) {
+        socket.emit("candidate", broadcasterId, event.candidate);
+      }
+    };
+  });
+
+
+
+
+  // 5)
+  socket.on("answer", (id, description) => {
+    peerConnections[id].setRemoteDescription(description);
+  });
+
+
+
+  socket.on("candidate", (id, candidate) => {
+
+    peerConnections[id].addIceCandidate(new RTCIceCandidate(candidate));
+
+    console.log(JSON.stringify(peerConnections));
+
+  });
+
+  socket.on("connect", () => {
+    socket.emit("requestForOffer");
+  });
+
+  socket.on("disconnectPeer", id => {
+    peerConnections[id].close();
+    console.log(JSON.stringify(peerConnections));
+  });
+
+
+  function unmute() {
+    console.log("Enabling audio")
+    selfStream.muted = false;
+  }
+
+
+  function unmute() {
+    console.log("Enabling audio")
+    foreignStream.muted = false;
+  }
+  window.onunload = window.onbeforeunload = () => {
+    socket.close();
+  };
 </script>

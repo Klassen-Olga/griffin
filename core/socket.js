@@ -5,7 +5,6 @@ class SocketHandler {
 		self.io = io;
 		//object for sockets
 		self.sockets = {};
-		self.broadcasters=[];
 		self.initEvents();
 	}
 
@@ -22,31 +21,28 @@ class SocketHandler {
 				}
 			});
 			console.log(socket.id);
-			socket.on("broadcaster", () => {
-				self.broadcaster = socket.id;
-				socket.broadcast.emit("broadcaster");
+			// 1)
+			socket.on("newUser", () => {
+				socket.broadcast.emit("newUser");
 			});
-			socket.on("watcher", () => {
-				console.log("SERVERwATCHER");
-				socket.to(self.broadcaster).emit("watcher", socket.id);
+			// 1)
+			socket.on("requestForOffer", () => {
+				socket.broadcast.emit("requestForOffer", socket.id);
 			});
-			socket.on("offer", (id, message) => {
-				socket.to(id).emit("offer", self.broadcaster, message);
+			// 2)
+			socket.on("offer", (watcherId, message) => {
+				socket.to(watcherId).emit("offer",socket.id, message);
 			});
-			socket.on("answer", (id, message) => {
-				socket.to(self.broadcaster).emit("answer", socket.id, message);
+			// 4) this is only for me to register another users
+			socket.on("answer", (message) => {
+              socket.broadcast.emit("answer", socket.id, message);
 			});
 			socket.on("candidate", (id, message) => {
+			  console.log("candidate-server" + id)
 				socket.to(id).emit("candidate", socket.id, message);
 			});
-			socket.on("candidateOfB", (id, message) => {
-				socket.to(id).emit("candidateOfB", socket.id, message);
-			});
-			socket.on("candidateOfW", (id, message) => {
-				socket.to(id).emit("candidateOfW", socket.id, message);
-			});
 			socket.on("disconnect", () => {
-				socket.to(self.broadcaster).emit("disconnectPeer", socket.id);
+				socket.broadcast.emit("disconnectPeer", socket.id);
 			});
 
 
