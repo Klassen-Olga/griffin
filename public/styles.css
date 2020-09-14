@@ -3,7 +3,15 @@ html {
     height: 100%;
 }
 
-video {
-    width: 700px;
-    height: 500px;
+.video-container{
+    display: grid;
+    grid-template-columns: auto auto auto auto;
+}
+
+#selfVideo{
+    position: fixed;
+    bottom: 3%;
+    right: 2%;
+    width: 350px;
+    height: 250px;
 }

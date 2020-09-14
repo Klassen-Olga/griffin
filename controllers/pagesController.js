@@ -44,6 +44,11 @@ class PagesController extends Controller{
 		self.render({
 			title:"Example"
 		});
+	}actionRoom(){
+		const self=this;
+		self.render({
+			title:"Chat Room"
+		});
 	}
 }
 module.exports=PagesController;

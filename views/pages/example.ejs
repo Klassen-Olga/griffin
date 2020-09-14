@@ -8,12 +8,15 @@
 
 
 <body>
+<script>
+    const   roomId="<%= roomId %>"
+</script>
+
 <video id="selfStream" playsinline autoplay muted></video>
-<button>Stream</button>
 <br>
 <button onclick="unmute()" id="enable-audio">Enable audio</button>
 <br>
-<div id="foreignVideoContainer">
+<div id="foreignVideoContainer" class="video-container">
 
 </div>
 <video id="foreignStream" playsinline autoplay muted></video>
@@ -21,8 +24,6 @@
 </body>
 </html>
 <script>
-
-
 
 
   const peerConnections = {};
@@ -35,18 +36,13 @@
   };
   const constraints = {
     video: {facingMode: "user"},
-    audio: true,
+    audio: false,
   };
   const socket = io.connect(window.location.origin);
 
 
-
-
-
-
   const selfStream = document.getElementById("selfStream");
   const foreignStream = document.getElementById("foreignStream");
-
 
 
   // 1)
@@ -58,18 +54,17 @@
     .catch(error => console.error(error));
 
   // 1)
-  socket.on("newUser", () => {
-    socket.emit("requestForOffer");
+  socket.on("newUser", (newUserId) => {
+    socket.emit("requestForOffer", newUserId);
   });
 
 
-
   // 2) my conn
-  socket.on("requestForOffer", watcherId => {
+  socket.on("requestForOffer", oldUserId => {
     //create peer connection
     const peerConnection = new RTCPeerConnection(config);
 
-    peerConnections[watcherId] = peerConnection;
+    peerConnections[oldUserId] = peerConnection;
 
     let stream = selfStream.srcObject;
 
@@ -78,7 +73,7 @@
     peerConnection.onicecandidate = event => {
       if (event.candidate) {
         console.log("event-candiate-client: " + event.candidate)
-        socket.emit("candidate", watcherId, event.candidate);
+        socket.emit("candidate", oldUserId, event.candidate);
       }
     };
     //create session description and send it to watcher
@@ -86,52 +81,63 @@
       .createOffer()
       .then(sdp => peerConnection.setLocalDescription(sdp))
       .then(() => {
-        socket.emit("offer", watcherId, peerConnection.localDescription);
+        socket.emit("offer",oldUserId, peerConnection.localDescription);
       });
+    peerConnection.ontrack = event => {
+       let foreignVideoContainer = document.getElementById("foreignVideoContainer");
+       let video = document.createElement("video");
+       video.setAttribute("autoplay", true);
+       video.setAttribute("playsinline", true);
+       video.setAttribute("controls", false);
+       video.srcObject = event.streams[0];
+       foreignVideoContainer.appendChild(video);
+
+
+      /*foreignStream.srcObject=event.streams[0];
+      console.log("track "+ event.streams[0].getTracks().length);*/
+    };
   });
 
 
-
-
   // 3-4) their
-  socket.on("offer", (broadcasterId, description) => {
+  socket.on("offer", (newUserId, description) => {
     const peerConnection = new RTCPeerConnection(config);
+    let stream = selfStream.srcObject;
 
-    peerConnections[broadcasterId] = peerConnection;
+    stream.getTracks().forEach(track => peerConnection.addTrack(track, stream));
+    peerConnections[newUserId] = peerConnection;
     peerConnection
       .setRemoteDescription(description)
       .then(() => peerConnection.createAnswer())
       .then(sdp => peerConnection.setLocalDescription(sdp))
       .then(() => {
-        socket.emit("answer", peerConnection.localDescription);
+        socket.emit("answer",newUserId, peerConnection.localDescription);
       });
     peerConnection.ontrack = event => {
-    /*  let foreignVideoContainer= document.getElementById("foreignVideoContainer");
-      let video=document.createElement("video");
-/!*      video.setAttribute("autoplay", true);
-      video.setAttribute("muted", true);
-      video.setAttribute("playsinline", true);*!/
+      let foreignVideoContainer = document.getElementById("foreignVideoContainer");
+      let video = document.createElement("video");
+      video.setAttribute("autoplay", true);
+      video.setAttribute("playsinline", true);
       video.setAttribute("controls", false);
       video.srcObject = event.streams[0];
-      foreignVideoContainer.appendChild(video);*/
-    foreignStream.srcObject=event.streams[0];
+      foreignVideoContainer.appendChild(video);
 
+
+      /*foreignStream.srcObject=event.streams[0];
+      console.log("track "+ event.streams[0].getTracks().length);*/
     };
     peerConnection.onicecandidate = event => {
       if (event.candidate) {
-        socket.emit("candidate", broadcasterId, event.candidate);
+        socket.emit("candidate", newUserId, event.candidate);
       }
     };
   });
 
 
-
-
   // 5)
-  socket.on("answer", (id, description) => {
-    peerConnections[id].setRemoteDescription(description);
+  socket.on("answer", (oldUserId, description) => {
+    peerConnections[oldUserId].setRemoteDescription(description);
   });
-
 
 
   socket.on("candidate", (id, candidate) => {
@@ -142,11 +148,10 @@
 
   });
 
-  socket.on("connect", () => {
-    socket.emit("requestForOffer");
-  });
+
 
   socket.on("disconnectPeer", id => {
+    peerConnections[id].iceConnectionState === 'disconnected';
     peerConnections[id].close();
     console.log(JSON.stringify(peerConnections));
   });
@@ -162,6 +167,7 @@
     console.log("Enabling audio")
     foreignStream.muted = false;
   }
+
   window.onunload = window.onbeforeunload = () => {
     socket.close();
   };

@@ -10,9 +10,10 @@ let routes = [
 			{path: '/broadcast', action: 'broadcast', method: 'get'},
 			{path: '/watch', action: 'watch', method: 'get'},
 			{path: '/duplex', action: 'duplex', method: 'get'},
+/*
 			{path: '/example', action: 'example', method: 'get'},
-
-
+*/
+			{path: '/room', action: 'room', method: 'get'},
 			{path: '/sign-in', action: 'signin', method: 'get'}
 		]
 	},
@@ -52,6 +53,16 @@ class Router {
 			let controller = new controllerName(request, response, action);
 			controller[actionName]();
 		});
+	}
+	updateRoutes(uuid){
+		const self=this;
+		self.app.get('/example/:roomId',(req, res)=>{
+			res.render('pages/example', {roomId:req.params.roomId});
+		});
+		self.app.get('/videoChat', (req, res)=>{
+			res.redirect('/example/'+uuid);
+		});
+
 	}
 }
 
