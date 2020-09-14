@@ -9,12 +9,13 @@
 
 <body>
 <script>
-    const   roomId="<%= roomId %>"
+  const roomId = "<%= roomId %>"
 </script>
 
-<video id="selfStream" playsinline autoplay muted></video>
+<video id="selfStream" controls="false" playsinline autoplay muted></video>
 <br>
-<button onclick="unmute()" id="enable-audio">Enable audio</button>
+<button onclick="addAudioStream('audio')" id="enable-audio">Audio on</button>
+
 <br>
 <div id="foreignVideoContainer" class="video-container">
 
@@ -35,24 +36,58 @@
     ]
   };
   const constraints = {
-    video: {facingMode: "user"},
-    audio: false,
+    video: {facingMode: "user"}
   };
   const socket = io.connect(window.location.origin);
 
 
-  const selfStream = document.getElementById("selfStream");
-  const foreignStream = document.getElementById("foreignStream");
-
-
+  const selfVideoElement = document.getElementById("selfStream");
   // 1)
-  navigator.mediaDevices.getUserMedia(constraints)
+  navigator.mediaDevices.getUserMedia({video: true})
     .then(stream => {
-      selfStream.srcObject = stream;
+      selfVideoElement.srcObject = stream;
       socket.emit("newUser");
+
     })
     .catch(error => console.error(error));
 
+   function addAudioStream(trackType) {
+    navigator.mediaDevices.getUserMedia({audio: true})
+      .then(stream => {
+        const audioTracks=stream.getAudioTracks();
+        let localStream=selfVideoElement.srcObject;
+
+        selfVideoElement.srcObject=null;
+        selfVideoElement.srcObject=localStream;
+
+
+
+        for (var key in peerConnections) {
+          if (peerConnections.hasOwnProperty(key)) {
+            peerConnections[key].addTrack(audioTracks[0], selfVideoElement.srcObject);
+            peerConnections[key]
+              .createOffer()
+              .then(sdp => peerConnections[key].setLocalDescription(sdp))
+              .then(() => {
+                socket.emit("audioOn", peerConnections[key].localDescription);
+              });
+          }
+        }
+      })
+      .catch(error => console.error(error));
+  }
+
+
+  socket.on("audioOn", (userWhichAddedAudioTrack, description)=>{
+    peerConnections[userWhichAddedAudioTrack]
+      .setRemoteDescription(description)
+      .then(() => peerConnections[userWhichAddedAudioTrack].createAnswer())
+      .then(sdp => peerConnections[userWhichAddedAudioTrack].setLocalDescription(sdp))
+      .then(() => {
+        socket.emit("answer", userWhichAddedAudioTrack, peerConnections[userWhichAddedAudioTrack].localDescription);
+      });
+
+  })
   // 1)
   socket.on("newUser", (newUserId) => {
     socket.emit("requestForOffer", newUserId);
@@ -62,13 +97,11 @@
   // 2) my conn
   socket.on("requestForOffer", oldUserId => {
     //create peer connection
-    const peerConnection = new RTCPeerConnection(config);
+    const peerConnection = createPeerConnection(oldUserId);
 
     peerConnections[oldUserId] = peerConnection;
 
-    let stream = selfStream.srcObject;
 
-    stream.getTracks().forEach(track => peerConnection.addTrack(track, stream));
     //if  any iceCandidate appears, emit candidate event
     peerConnection.onicecandidate = event => {
       if (event.candidate) {
@@ -81,51 +114,24 @@
       .createOffer()
       .then(sdp => peerConnection.setLocalDescription(sdp))
       .then(() => {
-        socket.emit("offer",oldUserId, peerConnection.localDescription);
+        socket.emit("offer", oldUserId, peerConnection.localDescription);
       });
-    peerConnection.ontrack = event => {
-       let foreignVideoContainer = document.getElementById("foreignVideoContainer");
-       let video = document.createElement("video");
-       video.setAttribute("autoplay", true);
-       video.setAttribute("playsinline", true);
-       video.setAttribute("controls", false);
-       video.srcObject = event.streams[0];
-       foreignVideoContainer.appendChild(video);
-
-
-      /*foreignStream.srcObject=event.streams[0];
-      console.log("track "+ event.streams[0].getTracks().length);*/
-    };
   });
 
 
   // 3-4) their
   socket.on("offer", (newUserId, description) => {
-    const peerConnection = new RTCPeerConnection(config);
-    let stream = selfStream.srcObject;
+    const peerConnection = createPeerConnection(newUserId);
 
-    stream.getTracks().forEach(track => peerConnection.addTrack(track, stream));
     peerConnections[newUserId] = peerConnection;
     peerConnection
       .setRemoteDescription(description)
       .then(() => peerConnection.createAnswer())
       .then(sdp => peerConnection.setLocalDescription(sdp))
       .then(() => {
-        socket.emit("answer",newUserId, peerConnection.localDescription);
+        socket.emit("answer", newUserId, peerConnection.localDescription);
       });
-    peerConnection.ontrack = event => {
-      let foreignVideoContainer = document.getElementById("foreignVideoContainer");
-      let video = document.createElement("video");
-      video.setAttribute("autoplay", true);
-      video.setAttribute("playsinline", true);
-      video.setAttribute("controls", false);
-      video.srcObject = event.streams[0];
-      foreignVideoContainer.appendChild(video);
 
-
-      /*foreignStream.srcObject=event.streams[0];
-      console.log("track "+ event.streams[0].getTracks().length);*/
-    };
     peerConnection.onicecandidate = event => {
       if (event.candidate) {
         socket.emit("candidate", newUserId, event.candidate);
@@ -149,7 +155,6 @@
   });
 
 
-
   socket.on("disconnectPeer", id => {
     peerConnections[id].iceConnectionState === 'disconnected';
     peerConnections[id].close();
@@ -157,10 +162,51 @@
   });
 
 
-  function unmute() {
-    console.log("Enabling audio")
-    selfStream.muted = false;
+  function createPeerConnection(id) {
+
+    const peerConnection = new RTCPeerConnection(config);
+    peerConnection.id=id;
+    let stream = selfVideoElement.srcObject;
+    console.log(stream.getTracks().length+' length of tracks');
+    stream.getTracks().forEach(track => {
+      console.log(peerConnection.addTrack(track, stream));
+    })
+
+
+
+    peerConnection.onnegotiationneeded=function(){
+      console.log('NEGOTIATION NEEDED');
+    }
+    peerConnection.ontrack = (event) => {
+      let video =document.getElementById(id);
+
+      if (document.getElementById(id)===null){
+        console.log(JSON.stringify(event.streams[0].getVideoTracks().length));
+        console.log(JSON.stringify(event.streams[0].getAudioTracks().length));
+        let foreignVideoContainer = document.getElementById("foreignVideoContainer");
+        let video = document.createElement("video");
+        video.setAttribute('id', id);
+        video.setAttribute("autoplay", true);
+        video.setAttribute("playsinline", true);
+        video.setAttribute("controls", false);
+        video.srcObject = event.streams[0];
+        foreignVideoContainer.appendChild(video);
+
+      }
+      else{
+        video.srcObject=null;
+        video.srcObject=event.streams[0];
+      }
+
+
+
+      /*foreignStream.srcObject=event.streams[0];
+      console.log("track "+ event.streams[0].getTracks().length);*/
+    };
+
+    return peerConnection;
   }
+
 
 
   function unmute() {

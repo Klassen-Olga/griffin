@@ -66,6 +66,9 @@ class SocketHandler {
         socket.broadcast.emit("disconnectPeer", socket.id);
       });
 
+      socket.on("audioOn", (description)=>{
+        socket.broadcast.emit("audioOn", socket.id, description);
+      });
 
     });
   }
