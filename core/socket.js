@@ -66,8 +66,10 @@ class SocketHandler {
         socket.broadcast.emit("disconnectPeer", socket.id);
       });
 
-      socket.on("audioOn", (description)=>{
-        socket.broadcast.emit("audioOn", socket.id, description);
+      socket.on("audioOnOffer", (description, userIdToSendHimOffer)=>{
+        console.log("offer for audio from "+ socket.id + "to "+ userIdToSendHimOffer);
+
+        socket.to(userIdToSendHimOffer).emit("audioOnAnswer", socket.id, description);
       });
 
     });
