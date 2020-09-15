@@ -15,6 +15,9 @@
 <video id="selfStream" controls="false" playsinline autoplay muted></video>
 <br>
 <button onclick="addAudioStream('audio')" id="enable-audio">Audio on</button>
+<button onclick="addVideoStream('video')" id="enable-audio">Video on</button>
+
+<button onclick="enter('audio')" id="enable-audio">Check</button>
 
 <br>
 <div id="foreignVideoContainer" class="video-container">
@@ -43,37 +46,138 @@
 
   const selfVideoElement = document.getElementById("selfStream");
 
-  navigator.mediaDevices.getUserMedia({video: true})
-    .then(stream => {
-      selfVideoElement.srcObject = stream;
-      socket.emit("newUser");
 
-    })
-    .catch(error => console.error(error));
+
+  /*
+  *
+
+  * */
 
     function addAudioStream(trackType) {
-    navigator.mediaDevices.getUserMedia({audio: true})
-      .then( async stream => {
-        const audioTracks=stream.getAudioTracks();
-        let localStream=selfVideoElement.srcObject;
+      if (Object.keys(peerConnections).length !== 0){
+        navigator.mediaDevices.getUserMedia({audio: true})
+          .then( async stream => {
+            if (selfVideoElement.srcObject!==null){
+              const audioTracks=stream.getAudioTracks();
+              let localStream=selfVideoElement.srcObject;
+              localStream.addTrack(audioTracks[0]);
+              selfVideoElement.srcObject=null;
+              selfVideoElement.srcObject=localStream;
+            }
+            else{
+              selfVideoElement.srcObject=stream;
+            }
 
-        localStream.addTrack(audioTracks[0], localStream);
-        selfVideoElement.srcObject=null;
-        selfVideoElement.srcObject=localStream;
 
 
-        for (var key in peerConnections) {
-          if (peerConnections.hasOwnProperty(key)) {
-            peerConnections[key].addTrack(audioTracks[0], selfVideoElement.srcObject);
-            let sdp= await  peerConnections[key].createOffer();
-            await peerConnections[key].setLocalDescription(sdp);
-            await socket.emit("audioOnOffer", peerConnections[key].localDescription, key);
-          }
-        }
-      })
-      .catch(error => console.error(error));
+            /*
+                    console.log(selfVideoElement.srcObject.getTracks().length);
+            */
+
+
+            for (var key in peerConnections) {
+              if (peerConnections.hasOwnProperty(key)) {
+                const audioTracks=stream.getAudioTracks();
+                peerConnections[key].addTrack(audioTracks[0], selfVideoElement.srcObject);
+                let sdp= await  peerConnections[key].createOffer({ offerToReceiveVideo: true, offerToReceiveAudio: true });
+                await peerConnections[key].setLocalDescription(sdp);
+                await socket.emit("audioOnOffer", peerConnections[key].localDescription, key);
+              }
+            }
+          })
+          .catch(error => console.error(error));
+      }
+      else{
+        navigator.mediaDevices.getUserMedia({audio: true})
+          .then( stream => {
+            if (selfVideoElement.srcObject!==null){
+              const audioTracks=stream.getAudioTracks();
+              let localStream=selfVideoElement.srcObject;
+              localStream.addTrack(audioTracks[0]);
+              selfVideoElement.srcObject=null;
+              selfVideoElement.srcObject=localStream;
+            }
+            else{
+              selfVideoElement.srcObject=stream;
+            }
+          });
+
+            /*
+                    console.log(selfVideoElement.srcObject.getTracks().length);
+            */
+
+
+
+      }
+
+
   }
+  function addVideoStream(trackType) {
+    if (Object.keys(peerConnections).length !== 0){
+      navigator.mediaDevices.getUserMedia({video: true})
+        .then( async stream => {
+          if (selfVideoElement.srcObject!==null){
+            const videoTracks=stream.getVideoTracks();
+            let localStream=selfVideoElement.srcObject;
+            localStream.addTrack(videoTracks[0]);
+            selfVideoElement.srcObject=null;
+            selfVideoElement.srcObject=localStream;
+          }
+          else{
+            selfVideoElement.srcObject=stream;
+          }
 
+
+
+          /*
+                  console.log(selfVideoElement.srcObject.getTracks().length);
+          */
+
+
+          for (let key in peerConnections) {
+            if (peerConnections.hasOwnProperty(key)) {
+              const audioTracks=stream.getVideoTracks();
+
+              peerConnections[key].addTrack(audioTracks[0], selfVideoElement.srcObject);
+              let sdp= await  peerConnections[key].createOffer({ offerToReceiveVideo: true, offerToReceiveAudio: true });
+              await peerConnections[key].setLocalDescription(sdp);
+              await socket.emit("audioOnOffer", peerConnections[key].localDescription, key);
+            }
+          }
+        })
+        .catch(error => console.error(error));
+    }
+    else{
+      navigator.mediaDevices.getUserMedia({video: true})
+        .then( stream => {
+          if (selfVideoElement.srcObject!==null){
+            const videoTracks=stream.getVideoTracks();
+            let localStream=selfVideoElement.srcObject;
+            localStream.addTrack(videoTracks[0]);
+            selfVideoElement.srcObject=null;
+            selfVideoElement.srcObject=localStream;
+          }
+          else{
+            selfVideoElement.srcObject=stream;
+          }
+        });
+
+      /*
+              console.log(selfVideoElement.srcObject.getTracks().length);
+      */
+
+
+
+    }
+
+
+  }
+  socket.emit("newUser");
+
+  function enter(){
+    socket.emit("newUser");
+
+  }
 
   socket.on("audioOnAnswer", (userWhichAddedAudioTrack, description)=>{
     peerConnections[userWhichAddedAudioTrack]
@@ -108,7 +212,7 @@
     };
     //create session description and send it to watcher
     peerConnection
-      .createOffer()
+      .createOffer({ offerToReceiveVideo: true, offerToReceiveAudio: true })
       .then(sdp => peerConnection.setLocalDescription(sdp))
       .then(() => {
         socket.emit("offer", oldUserId, peerConnection.localDescription);
@@ -164,22 +268,28 @@
     const peerConnection = new RTCPeerConnection(config);
     peerConnection.id=id;
     let stream = selfVideoElement.srcObject;
-    console.log(stream.getTracks().length+' length of tracks');
-    stream.getTracks().forEach(track => {
-      console.log(peerConnection.addTrack(track, stream));
-    })
+/*
+    console.log(selfVideoElement.srcObject.getTracks().length + ' tracks while creating a peer connection');
+*/
+
+    if (stream!==null){
+      stream.getTracks().forEach(track => {
+        console.log(peerConnection.addTrack(track, stream));
+      })
+    }
 
 
 
     peerConnection.onnegotiationneeded=function(){
+
       console.log('NEGOTIATION NEEDED');
     }
     peerConnection.ontrack = (event) => {
+      console.log('On track event for user with id '+id+' '+' number of tracks '+JSON.stringify(event.streams[0].getTracks().length));
+
       let video =document.getElementById(id);
 
       if (document.getElementById(id)===null){
-        console.log(JSON.stringify(event.streams[0].getVideoTracks().length));
-        console.log(JSON.stringify(event.streams[0].getAudioTracks().length));
         let foreignVideoContainer = document.getElementById("foreignVideoContainer");
         let video = document.createElement("video");
         video.setAttribute('id', id);
@@ -195,21 +305,11 @@
         video.srcObject=event.streams[0];
       }
 
-
-
-      /*foreignStream.srcObject=event.streams[0];
-      console.log("track "+ event.streams[0].getTracks().length);*/
     };
 
     return peerConnection;
   }
 
-
-
-  function unmute() {
-    console.log("Enabling audio")
-    foreignStream.muted = false;
-  }
 
   window.onunload = window.onbeforeunload = () => {
     socket.close();
