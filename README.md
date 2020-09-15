@@ -1,3 +1,3 @@
-# griffin
+# griffin - IT-Project 
 
-### IT-Project
+### WebRTC Video Conference Tool
