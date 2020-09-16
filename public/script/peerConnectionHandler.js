@@ -12,12 +12,12 @@ const socket = io.connect(window.location.origin);
 const selfVideoElement = document.getElementById("selfStream");
 
 function enter() {
-  socket.emit("newUser");
+  socket.emit("newUser", roomId);
 
 }
 
 // 1)
-socket.on("newUser", (newUserId) => {
+socket.on("newUser", (newUserId, roomId) => {
   socket.emit("requestForOffer", newUserId);
 });
 

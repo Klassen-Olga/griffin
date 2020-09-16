@@ -35,9 +35,14 @@ class SocketHandler {
         }
       });
       // 1)
-      socket.on("newUser", () => {
+      socket.on("newUser", (roomId) => {
         console.log("newUser "+socket.id+ " sends data to all users");
-        socket.broadcast.emit("newUser", socket.id);
+        socket.join(roomId);
+        socket.broadcast.to(roomId).emit("newUser", socket.id);
+
+        socket.on("disconnect", () => {
+          socket.to(roomId).broadcast.emit("disconnectPeer", socket.id);
+        });
       });
       // 1)
       socket.on("requestForOffer", (newUserId) => {
@@ -62,9 +67,9 @@ class SocketHandler {
 
         socket.to(id).emit("candidate", socket.id, message);
       });
-      socket.on("disconnect", () => {
+      /*socket.on("disconnect", () => {
         socket.broadcast.emit("disconnectPeer", socket.id);
-      });
+      });*/
 
       socket.on("audioOnOffer", (description, userIdToSendHimOffer)=>{
         console.log("offer for audio from "+ socket.id + "to "+ userIdToSendHimOffer);
