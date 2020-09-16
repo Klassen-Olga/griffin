@@ -39,7 +39,7 @@ class PagesController extends Controller{
 			title:"Duplex"
 		});
 	}
-	actionExample(){
+	actionRoom(){
 		const self=this;
 		self.render({
 			title:"Example"

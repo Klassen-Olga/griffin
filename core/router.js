@@ -56,11 +56,11 @@ class Router {
 	}
 	updateRoutes(uuid){
 		const self=this;
-		self.app.get('/example/:roomId',(req, res)=>{
-			res.render('pages/example', {roomId:req.params.roomId});
+		self.app.get('/room/:roomId',(req, res)=>{
+			res.render('pages/room', {roomId:req.params.roomId});
 		});
 		self.app.get('/videoChat', (req, res)=>{
-			res.redirect('/example/'+uuid);
+			res.redirect('/room/'+uuid);
 		});
 
 	}

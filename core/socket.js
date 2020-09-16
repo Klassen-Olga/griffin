@@ -30,7 +30,6 @@ class SocketHandler {
       socket.on('disconnect', () => {
         console.log('disconnect client', socket.id)
         if (self.sockets[socket.id]) {
-          //deletes object property
           delete self.sockets[socket.id];
         }
       });
@@ -41,6 +40,7 @@ class SocketHandler {
         socket.broadcast.to(roomId).emit("newUser", socket.id);
 
         socket.on("disconnect", () => {
+          socket.leave(roomId);
           socket.to(roomId).broadcast.emit("disconnectPeer", socket.id);
         });
       });
@@ -67,15 +67,23 @@ class SocketHandler {
 
         socket.to(id).emit("candidate", socket.id, message);
       });
-      /*socket.on("disconnect", () => {
-        socket.broadcast.emit("disconnectPeer", socket.id);
-      });*/
 
       socket.on("audioOnOffer", (description, userIdToSendHimOffer)=>{
         console.log("offer for audio from "+ socket.id + "to "+ userIdToSendHimOffer);
 
         socket.to(userIdToSendHimOffer).emit("audioOnAnswer", socket.id, description);
       });
+
+
+
+      /*
+      * CHAT EVENTS
+      * */
+      socket.on('chat message', (msg, roomId) => {
+        console.log('message: ' + msg);
+        self.io.in(roomId).emit('chat message', msg);
+      });
+
 
     });
   }
