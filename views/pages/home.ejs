@@ -4,79 +4,28 @@
     <title><%= title %></title>
     <meta charset="utf-8"/>
 </head>
-<style>
-    * {
-        margin: 0;
-        padding: 0;
-        box-sizing: border-box;
-    }
 
-    body {
-        font: 13px Helvetica, Arial;
-    }
-
-    form {
-        background: #000;
-        padding: 3px;
-        position: fixed;
-        bottom: 0;
-        width: 100%;
-    }
-
-    form input {
-        border: 0;
-        padding: 10px;
-        width: 90%;
-        margin-right: 0.5%;
-    }
-
-    form button {
-        width: 9%;
-        background: rgb(130, 224, 255);
-        border: none;
-        padding: 10px;
-    }
-
-    #messages {
-        list-style-type: none;
-        margin: 0;
-        padding: 0;
-    }
-
-    #messages li {
-        padding: 5px 10px;
-    }
-
-    #messages li:nth-child(odd) {
-        background: #eee;
-    }
-</style>
-<script src="/socket.io/socket.io.js"></script>
-<script>
-	var socket = io();
-</script>
 <body>
 
 <h3>Welcome To Griffin!</h3>
-<ul id="messages"></ul>
-<form action="">
-    <input id="message" autocomplete="off"/>
-    <button onclick="sendMessage(this);return false;">Send</button>
-</form>
+<div id="link-container">
+    Get link for new video conference
+    <button onclick="getUuid()">Get</button>
+</div>
+
+<script src="/socket.io/socket.io.js"></script>
 </body>
+
+</html>
 <script>
-	function sendMessage(elm) {
-		var textarea = document.getElementById('message');
-		socket.emit('chat message', textarea.value);
-        textarea.value='';
-	}
-	socket.on('chat message', function(msg){
-		let chat=document.getElementById('messages');
-		let messagesDiv=document.createElement('DIV');
-		messagesDiv.innerText=msg;
-		chat.appendChild(messagesDiv);
-		chat.scrollTop=chat.scrollHeight;
-	});
+  const socket = io.connect(window.location.origin);
+  function getUuid() {
+    socket.emit('uuid');
+    socket.on('uuid', (uuid)=>{
+      let p=document.createElement('p');
+      p.innerText=window.location.href+'room/'+uuid;
+      document.getElementById('link-container').appendChild(p);
+    });
+  }
 
 </script>
-</html>

@@ -11,8 +11,26 @@ const config = {
 const socket = io.connect(window.location.origin);
 const selfVideoElement = document.getElementById("selfStream");
 
+navigator.mediaDevices.getUserMedia({audio: true})
+  .then(stream => {
+    selfVideoElement.srcObject=stream;
+    document.getElementById('audioOn').disabled=true;
+
+  })
+  .catch(error => {
+
+    handleError(error);
+    console.error("EE: " + error);
+  });
+
 function enter() {
+  if (selfVideoElement.srcObject===null){
+    alert("Please enable audio");
+    return;
+  }
   socket.emit("newUser", roomId);
+  document.getElementById('enterTheRoom').style.display='none';
+
 
 }
 
@@ -150,72 +168,24 @@ window.onunload = window.onbeforeunload = () => {
 };
 
 /*
-* Allows adding of media track before and after the connection was established
-*
+* chat handler
 * */
-function addMediaTrack(boolVideo, boolAudio) {
 
-  //toggle media track after it was already added
-  if (selfVideoElement.srcObject !== null) {
-    let tracks = getTracksFromStream(selfVideoElement.srcObject, boolVideo);
-    if (( tracks!==undefined) && tracks.length > 0) {
-      tracks[0].enabled = true;
-      return;
-    }
 
-  }
-  //insert media track for first time
-  navigator.mediaDevices.getUserMedia({video: boolVideo, audio: boolAudio})
-    .then(stream => {
-      let tracks = getTracksFromStream(stream, boolVideo);
-      if (selfVideoElement.srcObject !== null) {
-        let localStream = selfVideoElement.srcObject;
-        localStream.addTrack(tracks[0]);
-        selfVideoElement.srcObject = null;
-        selfVideoElement.srcObject = localStream;
-      } else {
-        selfVideoElement.srcObject = stream;
-      }
-      updateTracksOnRemotePeers(tracks);
 
-    })
-    .catch(error => {
-
-      handleError(error);
-      console.error("EE: " + error);
-    });
+function sendMessage(elm) {
+  var textarea = document.getElementById('message');
+  socket.emit('chat message', textarea.value, roomId);
+  textarea.value='';
 }
+socket.on('chat message', function(msg){
+  let chat=document.getElementById('messages');
+  let messagesDiv=document.createElement('DIV');
+  messagesDiv.innerText=msg;
+  chat.appendChild(messagesDiv);
+  chat.scrollTop=chat.scrollHeight;
+});
 
 
-function getTracksFromStream(stream, boolVideo) {
-  let tracks = null;
-  if (boolVideo === true) {
-    tracks = stream.getVideoTracks();
-  } else {
-    tracks = stream.getAudioTracks();
-  }
-  return tracks;
-}
 
-async function updateTracksOnRemotePeers(tracks) {
-  for (let key in peerConnections) {
-    if (peerConnections.hasOwnProperty(key)) {
-      peerConnections[key].addTrack(tracks[0], selfVideoElement.srcObject);
-      let sdp = await peerConnections[key].createOffer({offerToReceiveVideo: true, offerToReceiveAudio: true});
-      await peerConnections[key].setLocalDescription(sdp);
-      await socket.emit("audioOnOffer", peerConnections[key].localDescription, key);
-    }
-  }
-}
 
-function removeMediaTrack(deviceType) {
-  if (selfVideoElement.srcObject !== null) {
-    if (deviceType === 'video') {
-      selfVideoElement.srcObject.getVideoTracks()[0].enabled = false;
-    } else if (deviceType === 'audio') {
-      selfVideoElement.srcObject.getAudioTracks()[0].enabled = false;
-
-    }
-  }
-
-}

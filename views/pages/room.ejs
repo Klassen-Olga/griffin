@@ -14,12 +14,12 @@
 <div class="split left">
     <video id="selfStream" controls="false" playsinline muted autoplay ></video>
     <br>
-    <button onclick="addMediaTrack(false, true)" id="enable-audio">Audio on</button>
-    <button onclick="addMediaTrack(true, false)" id="enable-audio">Video on</button>
-    <button onclick="removeMediaTrack('audio')" id="enable-audio">Audio off</button>
-    <button onclick="removeMediaTrack('video')" id="enable-audio">Video off</button>
+    <button id="audioOn" onclick="addMediaTrack(false, true)" id="enable-audio">Audio on</button>
+    <button id="videoOn"  onclick="addMediaTrack(true, false)" id="enable-audio">Video on</button>
+    <button id="audioOff" onclick="removeMediaTrack('audio')" id="enable-audio">Audio off</button>
+    <button id="videoOff" onclick="removeMediaTrack('video')" id="enable-audio">Video off</button>
 
-    <button onclick="enter('audio')" id="enable-audio">Enter the room</button>
+    <button id="enterTheRoom" onclick="enter('audio')" id="enable-audio">Enter the room</button>
 
     <br>
     <div id="foreignVideoContainer" class="video-container">
@@ -34,23 +34,7 @@
     </form>
 </div>
 <script src="/socket.io/socket.io.js"></script>
-<script src="/script/helper.js"></script>
+<script src="/script/helperRoom.js"></script>
 <script src="/script/peerConnectionHandler.js"></script>
 </body>
 </html>
-
-<script>
-  function sendMessage(elm) {
-    var textarea = document.getElementById('message');
-    socket.emit('chat message', textarea.value, roomId);
-    textarea.value='';
-  }
-  socket.on('chat message', function(msg){
-    let chat=document.getElementById('messages');
-    let messagesDiv=document.createElement('DIV');
-    messagesDiv.innerText=msg;
-    chat.appendChild(messagesDiv);
-    chat.scrollTop=chat.scrollHeight;
-  });
-
-</script>

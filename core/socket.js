@@ -1,3 +1,6 @@
+
+const { v4:uuidv4} = require('uuid');
+
 class SocketHandler {
 
   constructor(io) {
@@ -6,6 +9,9 @@ class SocketHandler {
     //object for sockets
     self.sockets = {};
     self.initEvents();
+
+
+
   }
 
   initEventsForRooms() {
@@ -84,7 +90,13 @@ class SocketHandler {
         self.io.in(roomId).emit('chat message', msg);
       });
 
+      /*
+      * Link generator event
+      * */
 
+      socket.on('uuid',()=>{
+        socket.emit('uuid', uuidv4());
+      });
     });
   }
 }
