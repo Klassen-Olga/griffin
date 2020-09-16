@@ -13,8 +13,8 @@ const selfVideoElement = document.getElementById("selfStream");
 
 navigator.mediaDevices.getUserMedia({audio: true})
   .then(stream => {
-    selfVideoElement.srcObject=stream;
-    document.getElementById('audioOn').disabled=true;
+    selfVideoElement.srcObject = stream;
+    document.getElementById('audioOn').disabled = true;
 
   })
   .catch(error => {
@@ -24,26 +24,41 @@ navigator.mediaDevices.getUserMedia({audio: true})
   });
 
 function enter() {
-  if (selfVideoElement.srcObject===null){
+  if (selfVideoElement.srcObject === null) {
     alert("Please enable audio");
     return;
   }
-  socket.emit("newUser", roomId);
-  document.getElementById('enterTheRoom').style.display='none';
+  var fullNameInput = document.getElementsByName('fullName')[0];
+  let nameDiv = document.getElementById('nameDiv');
 
+  if (fullNameInput.value.length < 2) {
+    if (nameDiv.lastChild.tagName !== 'P') {
+      let p = document.createElement('p');
+      p.innerText = "Your name should be more then 1 symbol";
+      nameDiv.appendChild(p);
+    }
+    return;
+
+  }
+  document.getElementById('fullName').innerText=fullNameInput.value;
+  document.getElementById('enterTheRoom').style.display = 'none';
+  nameDiv.style.display = 'none';
+
+  socket.emit("newUser", roomId);
 
 }
 
 // 1)
-socket.on("newUser", (newUserId, roomId) => {
-  socket.emit("requestForOffer", newUserId);
+socket.on("newUser", (newUserId) => {
+  let fullName=document.getElementById('fullName').innerText;
+  socket.emit("requestForOffer", newUserId, fullName);
 });
 
 
 // 2) my conn
-socket.on("requestForOffer", oldUserId => {
+socket.on("requestForOffer", (oldUserId, fullName )=> {
   //create peer connection
-  const peerConnection = createPeerConnection(oldUserId);
+  const peerConnection = createPeerConnection(oldUserId, fullName);
 
   peerConnections[oldUserId] = peerConnection;
 
@@ -60,14 +75,17 @@ socket.on("requestForOffer", oldUserId => {
     .createOffer({offerToReceiveVideo: true, offerToReceiveAudio: true})
     .then(sdp => peerConnection.setLocalDescription(sdp))
     .then(() => {
-      socket.emit("offer", oldUserId, peerConnection.localDescription);
+      let myFullName=document.getElementById('fullName').innerText;
+      socket.emit("offer", oldUserId, peerConnection.localDescription, myFullName);
     });
 });
 
 
+
+
 // 3-4) their
-socket.on("offer", (newUserId, description) => {
-  const peerConnection = createPeerConnection(newUserId);
+socket.on("offer", (newUserId, description, fullName) => {
+  const peerConnection = createPeerConnection(newUserId, fullName);
 
   peerConnections[newUserId] = peerConnection;
   peerConnection
@@ -109,7 +127,6 @@ socket.on("disconnectPeer", id => {
   div.removeChild(video);
 });
 
-
 socket.on("audioOnAnswer", (userWhichAddedAudioTrack, description) => {
   peerConnections[userWhichAddedAudioTrack]
     .setRemoteDescription(description)
@@ -121,7 +138,7 @@ socket.on("audioOnAnswer", (userWhichAddedAudioTrack, description) => {
 
 })
 
-function createPeerConnection(id) {
+function createPeerConnection(id, fullName) {
 
   const peerConnection = new RTCPeerConnection(config);
   peerConnection.id = id;
@@ -150,6 +167,8 @@ function createPeerConnection(id) {
       video.setAttribute("autoplay", true);
       video.setAttribute("playsinline", true);
       video.setAttribute("controls", false);
+      console.log(fullName);
+      video.setAttribute("fullName", fullName);
       video.srcObject = event.streams[0];
       foreignVideoContainer.appendChild(video);
 
@@ -172,18 +191,18 @@ window.onunload = window.onbeforeunload = () => {
 * */
 
 
-
 function sendMessage(elm) {
   var textarea = document.getElementById('message');
   socket.emit('chat message', textarea.value, roomId);
-  textarea.value='';
+  textarea.value = '';
 }
-socket.on('chat message', function(msg){
-  let chat=document.getElementById('messages');
-  let messagesDiv=document.createElement('DIV');
-  messagesDiv.innerText=msg;
+
+socket.on('chat message', function (msg) {
+  let chat = document.getElementById('messages');
+  let messagesDiv = document.createElement('DIV');
+  messagesDiv.innerText = msg;
   chat.appendChild(messagesDiv);
-  chat.scrollTop=chat.scrollHeight;
+  chat.scrollTop = chat.scrollHeight;
 });
 
 

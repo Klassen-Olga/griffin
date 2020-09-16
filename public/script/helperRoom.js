@@ -25,12 +25,11 @@ function addMediaTrack(boolVideo, boolAudio) {
     let tracks = getTracksFromStream(selfVideoElement.srcObject, boolVideo);
     if (( tracks!==undefined) && tracks.length > 0) {
       if (boolVideo==true){
-        document.getElementById('videoOff').disabled=false;
-        document.getElementById('videoOn').disabled=true;
+        toggleMediaButtons('video', true);
+
       }
       else{
-        document.getElementById('audioOff').disabled=false;
-        document.getElementById('audioOn').disabled=true;
+        toggleMediaButtons('audio', true);
       }
       tracks[0].enabled = true;
       return;
@@ -50,12 +49,12 @@ function addMediaTrack(boolVideo, boolAudio) {
         selfVideoElement.srcObject = stream;
       }
       if (boolVideo==true){
-        document.getElementById('videoOff').disabled=false;
-        document.getElementById('videoOn').disabled=true;
+        toggleMediaButtons('video', true);
+
       }
       else{
-        document.getElementById('audioOff').disabled=false;
-        document.getElementById('audioOn').disabled=true;
+        toggleMediaButtons('audio', true);
+
       }
       updateTracksOnRemotePeers(tracks);
 
@@ -88,19 +87,38 @@ async function updateTracksOnRemotePeers(tracks) {
     }
   }
 }
+function toggleMediaButtons(button,on) {
+  if (button ==='video'){
+    if (on === true) {
+      document.getElementById('videoOff').disabled=false;
+      document.getElementById('videoOn').disabled=true;
+    }
+    else{
+      document.getElementById('videoOff').disabled = true;
+      document.getElementById('videoOn').disabled = false;
 
+    }
+  }
+  else{
+    if (on === true) {
+      document.getElementById('audioOff').disabled=false;
+      document.getElementById('audioOn').disabled=true;
+    }
+    else{
+      document.getElementById('audioOff').disabled = true;
+      document.getElementById('audioOn').disabled = false;
+    }
+  }
+}
 function removeMediaTrack(deviceType) {
   if (selfVideoElement.srcObject !== null) {
     if (deviceType === 'video') {
       selfVideoElement.srcObject.getVideoTracks()[0].enabled = false;
-      document.getElementById('videoOff').disabled = true;
-      document.getElementById('videoOn').disabled = false;
 
     } else if (deviceType === 'audio') {
       selfVideoElement.srcObject.getAudioTracks()[0].enabled = false;
-      document.getElementById('audioOff').disabled = true;
-      document.getElementById('audioOn').disabled = false;
 
     }
+    toggleMediaButtons(deviceType, false);
   }
 }

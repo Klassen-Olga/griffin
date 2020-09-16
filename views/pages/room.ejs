@@ -12,14 +12,20 @@
   var roomId = "<%= roomId %>"
 </script>
 <div class="split left">
-    <video id="selfStream" controls="false" playsinline muted autoplay ></video>
+    <video id="selfStream" controls="false" playsinline muted autoplay></video>
     <br>
+    <p id="fullName"></p>
     <button id="audioOn" onclick="addMediaTrack(false, true)" id="enable-audio">Audio on</button>
-    <button id="videoOn"  onclick="addMediaTrack(true, false)" id="enable-audio">Video on</button>
+    <button id="videoOn" onclick="addMediaTrack(true, false)" id="enable-audio">Video on</button>
     <button id="audioOff" onclick="removeMediaTrack('audio')" id="enable-audio">Audio off</button>
     <button id="videoOff" onclick="removeMediaTrack('video')" id="enable-audio">Video off</button>
 
-    <button id="enterTheRoom" onclick="enter('audio')" id="enable-audio">Enter the room</button>
+    <button id="enterTheRoom" onclick="enter('audio')" id="enable-audio">Enter the room</button><br>
+    <div id="nameDiv">
+        <label for="fullName">Full Name: </label>
+        <input name="fullName"/><br>
+
+    </div>
 
     <br>
     <div id="foreignVideoContainer" class="video-container">

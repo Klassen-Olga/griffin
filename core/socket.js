@@ -44,23 +44,23 @@ class SocketHandler {
         console.log("newUser "+socket.id+ " sends data to all users");
         socket.join(roomId);
         socket.broadcast.to(roomId).emit("newUser", socket.id);
-
         socket.on("disconnect", () => {
           socket.leave(roomId);
           socket.to(roomId).broadcast.emit("disconnectPeer", socket.id);
         });
       });
       // 1)
-      socket.on("requestForOffer", (newUserId) => {
+      socket.on("requestForOffer", (newUserId, fullName) => {
+        console.log(fullName);
         console.log("requestForOffer from old "+socket.id +" to new "+newUserId);
 
-        socket.to(newUserId).emit("requestForOffer", socket.id);
+        socket.to(newUserId).emit("requestForOffer", socket.id, fullName);
       });
       // 2)
-      socket.on("offer", (oldUserId, message ) => {
+      socket.on("offer", (oldUserId, message, fullName ) => {
         console.log("offer from new "+socket.id + " to old user "+ oldUserId);
 
-        socket.to(oldUserId).emit("offer", socket.id, message);
+        socket.to(oldUserId).emit("offer", socket.id, message, fullName);
       });
       // 4) this is only for me to register another users
       socket.on("answer", (newUserId, message) => {

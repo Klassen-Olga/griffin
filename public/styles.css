@@ -116,3 +116,16 @@ button:disabled{
     color: black;
 
 }
+label{
+    color:white;
+    font-size: 30px;
+
+}
+#nameDiv{
+    color:white;
+}
+#fullName{
+    color: white;
+    font-size: 60px;
+
+}
