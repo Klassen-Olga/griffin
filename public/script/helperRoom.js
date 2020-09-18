@@ -77,16 +77,7 @@ function getTracksFromStream(stream, boolVideo) {
   return tracks;
 }
 
-async function updateTracksOnRemotePeers(tracks) {
-  for (let key in peerConnections) {
-    if (peerConnections.hasOwnProperty(key)) {
-      peerConnections[key].addTrack(tracks[0], selfVideoElement.srcObject);
-      let sdp = await peerConnections[key].createOffer({offerToReceiveVideo: true, offerToReceiveAudio: true});
-      await peerConnections[key].setLocalDescription(sdp);
-      await socket.emit("audioOnOffer", peerConnections[key].localDescription, key);
-    }
-  }
-}
+
 function toggleMediaButtons(button,on) {
   if (button ==='video'){
     if (on === true) {

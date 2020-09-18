@@ -1,5 +1,6 @@
 //all remote peer connections
 const peerConnections = {};
+//configuration for peer connection including stun and turn servers
 const config = {
   iceServers: [
     {
@@ -7,10 +8,11 @@ const config = {
     }
   ]
 };
-
+//connection to the socket (link to the repo in room.ejs)
 const socket = io.connect(window.location.origin);
+//own window were users video and audio will be saved
 const selfVideoElement = document.getElementById("selfStream");
-
+//to enter to the video chat room user needs minimum an audio device available
 navigator.mediaDevices.getUserMedia({audio: true})
   .then(stream => {
     selfVideoElement.srcObject = stream;
@@ -22,7 +24,13 @@ navigator.mediaDevices.getUserMedia({audio: true})
     handleError(error);
     console.error("EE: " + error);
   });
-
+/*
+* fires when user wants to enter to the video chat room
+*
+* here will be checked if the username is set
+* and then newUser event will be sent to the server side.
+* It will be also removed username input and enter button
+* */
 function enter() {
   if (selfVideoElement.srcObject === null) {
     alert("Please enable audio");
@@ -48,14 +56,18 @@ function enter() {
 
 }
 
-// 1)
+/*
+* remote user gets info about new user entered the room and sends him his full name
+* */
 socket.on("newUser", (newUserId) => {
   let fullName=document.getElementById('fullName').innerText;
   socket.emit("requestForOffer", newUserId, fullName);
 });
 
 
-// 2) my conn
+/*
+* new user creates a peer connection and sends an offer to remote user
+* */
 socket.on("requestForOffer", (oldUserId, fullName )=> {
   //create peer connection
   const peerConnection = createPeerConnection(oldUserId, fullName);
@@ -83,7 +95,9 @@ socket.on("requestForOffer", (oldUserId, fullName )=> {
 
 
 
-// 3-4) their
+/*
+* remote user creates his peer connection and sends answer to new user
+* */
 socket.on("offer", (newUserId, description, fullName) => {
   const peerConnection = createPeerConnection(newUserId, fullName);
 
@@ -104,12 +118,20 @@ socket.on("offer", (newUserId, description, fullName) => {
 });
 
 
-// 5)
+
+/*
+*
+* new user gets the answer from the remote user and sets
+ * the session description of remote user into his peer connection
+* */
 socket.on("answer", (oldUserId, description) => {
   peerConnections[oldUserId].setRemoteDescription(description);
 });
 
-
+/*
+*
+* botch users: new and remote should save all their ice candidates into the peer connection
+* */
 socket.on("candidate", (id, candidate) => {
 
   peerConnections[id].addIceCandidate(new RTCIceCandidate(candidate));
@@ -118,7 +140,11 @@ socket.on("candidate", (id, candidate) => {
 
 });
 
-
+/*
+*
+* when user closes tab peer connection will be closed
+* and all connected users will remove this user from the video chat
+* */
 socket.on("disconnectPeer", id => {
   peerConnections[id].iceConnectionState === 'disconnected';
   peerConnections[id].close();
@@ -127,7 +153,26 @@ socket.on("disconnectPeer", id => {
   div.removeChild(video);
 });
 
-socket.on("audioOnAnswer", (userWhichAddedAudioTrack, description) => {
+/*
+* if a user wants to add his audio or video after the connection was established,
+* function will iterate over all users remote connections and will make offer to each of them
+* */
+
+async function updateTracksOnRemotePeers(tracks) {
+  for (let key in peerConnections) {
+    if (peerConnections.hasOwnProperty(key)) {
+      peerConnections[key].addTrack(tracks[0], selfVideoElement.srcObject);
+      let sdp = await peerConnections[key].createOffer({offerToReceiveVideo: true, offerToReceiveAudio: true});
+      await peerConnections[key].setLocalDescription(sdp);
+      await socket.emit("mediaOnOffer", peerConnections[key].localDescription, key);
+    }
+  }
+}
+/*
+*remote user will save session description of user, who added media tracks
+*and will response with an answer
+* */
+socket.on("mediaOnAnswer", (userWhichAddedAudioTrack, description) => {
   peerConnections[userWhichAddedAudioTrack]
     .setRemoteDescription(description)
     .then(() => peerConnections[userWhichAddedAudioTrack].createAnswer())
@@ -136,7 +181,7 @@ socket.on("audioOnAnswer", (userWhichAddedAudioTrack, description) => {
       socket.emit("answer", userWhichAddedAudioTrack, peerConnections[userWhichAddedAudioTrack].localDescription);
     });
 
-})
+});
 
 function createPeerConnection(id, fullName) {
 
@@ -146,7 +191,7 @@ function createPeerConnection(id, fullName) {
 
   if (stream !== null) {
     stream.getTracks().forEach(track => {
-      console.log(peerConnection.addTrack(track, stream));
+      peerConnection.addTrack(track, stream);
     })
   }
 

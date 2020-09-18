@@ -51,7 +51,6 @@ class SocketHandler {
       });
       // 1)
       socket.on("requestForOffer", (newUserId, fullName) => {
-        console.log(fullName);
         console.log("requestForOffer from old "+socket.id +" to new "+newUserId);
 
         socket.to(newUserId).emit("requestForOffer", socket.id, fullName);
@@ -74,10 +73,10 @@ class SocketHandler {
         socket.to(id).emit("candidate", socket.id, message);
       });
 
-      socket.on("audioOnOffer", (description, userIdToSendHimOffer)=>{
+      socket.on("mediaOnOffer", (description, userIdToSendHimOffer)=>{
         console.log("offer for audio from "+ socket.id + "to "+ userIdToSendHimOffer);
 
-        socket.to(userIdToSendHimOffer).emit("audioOnAnswer", socket.id, description);
+        socket.to(userIdToSendHimOffer).emit("mediaOnAnswer", socket.id, description);
       });
 
 
