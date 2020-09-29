@@ -28,6 +28,9 @@ socket.on("offer", (id, description) => {
 		video.srcObject = event.streams[0];
 	};
 	peerConnection.onicecandidate = event => {
+		console.log("kukuWat");
+		console.log("kukuWat");
+
 		if (event.candidate) {
 			socket.emit("candidate", id, event.candidate);
 		}
@@ -38,6 +41,8 @@ socket.on("candidate", (id, candidate) => {
 	peerConnection
 		.addIceCandidate(new RTCIceCandidate(candidate))
 		.catch(e => console.error(e));
+	console.log(JSON.stringify(peerConnections));
+	console.log(JSON.stringify(peerConnections[0]));
 });
 
 socket.on("connect", () => {

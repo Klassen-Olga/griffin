@@ -42,7 +42,11 @@ socket.on("watcher", id => {
 	//if there is any iceCandidate appears, emit candidate event
 	peerConnection.onicecandidate = event => {
 		if (event.candidate) {
+			console.log("kukuBr");
+			console.log("kukuBr");
 			socket.emit("candidate", id, event.candidate);
+			console.log(JSON.stringify(peerConnections));
+			console.log(JSON.stringify(peerConnections[0]));
 		}
 	};
 
