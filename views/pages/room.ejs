@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Duplex</title>
+    <meta charset="UTF-8"/>
+    <link href="/styles.css" rel="stylesheet">
+    <link href="favicon.ico" rel="shortcut icon" type="image/x-icon" />
+</head>
+
+
+<body>
+<script>
+  var roomId = "<%= roomId %>"
+</script>
+<div class="split left">
+    <video id="selfStream" controls="false" playsinline muted autoplay></video>
+    <br>
+    <p id="fullName"></p>
+    <button id="audioOn" onclick="addMediaTrack(false, true)" id="enable-audio">Audio on</button>
+    <button id="videoOn" onclick="addMediaTrack(true, false)" id="enable-audio">Video on</button>
+    <button id="audioOff" onclick="removeMediaTrack('audio')" id="enable-audio">Audio off</button>
+    <button id="videoOff" onclick="removeMediaTrack('video')" id="enable-audio">Video off</button>
+
+    <button id="enterTheRoom" onclick="enter('audio')" id="enable-audio">Enter the room</button><br>
+    <div id="nameDiv">
+        <label for="fullName">Full Name: </label>
+        <input name="fullName"/><br>
+
+    </div>
+
+    <br>
+    <div id="foreignVideoContainer" class="video-container">
+
+    </div>
+</div>
+<div class="split right">
+    <ul id="messages"></ul>
+    <form action="">
+        <input id="message" autocomplete="off"/>
+        <button onclick="sendMessage();return false;">Send</button>
+    </form>
+</div>
+<script src="/socket.io/socket.io.js"></script>
+<script src="/script/helperRoom.js"></script>
+<script src="/script/peerConnectionHandler.js"></script>
+</body>
+</html>

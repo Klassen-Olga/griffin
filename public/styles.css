@@ -3,7 +3,129 @@ html {
     height: 100%;
 }
 
-video {
-    width: 700px;
-    height: 500px;
+/*.video-container{
+    display: grid;
+    grid-template-columns: auto auto auto auto;
+}*/
+
+/*
+video chat
+*/
+
+#selfStream{
+    position: fixed;
+    bottom: 3%;
+    left: 2%;
+    width: 350px;
+    height: 250px;
+}
+.split {
+    height: 100%;
+    width: 50%;
+    position: fixed;
+    z-index: 1;
+    top: 0;
+    overflow-x: hidden;
+    padding-top: 20px;
+}
+.left {
+    left: 0;
+    background-color: #111;
+}
+.right {
+    right: 0;
+    background-color: white;
+}
+
+ * {
+     margin: 0;
+     padding: 0;
+     box-sizing: border-box;
+ }
+/* chat*/
+
+form {
+    background: #000;
+    padding: 3px;
+    position: fixed;
+    bottom: 0;
+    width: 100%;
+}
+
+form input {
+    border: 0;
+    padding: 14px;
+    width: 40%;
+    margin: 5px;
+    font-size: 20px;
+
+}
+
+form button {
+    width: 9%;
+    background: rgb(130, 224, 255);
+    border: none;
+    padding: 10px;
+    font-size: 20px;
+    color: black;
+    margin: 5px;
+}
+
+#messages {
+    list-style-type: none;
+    margin: 0;
+    padding: 10px;
+    font-size: x-large;
+}
+
+#messages li {
+    padding: 5px 10px;
+}
+
+#messages li:nth-child(odd) {
+    background: #eee;
+}
+
+button {
+    background-color: rgb(130, 224, 255);
+    border: none;
+    color: white;
+    padding: 15px 32px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+    margin: 4px 2px;
+    cursor: pointer;
+    font-size: 30px;
+    color: black;
+
+}
+button:disabled{
+    cursor: default;
+    background-color: gray;
+    border: none;
+    color: white;
+    padding: 15px 32px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+    margin: 4px 2px;
+    font-size: 30px;
+    color: black;
+
+}
+label{
+    color:white;
+    font-size: 30px;
+
+}
+#nameDiv{
+    color:white;
+}
+#fullName{
+    color: white;
+    font-size: 60px;
+
 }

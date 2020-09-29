@@ -1,101 +1,103 @@
+
+const { v4:uuidv4} = require('uuid');
+
 class SocketHandler {
 
-	constructor(io) {
-		const self = this;
-		self.io = io;
-		//object for sockets
-		self.sockets = {};
-		self.initEvents();
+  constructor(io) {
+    const self = this;
+    self.io = io;
+    //object for sockets
+    self.sockets = {};
+    self.initEvents();
 
 
-		///
 
-		self.broadcasters={};
+  }
 
-	}
+  initEventsForRooms() {
+    self.io.on('connection', socket => {
 
-	activateChat(){
-		io.on('connection', (socket) => {
-			socket.on('chat message', (msg) => {
-				console.log('message: ' + msg);
-				io.emit('chat message', msg);
-			});
+      socket.on('newUser', () => {
+        socket.join("room1");
+        socket.to("room1").broadcast.emit('userConnected', socket.id);
+      });
 
-		});
-	}
-	initEvents() {
-		const self = this;
-		self.io.on('connection', (socket) => {
-/*			self.sockets[socket.id] = socket;
+      socket.on('disconnect', ()=>{
+        socket.to("room1").broadcast.emit("userDisconnected", socket.id);
+      });
+    })
+  }
 
-			socket.on('disconnect', () => {
-				console.log("Broadcaster: "+this.broadcaster);
-				console.log('disconnect client', socket.id)
-				if (self.sockets[socket.id]) {
-					//deletes object property
-					delete self.sockets[socket.id];
-				}
-			});
-			console.log(socket.id);
-			socket.on("broadcaster", () => {
-				self.broadcaster = socket.id;
-				socket.broadcast.emit("broadcaster");
-			});
-			socket.on("watcher", () => {
-				console.log("SERVERwATCHER");
-				socket.to(self.broadcaster).emit("watcher", socket.id);
-			});
-			socket.on("offer", (id, message) => {
-				socket.to(id).emit("offer", self.broadcaster, message);
-			});
-			socket.on("answer", (id, message) => {
-				socket.to(self.broadcaster).emit("answer", socket.id, message);
-			});
-			socket.on("candidate", (id, message) => {
-				socket.to(id).emit("candidate", socket.id, message);
-			});
-			socket.on("candidateOfB", (id, message) => {
-				socket.to(id).emit("candidateOfB", socket.id, message);
-			});
-			socket.on("candidateOfW", (id, message) => {
-				socket.to(id).emit("candidateOfW", socket.id, message);
-			});
-			socket.on("disconnect", () => {
-				socket.to(self.broadcaster).emit("disconnectPeer", socket.id);
-			});*/
-			self.broadcasters[socket.id] = socket;
+  initEvents() {
+    const self = this;
+    self.io.on('connection', (socket) => {
+      self.sockets[socket.id] = socket;
 
-			socket.on('disconnect', () => {
-				console.log('disconnect client', socket.id)
-				if (self.broadcasters[socket.id]) {
-					delete self.broadcasters[socket.id];
-				}
-			});
-			console.log(socket.id);
-			socket.on("broadcaster", () => {
-				socket.broadcast.emit("broadcaster");
-			});
-			socket.on("watcher", () => {
-				console.log("SERVERwATCHER");
-				socket.broadcast.emit("watcher", socket.id);
-			});
-			//making offer to specific watcher
-			socket.on("offer", (watcherId, message) => {
-				socket.to(watcherId).emit("offer",watcherId, message, socket.id);
-			});
-			//send answer from specific watcher
-			socket.on("answer", (watcherId, message) => {
-				socket.broadcast.emit("answer", socket.id, message);
-			});
-			socket.on("candidate", (id, message) => {
-				socket.to(id).emit("candidate", socket.id, message);
-			});
-			socket.on("disconnect", () => {
-				socket.emit("disconnectPeer", socket.id);
-			});
+      socket.on('disconnect', () => {
+        console.log('disconnect client', socket.id)
+        if (self.sockets[socket.id]) {
+          delete self.sockets[socket.id];
+        }
+      });
+      // 1)
+      socket.on("newUser", (roomId) => {
+        console.log("newUser "+socket.id+ " sends data to all users");
+        socket.join(roomId);
+        socket.broadcast.to(roomId).emit("newUser", socket.id);
+        socket.on("disconnect", () => {
+          socket.leave(roomId);
+          socket.to(roomId).broadcast.emit("disconnectPeer", socket.id);
+        });
+      });
+      // 1)
+      socket.on("requestForOffer", (newUserId, fullName) => {
+        console.log("requestForOffer from old "+socket.id +" to new "+newUserId);
 
-		});
-	}
+        socket.to(newUserId).emit("requestForOffer", socket.id, fullName);
+      });
+      // 2)
+      socket.on("offer", (oldUserId, message, fullName ) => {
+        console.log("offer from new "+socket.id + " to old user "+ oldUserId);
+
+        socket.to(oldUserId).emit("offer", socket.id, message, fullName);
+      });
+      // 4) this is only for me to register another users
+      socket.on("answer", (newUserId, message) => {
+        console.log("answer from "+socket.id+ " to new "+newUserId);
+
+        socket.to(newUserId).emit("answer", socket.id, message);
+      });
+      socket.on("candidate", (id, message) => {
+        console.log("new candidate "+id+ " for "+ socket.id);
+
+        socket.to(id).emit("candidate", socket.id, message);
+      });
+
+      socket.on("mediaOnOffer", (description, userIdToSendHimOffer)=>{
+        console.log("offer for audio from "+ socket.id + "to "+ userIdToSendHimOffer);
+
+        socket.to(userIdToSendHimOffer).emit("mediaOnAnswer", socket.id, description);
+      });
+
+
+
+      /*
+      * CHAT EVENTS
+      * */
+      socket.on('chat message', (msg, roomId) => {
+        console.log('message: ' + msg);
+        self.io.in(roomId).emit('chat message', msg);
+      });
+
+      /*
+      * Link generator event
+      * */
+
+      socket.on('uuid',()=>{
+        socket.emit('uuid', uuidv4());
+      });
+    });
+  }
 }
 
 module.exports = SocketHandler;
