@@ -1,0 +1,54 @@
+<html>
+<body>
+<h2>Local video playback</h2>
+
+<video style=" margin:auto;display: block; width: 40%" id="localVideo" autoplay playsinline ></video>
+<video controls="false" style=" margin:auto;display: block; width: 40%" id="remoteVideo" autoplay playsinline ></video>
+<button onclick="start()">Start</button>
+
+</body>
+</html>
+<script src="script/kurento-utils.min.js"></script>
+<script src="/socket.io/socket.io.js"></script>
+<script>
+
+    var socket=io();
+    var localVideo=document.getElementById('localVideo');
+    var remoteVideo=document.getElementById('remoteVideo');
+    var webRtcPeer=null;
+
+    function start(){
+	    var options = {
+		    localVideo: localVideo,
+		    remoteVideo: remoteVideo,
+		    onicecandidate : (candidate)=>{
+		    	socket.emit('onIceCandidate', candidate);
+            }
+	    }
+
+	    webRtcPeer = kurentoUtils.WebRtcPeer.WebRtcPeerSendrecv(options, function(error) {
+		    if(error){
+			    console.log(error);
+			    return;
+            }
+		    //generate sdp offer
+		    //onoffer callback sends offer to another peer
+		    this.generateOffer(onOffer);
+	    });
+    }
+    function onOffer(err, offer){
+	    socket.emit('start', offer);
+    };
+    socket.on('startResponse', answer=>{
+	    webRtcPeer.processAnswer(answer);
+
+    });
+    socket.on('iceCandidate', candidate=>{
+    	webRtcPeer.addIceCandidate(candidate);
+    })
+
+    window.onbeforeunload = function() {
+	    socket.close();
+    }
+
+</script>

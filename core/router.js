@@ -11,6 +11,8 @@ let routes = [
 			{path: '/register', action: 'register', method: 'post'},
 
 			{path: '/room', action: 'room', method: 'get'},
+			{path: '/kurentoExampleHelloWorld', action: 'kurentoExampleHelloWorld', method: 'get'},
+			{path: '/kurento', action: 'kurento', method: 'get'},
 			{path: '/login', action: 'login', method: 'get'}
 		]
 	},

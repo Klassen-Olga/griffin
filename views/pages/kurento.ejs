@@ -1,0 +1,216 @@
+<html>
+<body>
+<h2>Local video playback</h2>
+
+<video style=" margin:auto;display: block; width: 40%" id="localVideo" autoplay playsinline ></video>
+<video style=" margin:auto;display: block; width: 40%" id="screenVideo" autoplay playsinline ></video>
+<button onclick="presenter()">Presenter</button>
+<button onclick="viewer()">Viewer</button>
+
+<button style="width: 80px; height: 30px" onclick="playVideoFromCamera()">Stream</button>
+	</body>
+</html>
+<script src="script/kurento-utils.min.js"></script>
+<script src="/socket.io/socket.io.js"></script>
+
+<script>
+	var socket = io();
+	var localVideo=document.getElementById('localVideo');
+	var remoteVideo=document.getElementById('remoteVideo');
+	var webRtcPeer=null;
+	function presenter(){
+		var constraints = {
+			audio: true,
+			video: {
+				width: 640,
+				framerate: 15
+			}
+		};
+
+		var options = {
+			localVideo: localVideo,
+			remoteVideo: remoteVideo,
+			onicecandidate : (candidate)=>{
+				console.log('candidate');
+			},
+			mediaConstraints: constraints
+		};
+
+
+		webRtcPeer = kurentoUtils.WebRtcPeer.WebRtcPeerSendrecv(options, function(error) {
+
+			this.generateOffer((offer)=>{
+				socket.emit('offerPresenter', offer);
+				console.log('offerPresenter');
+			})
+		});
+	}
+	function viewer(){
+		var constraints = {
+			audio: true,
+			video: {
+				width: 640,
+				framerate: 15
+			}
+		};
+
+		var options = {
+			localVideo: localVideo,
+			remoteVideo: remoteVideo,
+			onicecandidate : (candidate)=>{
+				webRtcPeer.addIceCandidate(candidate);
+				socket.emit('icecandidateViewer', candidate)
+			},
+			mediaConstraints: constraints
+		};
+
+
+		webRtcPeer = kurentoUtils.WebRtcPeer.WebRtcPeerSendrecv(options, function(error) {
+
+			this.generateOffer((offer)=>{
+				socket.emit('offerViewer', offer);
+				console.log('offerViewer');
+			})
+		});
+	}
+	socket.on('presenterResponse', answer=>{
+		webRtcPeer.processAnswer(answer);
+	});
+	socket.on('viewerResponse', answer=>{
+		webRtcPeer.processAnswer(answer);
+	});
+
+</script>
+
+<!--
+app.use(express.static('public'))
+let presenter = null;
+let viewers=[];
+io.on('connection', (socket) => {
+	socket.on('icecandidatePresenter', candidate=>{
+		presenter.webRtcEndpoint.addIceCandidate(candidate);
+	});
+	socket.on('icecandidateViewer', (viewerId,candidate)=>{
+		viewers[viewerId].webRtcEndpoint.addIceCandidate(candidate);
+	})
+	socket.on('offerPresenter', offer => {
+
+		clearCandidatesQueue(socket.id);
+
+		presenter = {
+			id: socket.id,
+			pipeline: null,
+			webRtcEndpoint: null
+		}
+
+		getKurentoClient(function (error, kurentoClient) {
+
+			kurentoClient.create('MediaPipeline', function (error, pipeline) {
+
+
+				presenter.pipeline = pipeline;
+				pipeline.create('WebRtcEndpoint', function (error, webRtcEndpoint) {
+
+
+					presenter.webRtcEndpoint = webRtcEndpoint;
+
+					if (candidatesQueue[socket.id]) {
+						while (candidatesQueue[socket.id].length) {
+							var candidate = candidatesQueue[socket.id].shift();
+							webRtcEndpoint.addIceCandidate(candidate);
+						}
+					}
+
+					webRtcEndpoint.on('OnIceCandidate', function (event) {
+						var candidate = kurento.getComplexType('IceCandidate')(event.candidate);
+						socket.emit('icecandidate', candidate);
+					});
+
+					webRtcEndpoint.processOffer(offer, function (error, sdpAnswer) {
+
+						socket.emit('presenterResponse', sdpAnswer)
+
+					});
+
+					webRtcEndpoint.gatherCandidates(function (error) {
+						if (error) {
+							stop(sessionId);
+							return callback(error);
+						}
+					});
+				});
+			});
+		})
+	});
+
+	socket.on('offerViewer', offer => {
+
+		clearCandidatesQueue(socket.id);
+
+
+		getKurentoClient(function (error, kurentoClient) {
+
+			presenter.pipeline.create('WebRtcEndpoint', function (error, webRtcEndpoint) {
+
+				viewers[socket.id]={
+					"webRtcEndpoint" : webRtcEndpoint
+				}
+
+				presenter.webRtcEndpoint = webRtcEndpoint;
+
+				if (candidatesQueue[socket.id]) {
+					while (candidatesQueue[socket.id].length) {
+						var candidate = candidatesQueue[socket.id].shift();
+						webRtcEndpoint.addIceCandidate(candidate);
+					}
+				}
+
+				webRtcEndpoint.on('OnIceCandidate', function (event) {
+					var candidate = kurento.getComplexType('IceCandidate')(event.candidate);
+					socket.emit('icecandidate', candidate);
+				});
+
+				webRtcEndpoint.processOffer(offer, function (error, sdpAnswer) {
+					presenter.webRtcEndpoint.connect(webRtcEndpoint, err=>{
+						socket.emit('viewerResponse', sdpAnswer);
+						webRtcEndpoint.gatherCandidates(function (error) {
+							if (error) {
+								stop(sessionId);
+								return callback(error);
+							}
+						});
+
+					});
+
+
+				});
+
+
+			});
+		});
+
+	});
+});
+
+function clearCandidatesQueue(sessionId) {
+	if (candidatesQueue[sessionId]) {
+		delete candidatesQueue[sessionId];
+	}
+}
+
+function getKurentoClient(callback) {
+	if (kurentoClient !== null) {
+		return callback(null, kurentoClient);
+	}
+
+	kurento(argv.ws_uri, function (error, _kurentoClient) {
+		if (error) {
+			console.log("Could not find media server at address " + argv.ws_uri);
+			return callback("Could not find media server at address" + argv.ws_uri
+				+ ". Exiting with error " + error);
+		}
+
+		kurentoClient = _kurentoClient;
+		callback(null, kurentoClient);
+	});
+}-->

@@ -5,7 +5,7 @@ const bodyParser = require('body-parser');
 
 app.use(express.static('public'));
 app.set('view engine', 'ejs');
-app.use(bodyParser.urlencoded({ extended: false }));
+app.use(bodyParser.urlencoded({extended: false}));
 app.use(bodyParser.json());
 let Router = require('./core/router');
 let router = new Router(app);
@@ -17,132 +17,107 @@ const {v4: uuidv4} = require('uuid');
 let uuid = uuidv4();
 router.updateRoutes(uuid);
 
-
-
-
-
-
-
 let SocketHandler = require('./core/socket');
-let socketHandler = new SocketHandler(io);
+/*let socketHandler = new SocketHandler(io);*/
 
+/*
+*
+* kurento
+* */
+var minimist = require('minimist');
+var kurento = require('kurento-client');
 
-const mongoose = require('mongoose');
+var kurentoClient = null;
+var candidatesQueue = {};
+var sessions = {};
 
-mongoose.connect('mongodb+srv://new_user_db:123qweASD@cluster0.vbqmv.azure.mongodb.net/griffinDB?retryWrites=true&w=majority\n'
-  , {useNewUrlParser: true, useUnifiedTopology: true});
-
-
-const db = mongoose.connection;
-db.on('error', console.error.bind(console, 'connection error:'));
-db.once('open', function () {
-  console.log('// we are connected');
-});
-let Schema = mongoose.Schema;
-
-
-const userSchema = Schema({
-  _id: Schema.Types.ObjectId,
-  firstName: {type: String, minLength: 2},
-  lastName: {type: String, minLength: 2},
-  email: {type: String, minLength: 5},
-  passwordHash: String
+// constants
+var argv = minimist(process.argv.slice(2), {
+	default: {
+		as_uri: 'http://localhost:3000/kurentoExampleHelloWorld',
+		ws_uri: 'ws://localhost:8888/kurento'
+	}
 });
 
-const roomSchema = Schema({
-  _id: Schema.Types.ObjectId,
-  uuid: String,
-  startDateTime: {type: Date, default: Date.now},
-  moderator: {type: Schema.Types.ObjectId, ref: 'User'},
-  usersNumber: Number,
+io.on('connection', socket=>{
+	socket.on('onIceCandidate', _candidate=>{
+		var candidate = kurento.getComplexType('IceCandidate')(_candidate);
 
+		if (sessions[socket.id]) {
+			console.info('Sending candidate');
+			var webRtcEndpoint = sessions[socket.id].webRtcEndpoint;
+			webRtcEndpoint.addIceCandidate(candidate);
+		}
+		else {
+			console.info('Queueing candidate');
+			if (!candidatesQueue[socket.id]) {
+				candidatesQueue[socket.id] = [];
+			}
+			candidatesQueue[socket.id].push(candidate);
+		}
+	});
+	socket.on('start', offer=>{
+
+		getKurentoClient((error, kurentoClient)=>{
+
+			kurentoClient.create('MediaPipeline', (err, pipeline)=>{
+				pipeline.create('WebRtcEndpoint', (err, webRtcEndpoint)=>{
+
+					if (candidatesQueue[socket.id]) {
+						while(candidatesQueue[socket.id].length) {
+							var candidate = candidatesQueue[socket.id].shift();
+							webRtcEndpoint.addIceCandidate(candidate);
+						}
+					}
+					webRtcEndpoint.connect(webRtcEndpoint, err=>{
+						webRtcEndpoint.on('OnIceCandidate', event=>{
+							var candidate = kurento.getComplexType('IceCandidate')(event.candidate);
+
+							socket.emit('iceCandidate', candidate);
+						});
+						webRtcEndpoint.processOffer(offer, (error, answer)=>{
+							sessions[socket.id] = {
+								'pipeline' : pipeline,
+								'webRtcEndpoint' : webRtcEndpoint
+							}
+							socket.emit('startResponse', answer);
+						});
+						webRtcEndpoint.gatherCandidates(function(error) {
+							if (error) {
+								console.log(error);
+							}
+						});
+					});
+
+				})
+			})
+		});
+
+	})
 });
+function getKurentoClient(callback) {
+	if (kurentoClient !== null) {
+		return callback(null, kurentoClient);
+	}
 
+	kurento(argv.ws_uri, function(error, _kurentoClient) {
+		if (error) {
+			console.log("Could not find media server at address " + argv.ws_uri);
+			return callback("Could not find media server at address" + argv.ws_uri
+				+ ". Exiting with error " + error);
+		}
 
-const messageSchema = Schema({
-  text: String,
-  fromUser: {type: Schema.Types.ObjectId, ref: "User"},
-  toUser: {type: Schema.Types.ObjectId, ref: "User"},
-  room: {type: Schema.Types.ObjectId, ref: "ConferenceRoom"}
-
-});
-
-const ConferenceRoom = mongoose.model('ConferenceRoom', roomSchema);
-const User = mongoose.model('User', userSchema);
-const Message = mongoose.model('Message', messageSchema);
-
-
-
-
-async function setDb() {
-
-  const user1 = new User({
-    _id: new mongoose.Types.ObjectId(),
-    firstName: 'Olga',
-    lastName: 'Klassen',
-    email: 'klassen.olga@gmail.com',
-    passwordHash: "olga"
-  });
-
-  const user2 = new User({
-    _id: new mongoose.Types.ObjectId(),
-    firstName: 'Valea',
-    lastName: 'Moon',
-    email: 'Valea.Moon@gmail.com',
-    passwordHash: "valea"
-  });
-  const room1 = new ConferenceRoom({
-    _id: new mongoose.Types.ObjectId(),
-    startDateTime: '2020-10-10T13:18:06.070+00:00',
-    usersNumber: 3
-  });
-
-  try {
-
-
-    let user1Db = await user1.save();
-    let user2Db = await user2.save();
-
-   room1.moderator= user1._id;
-
-    let room1Db= await room1.save();
-
-    const message=new Message({
-      _id: new mongoose.Types.ObjectId(),
-      text: 'Hello',
-      fromUser: user1Db._id,
-      toUser: user2Db._id,
-      room: room1Db._id
-
-    });
-    let messageDb=await message.save();
-
-  } catch (e) {
-    console.log(e);
-  }
+		kurentoClient = _kurentoClient;
+		callback(null, kurentoClient);
+	});
 }
-setDb();
-/*ConferenceRoom.findOne({usersNumber: 3}, function (err, room) {
-  if (err) {
-    console.log(err);
-    return;
-  }
-  console.log(room.moderator + ' ' + room.startDateTime);
 
-});
+// express routing
 
-
-ConferenceRoom.findOne({usersNumber:3}).populate('moderatorId').exec((err, room)=>{
-  if (err) {
-    console.log(err);
-    return;
-  }
-  console.log(room.moderator + ' ' + room.moderator.firstName);
-
-});*/
 
 http.listen(3000, '127.0.0.1', function () {
-  console.log(
-    '\nApp listening at http://localhost:3000/register' +
-    '\nApp listening at http://localhost:3000/videoChat');
+	console.log(
+		'\nApp listening at http://localhost:3000/register' +
+		'\nApp listening at http://localhost:3000/kurentoExampleHelloWorld' +
+		'\nApp listening at http://localhost:3000/videoChat');
 });
