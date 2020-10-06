@@ -24,7 +24,6 @@ class Controller{
 	}
 	param(key) {
 		const self = this;
-		console.log(self.req.body.email);
 
 		if (self.req.query && self.req.query[key] !== undefined) {
 			return self.req.query[key];

@@ -1,0 +1,65 @@
+<html>
+<body>
+<h2>Local video playback</h2>
+Name: <input type="text" id="name"/>
+<video style=" margin:auto;display: block; width: 40%" id="localVideo" autoplay playsinline></video>
+<video controls="false" style=" margin:auto;display: block; width: 40%" id="remoteVideo" autoplay playsinline></video>
+<button onclick="start()">Start</button>
+<button onclick="stop()">Stop</button>
+</body>
+</html>
+<script src="script/kurento-utils.min.js"></script>
+<script src="/socket.io/socket.io.js"></script>
+<script>
+	var socket = io();
+	var webRtcPeer = null;
+	var localVideo = document.getElementById('localVideo');
+	var remoteVideo = document.getElementById('remoteVideo');
+
+	//caller action
+	function start() {
+		var options = {
+			localVideo: localVideo,
+			remoteVideo: remoteVideo,
+			onicecandidate: onIceCandidate
+
+		}
+		webRtcPeer=kurentoUtils.WebRtcPeer.WebRtcPeerSendrecv(options, function (error) {
+            this.generateOffer((err, offer)=>{
+            	socket.emit('start',  document.getElementById('name').value, offer);
+            });
+		});
+	}
+	function onIceCandidate(candidate) {
+		socket.emit('onIceCandidate', candidate);
+	}
+
+	// callee action
+	socket.on('incomingCall', (fromName)=>{
+		var options = {
+			localVideo: localVideo,
+			remoteVideo: remoteVideo,
+			onicecandidate: onIceCandidate
+		}
+		webRtcPeer=kurentoUtils.WebRtcPeer.WebRtcPeerSendrecv(options, function (err) {
+
+			this.generateOffer(function (err, secondOffer) {
+                if (err){
+                	console.error(err);
+                }
+                socket.emit('responseToIncomingCall', document.getElementById('name').value, secondOffer);
+			})
+
+		});
+    });
+	socket.on('startCommunication', answer=>{
+		webRtcPeer.processAnswer(answer);
+    });
+	socket.on('callResponse', answer=>{
+		webRtcPeer.processAnswer(answer);
+	});
+	socket.on('iceCandidate', candidate=>{
+		webRtcPeer.addIceCandidate(candidate);
+	})
+
+</script>

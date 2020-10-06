@@ -1,6 +1,7 @@
 const mongoose =require('mongoose');
-
-class User{
+mongoose.connect('mongodb+srv://new_user_db:123qweASD@cluster0.vbqmv.azure.mongodb.net/griffinDB?retryWrites=true&w=majority\n'
+    , {useNewUrlParser: true, useUnifiedTopology: true});
+class DbMongoo{
     constructor(){
         const self=this;
 
@@ -12,10 +13,76 @@ class User{
             email:{type:String, minLength:5},
             passwordHash: String,
         }, {timestamps:true});
+
+        const roomSchema = Schema({
+            _id: Schema.Types.ObjectId,
+            uuid: String,
+            startDateTime: {type: Date, default: Date.now},
+            moderator: {type: Schema.Types.ObjectId, ref: 'User'},
+            usersNumber: Number,
+
+        });
+
+        const messageSchema = Schema({
+            text: String,
+            fromUser: {type: Schema.Types.ObjectId, ref: "User"},
+            toUser: {type: Schema.Types.ObjectId, ref: "User"},
+            room: {type: Schema.Types.ObjectId, ref: "ConferenceRoom"}
+
+        });
+
+        self.ConferenceRoom = mongoose.model('ConferenceRoom', roomSchema);
+        self.User = mongoose.model('User', userSchema);
+        self.Message = mongoose.model('Message', messageSchema);
+
     }
+    async setDb() {
+
+        const user1 = new self.User({
+            _id: new mongoose.Types.ObjectId(),
+            fullName: 'Olga',
+            email: 'klassen.olga@gmail.com',
+            passwordHash: "olga"
+        });
+
+        const user2 = new self.User({
+            _id: new mongoose.Types.ObjectId(),
+            fullName: 'Valea',
+            email: 'Valea.Moon@gmail.com',
+            passwordHash: "valea"
+        });
+        const room1 = new self.ConferenceRoom({
+            _id: new mongoose.Types.ObjectId(),
+            startDateTime: '2020-10-10T13:18:06.070+00:00',
+            usersNumber: 3
+        });
+
+        try {
+
+            let user1Db = await user1.save();
+            let user2Db = await user2.save();
+
+            room1.moderator= user1._id;
+
+            let room1Db= await room1.save();
+
+            const message=new self.Message({
+                _id: new mongoose.Types.ObjectId(),
+                text: 'Hello',
+                fromUser: user1Db._id,
+                toUser: user2Db._id,
+                room: room1Db._id
+
+            });
+
+        } catch (e) {
+            console.log(e);
+        }
+    }
+
     /*
     *
-    * const mongoose = require('mongoose');
+    *
 
 mongoose.connect('mongodb+srv://new_user_db:123qweASD@cluster0.vbqmv.azure.mongodb.net/griffinDB?retryWrites=true&w=majority\n'
   , {useNewUrlParser: true, useUnifiedTopology: true});
@@ -128,3 +195,4 @@ ConferenceRoom.findOne({usersNumber:3}).populate('moderatorId').exec((err, room)
 
 
 }
+module.exports=DbMongoo;
