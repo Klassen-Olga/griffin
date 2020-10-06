@@ -53,7 +53,12 @@ class PagesController extends Controller {
 			title: "OneToOne"
 		});
 	}
-
+	actionKurentoOneToMany() {
+		const self = this;
+		self.render({
+			title: "OneToMany"
+		});
+	}
 	validateRegisterForm(errors, user) {
 		if (user.fullName.length < 2) {
 			errors.push("Full name should be at least 2 characters long");

@@ -1,0 +1,83 @@
+<html>
+<body>
+<h2>Local video playback</h2>
+Name: <input type="text" id="name"/>
+<video style=" margin:auto;display: block; width: 40%" id="localVideo" autoplay playsinline></video>
+<button onclick="presenter()">Presenter</button>
+<button onclick="viewer()">Viewer</button>
+</body>
+</html>
+<script src="script/kurento-utils.min.js"></script>
+<script src="/socket.io/socket.io.js"></script>
+<script>
+	var socket = io();
+	var webRtcPeer = null;
+	var localVideo = document.getElementById('localVideo');
+
+	socket.on('presenterResponse',(answer)=>{
+		webRtcPeer.processAnswer(answer);
+    });
+	socket.on('viewerResponse',(answer)=>{
+		webRtcPeer.processAnswer(answer);
+	});
+
+	function presenter() {
+		if (!webRtcPeer) {
+
+			var options = {
+				localVideo: localVideo,
+				onicecandidate : onIceCandidate
+			}
+
+			webRtcPeer = kurentoUtils.WebRtcPeer.WebRtcPeerSendonly(options, function(error) {
+				if(error) return onError(error);
+
+				this.generateOffer((error, offerSdp)=>{
+
+					socket.emit('presenter', offerSdp);
+
+
+				});
+			});
+		}
+	}
+	function viewer() {
+		if (!webRtcPeer) {
+
+			var options = {
+				remoteVideo: localVideo,
+				onicecandidate : onIceCandidate
+			}
+
+			webRtcPeer = kurentoUtils.WebRtcPeer.WebRtcPeerRecvonly(options, function(error) {
+
+				this.generateOffer((err, offerSdp)=>{
+					socket.emit('viewer', offerSdp);
+
+				});
+			});
+		}
+	}
+
+	function onIceCandidate(candidate) {
+		console.log('Local candidate' + JSON.stringify(candidate));
+
+		socket.emit('onIceCandidate', candidate);
+	}
+	function dispose() {
+		if (webRtcPeer) {
+			webRtcPeer.dispose();
+			webRtcPeer = null;
+		}
+	}
+	function stop() {
+		if (webRtcPeer) {
+			socket.emit('stop');
+			dispose();
+		}
+	}
+	window.onunload = window.onbeforeunload = () => {
+		stop();
+		socket.close();
+	};
+</script>
