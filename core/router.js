@@ -14,6 +14,7 @@ let routes = [
 			{path: '/kurentoExampleHelloWorld', action: 'kurentoExampleHelloWorld', method: 'get'},
 			{path: '/kurentoOneToOne', action: 'kurentoOneToOne', method: 'get'},
 			{path: '/kurentoOneToMany', action: 'kurentoOneToMany', method: 'get'},
+			{path: '/kurentoManyToMany', action: 'kurentoManyToMany', method: 'get'},
 			{path: '/kurento', action: 'kurento', method: 'get'},
 			{path: '/login', action: 'login', method: 'get'}
 		]
