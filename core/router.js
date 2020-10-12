@@ -15,7 +15,6 @@ let routes = [
 			{path: '/kurentoOneToOne', action: 'kurentoOneToOne', method: 'get'},
 			{path: '/kurentoOneToMany', action: 'kurentoOneToMany', method: 'get'},
 			{path: '/kurentoManyToMany', action: 'kurentoManyToMany', method: 'get'},
-			{path: '/kurento', action: 'kurento', method: 'get'},
 			{path: '/login', action: 'login', method: 'get'}
 		]
 	},
@@ -57,24 +56,34 @@ class Router {
 			controller[actionName]();
 		});
 	}
-	updateRoutes(uuid){
-		const self=this;
-		self.app.get('/room/:roomId',(req, res)=>{
-			res.render('pages/room', {roomId:req.params.roomId});
+
+	updateRoutes(uuid) {
+		const self = this;
+		self.app.get('/room/:roomId/:participantsNumber', (req, res) => {
+			if (req.params.participantsNumber) {
+				res.render('pages/room', {
+					roomId: req.params.roomId,
+					participantsNumber: req.params.participantsNumber
+				});
+
+			}
+			else{
+				res.render('pages/room', {roomId: req.params.roomId});
+			}
 		});
-		self.app.get('/videoChat', (req, res)=>{
-			res.redirect('/room/'+uuid);
+		self.app.get('/videoChat', (req, res) => {
+			res.redirect('/room/' + uuid);
 		});
 
 	}
+
 	urlFor(controllerName, action) {
 		const self = this;
-		let filePath=null;
-		if (controllerName!=='pages'){
-			let filePath=path.join(controllerName.charAt(0).toLowerCase()+controllerName.substr(1),action+'.ejs');
-		}
-		else{
-			let filePath=action+'.ejs';
+		let filePath = null;
+		if (controllerName !== 'pages') {
+			let filePath = path.join(controllerName.charAt(0).toLowerCase() + controllerName.substr(1), action + '.ejs');
+		} else {
+			let filePath = action + '.ejs';
 
 		}
 		return filePath;

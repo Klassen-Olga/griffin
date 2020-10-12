@@ -1,28 +1,14 @@
-/*
- * (C) Copyright 2014 Kurento (http://kurento.org/)
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *   http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- *
- */
-
 var socket = io();
 var participants = {};
 var name;
 
-window.onbeforeunload = function() {
+/*window.onbeforeunload = function() {
 	socket.disconnect();
+};*/
+window.onunload = () => {
+	leaveRoom();
+	socket.close();
 };
-
 socket.on('connect', () => {
 	console.log('ws connect success');
 });
@@ -56,13 +42,9 @@ socket.on('message', parsedMessage => {
 	}
 });
 
-function register() {
-	name = document.getElementById('name').value;
-	var roomName = document.getElementById('roomName').value;
-
-	document.getElementById('room-header').innerText = 'ROOM ' + roomName;
-	document.getElementById('join').style.display = 'none';
-	document.getElementById('room').style.display = 'block';
+function enter() {
+	 name = document.getElementsByName('fullName')[0].value;
+	var roomName = roomId;
 
 	var message = {
 		id : 'joinRoom',
@@ -104,7 +86,7 @@ function onExistingParticipants(msg) {
 			}
 		}
 	};
-	console.log(name + " registered in room " + room);
+	console.log(name + " registered in room " + roomId);
 	var participant = new Participant(name);
 	participants[name] = participant;
 	var video = participant.getVideoElement();
@@ -173,7 +155,3 @@ function sendMessage(message) {
 	console.log('Senging message: ' + message.id);
 	socket.emit('message', message);
 }
-window.onunload = window.onbeforeunload = () => {
-	leaveRoom();
-	socket.close();
-};

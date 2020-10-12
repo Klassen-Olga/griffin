@@ -41,12 +41,7 @@ class PagesController extends Controller {
 		});
 	}
 
-	actionKurento() {
-		const self = this;
-		self.render({
-			title: "HelloWorld"
-		});
-	}
+
 	actionKurentoOneToOne() {
 		const self = this;
 		self.render({

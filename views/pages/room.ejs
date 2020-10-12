@@ -4,13 +4,15 @@
     <title>Duplex</title>
     <meta charset="UTF-8"/>
     <link href="/styles.css" rel="stylesheet">
-    <link href="favicon.ico" rel="shortcut icon" type="image/x-icon" />
+    <link href="favicon.ico" rel="shortcut icon" type="image/x-icon"/>
 </head>
 
 
 <body>
+
 <script>
-  var roomId = "<%= roomId %>"
+	var participantsNumber = "<%= participantsNumber %>"
+	var roomId = "<%= roomId %>"
 </script>
 <div class="split left">
     <video id="selfStream" controls="false" playsinline muted autoplay></video>
@@ -21,7 +23,8 @@
     <button id="audioOff" onclick="removeMediaTrack('audio')" id="enable-audio">Audio off</button>
     <button id="videoOff" onclick="removeMediaTrack('video')" id="enable-audio">Video off</button>
 
-    <button id="enterTheRoom" onclick="enter('audio')" id="enable-audio">Enter the room</button><br>
+    <button id="enterTheRoom" onclick="enter('audio')" id="enable-audio">Enter the room</button>
+    <br>
     <div id="nameDiv">
         <label for="fullName">Full Name: </label>
         <input name="fullName"/><br>
@@ -41,7 +44,40 @@
     </form>
 </div>
 <script src="/socket.io/socket.io.js"></script>
-<script src="/script/helperRoom.js"></script>
-<script src="/script/peerConnectionHandler.js"></script>
+<script>
+	var head = document.getElementsByTagName('head')[0];
+	var script1 = document.createElement("script");
+	script1.type = "text/javascript";
+
+	var script2 = document.createElement("script");
+	script2.type = "text/javascript";
+
+
+	if (typeof participantsNumber !== 'undefined' && participantsNumber > 3) {
+		var script3 = document.createElement("script");
+		var script4 = document.createElement("script");
+		script4.type = "text/javascript";
+		script3.type = "text/javascript";
+
+		script1.src = "/script/adapter.js";
+
+		script2.src = "/script/kurento-utils.min.js";
+		script3.src = "/script/kurentoGroupCall.js";
+		script4.src = "/script/participants.js";
+
+		head.appendChild(script1);
+		head.appendChild(script2);
+		head.appendChild(script3);
+		head.appendChild(script4);
+
+	} else {
+		script1.src = "/script/helperRoom.js";
+		script2.src = "/script/peerConnectionHandler.js";
+		head.appendChild(script1);
+		head.appendChild(script2);
+	}
+
+</script>
+
 </body>
 </html>
