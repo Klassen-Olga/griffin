@@ -1,126 +1,4 @@
 <!--
-<html>
-<body>
-<h2>Local video playback</h2>
-Name: <input type="text" id="name"/>
-<video style=" margin:auto;display: block; width: 40%" id="localVideo" autoplay playsinline></video>
-<div id="remoteVideos"></div>
-<button onclick="start()">Start</button>
-<button onclick="stop()">Stop</button>
-</body>
-</html>
-<script src="script/kurento-utils.min.js"></script>
-<script src="http://localhost:3000/socket.io/socket.io.js"></script>
-<script>
-	var socket = io('http://localhost:3000');
-	socket.on('connection', ()=>{
-		console.log("Id+ "+socket.id);
-
-	})
-	var webRtcPeer = null;
-	var participants = {};
-	var localVideo = document.getElementById('localVideo');
-	var remoteVideo = document.getElementById('remoteVideo');
-
-	function start() {
-		socket.emit('joinRoom');
-	}
-
-	// each existing participant registers new user in receive mode only
-	socket.on('newParticipant', (newParticipantId) => {
-
-		receiveVideo(newParticipantId);
-
-	});
-	// new user registers each existing participant
-	socket.on('existingParticipants', (userId, existingUsers) => {
-		var constraints = {
-			audio: true,
-			video: {
-				mandatory: {
-					maxWidth: 320,
-					maxFrameRate: 15,
-					minFrameRate: 15
-				}
-			}
-		};
-		var user = {
-			id: userId,
-			video: localVideo,
-			webRtcPeer: null
-		}
-		participants[userId] = user;
-
-		var options = {
-			localVideo: localVideo,
-			mediaConstraints: constraints,
-			onicecandidate: onIceCandidate
-		}
-		user.webRtcPeer = kurentoUtils.WebRtcPeer.WebRtcPeerSendonly(options, function (error) {
-
-			this.generateOffer((error, offerSdp) => {
-				socket.emit('offer', offerSdp, user.id);
-
-			});
-		});
-		existingUsers.forEach(function (element) {
-			receiveVideo(element.id);
-		})
-		function onIceCandidate(candidate) {
-			console.log('Local candidate' + JSON.stringify(candidate));
-
-			socket.emit('candidate', candidate, user.id);
-		}
-
-	});
-	socket.on('candidate', (candidate, userIdFrom) => {
-		participants[userIdFrom].webRtcPeer.addIceCandidate(candidate);
-	});
-	socket.on('answer', (answer, userId) => {
-		participants[userId].webRtcPeer.processAnswer(answer);
-		console.log("Answer from"+userId);
-	})
-
-	function receiveVideo(newParticipantId) {
-		var video = document.createElement('video');
-		var remoteVideosDiv = document.getElementById('remoteVideos');
-		video.id = newParticipantId;
-		video.setAttribute("autoplay", true);
-		video.setAttribute("playsinline", true);
-		video.setAttribute("controls", false);
-		remoteVideosDiv.appendChild(video);
-
-		var options = {
-			remoteVideo: video,
-			onicecandidate: onIceCandidate
-		}
-		var user = {
-			id: newParticipantId,
-			video: video,
-			webRtcPeer: null
-		}
-		participants[user.id] = user;
-
-		user.webRtcPeer = kurentoUtils.WebRtcPeer.WebRtcPeerRecvonly(options, function (err) {
-			if (err) {
-				return console.error(err);
-			}
-			//  prepare an offer to begin with the signaling process
-			this.generateOffer((error, offerSdp) => {
-
-				socket.emit('offer', offerSdp, user.id);
-
-			});
-		})
-		function onIceCandidate(candidate) {
-			console.log('Local candidate' + JSON.stringify(candidate));
-
-			socket.emit('candidate', candidate, user.id);
-		}
-	}
-
-
-</script>-->
 <!DOCTYPE html>
 <html>
 
@@ -249,7 +127,7 @@ Name: <input type="text" id="name"/>
 
 
 		function onIceCandidate(candidate, wp) {
-			console.log('sending ice candidates');
+			console.log("On WebRtc existing participants candidate" + user.id);
 			var message = {
 				event: 'candidate',
 				userid: user.id,
@@ -300,7 +178,8 @@ Name: <input type="text" id="name"/>
 		}
 
 		function onIceCandidate(candidate, wp) {
-			console.log('sending ice candidates');
+			console.log("On receive video candidate" + userid);
+
 			var message = {
 				event: 'candidate',
 				userid: user.id,
@@ -313,14 +192,61 @@ Name: <input type="text" id="name"/>
 
 
 	function addIceCandidate(userid, candidate) {
-		console.log(userid);
+		console.log('Signaling  candidate'+ userid);
 		participants[userid].rtcPeer.addIceCandidate(candidate);
 	}
 
 	// utilities
 	function sendMessage(message) {
-		console.log('sending ' + message.event + ' message to server');
 		socket.emit('message', message);
 	}
 
-</script>
+</script>-->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Kurento Group Call Node</title>
+</head>
+
+<body>
+
+<div id="container">
+    <div id="wrapper">
+        <div id="join" class="animate join">
+            <h1>Join a Room</h1>
+            <form onsubmit="register(); return false;" accept-charset="UTF-8">
+                <p>
+                    <input type="text" name="name" value="" id="name"
+                           placeholder="Username" required>
+                </p>
+                <p>
+                    <input type="text" name="room" value="" id="roomName"
+                           placeholder="Room" required>
+                </p>
+                <p class="submit">
+                    <input type="submit" name="commit" value="Join!">
+                </p>
+            </form>
+        </div>
+        <div id="room" style="display: none;">
+            <h2 id="room-header"></h2>
+            <div id="participants"></div>
+            <input type="button" id="button-leave" onmouseup="leaveRoom();"
+                   value="Leave room">
+        </div>
+    </div>
+</div>
+<script src="/socket.io/socket.io.js"></script>
+
+<script src="script/adapter.js"></script>
+<script src="script/kurento-utils.min.js"></script>
+<script src="./script/index.js"></script>
+<script src="./script/participants.js"></script>
+
+
+</body>
+</html>
