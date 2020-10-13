@@ -13,6 +13,7 @@ var argv = minimist(process.argv.slice(2), {
 		ws_uri: 'ws://localhost:8888/kurento'
 	}
 });
+
 class SocketHandler {
 
 	constructor(io) {
@@ -29,7 +30,9 @@ class SocketHandler {
 	initEventsKurento() {
 		const self = this;
 		self.io.on('connection', socket => {
+			self.sockets[socket.id] = socket;
 
+			console.log(socket.id);
 			// error handle
 			socket.on('error', err => {
 				console.error(`Connection %s error : %s`, socket.id, err);
@@ -37,6 +40,15 @@ class SocketHandler {
 
 			socket.on('disconnect', data => {
 				console.log(`Connection : %s disconnect`, data);
+				self.leaveRoom(socket, err => {
+					if (err) {
+						console.error(err);
+					}
+					socket.emit('disconn');
+					if (self.sockets[socket.id]) {
+						delete self.sockets[socket.id];
+					}
+				});
 			});
 
 			socket.on('message', message => {
@@ -87,7 +99,7 @@ class SocketHandler {
 				return;
 			}
 			self.join(socket, room, message.name, (err, user) => {
-				console.log(`join success : ${user.name}`);
+				console.log(`join success : ${socket.id}`);
 				if (err) {
 					callback(err);
 					return;
@@ -157,7 +169,7 @@ class SocketHandler {
 
 			// add ice candidate the get sent before endpoint is established
 			// socket.id : room iceCandidate Queue
-			let iceCandidateQueue = userSession.iceCandidateQueue[userSession.name];
+			let iceCandidateQueue = userSession.iceCandidateQueue[userSession.id];
 			if (iceCandidateQueue) {
 				while (iceCandidateQueue.length) {
 					let message = iceCandidateQueue.shift();
@@ -174,17 +186,19 @@ class SocketHandler {
 				let candidate = kurento.register.complexTypes.IceCandidate(event.candidate);
 				userSession.sendMessage({
 					id: 'iceCandidate',
-					name: userSession.name,
+					userId: userSession.id,
 					candidate: candidate
 				});
 			});
 
 			// notify other user that new user is joing
+			// participants- object of user sessions
 			let usersInRoom = room.participants;
 			for (let i in usersInRoom) {
-				if (usersInRoom[i].name != userSession.name) {
+				if (usersInRoom[i].id !== userSession.id) {
 					usersInRoom[i].sendMessage({
 						id: 'newParticipantArrived',
+						userId: userSession.id,
 						name: userSession.name
 					});
 				}
@@ -193,18 +207,22 @@ class SocketHandler {
 			// send list of current user in the room to current participant
 			let existingUsers = [];
 			for (let i in usersInRoom) {
-				if (usersInRoom[i].name != userSession.name) {
-					existingUsers.push(usersInRoom[i].name);
+				if (usersInRoom[i].id !== userSession.id) {
+					existingUsers.push({
+						name: usersInRoom[i].name,
+						userId: usersInRoom[i].id
+					});
 				}
 			}
 			userSession.sendMessage({
 				id: 'existingParticipants',
 				data: existingUsers,
-				roomName: room.name/*, name:userName*/
+				roomName: room.name,
+				userId: socket.id
 			});
 
 			// register user to room
-			room.participants[userSession.name] = userSession;
+			room.participants[userSession.id] = userSession;
 
 			callback(null, userSession);
 		});
@@ -212,11 +230,11 @@ class SocketHandler {
 
 
 // receive video from sender
-	receiveVideoFrom(socket, senderName, sdpOffer, callback) {
+	receiveVideoFrom(socket, senderId, sdpOffer, callback) {
 		const self = this;
 
 		let userSession = userRegister.getById(socket.id);
-		let sender = userRegister.getByName(senderName);
+		let sender = userRegister.getById(senderId);
 
 		self.getEndpointForUser(userSession, sender, (error, endpoint) => {
 			if (error) {
@@ -224,13 +242,13 @@ class SocketHandler {
 			}
 
 			endpoint.processOffer(sdpOffer, (error, sdpAnswer) => {
-				console.log(`process offer from ${senderName} to ${userSession.id}`);
+				console.log(`process offer from ${senderId} to ${userSession.id}`);
 				if (error) {
 					return callback(error);
 				}
 				let data = {
 					id: 'receiveVideoAnswer',
-					name: sender.name,
+					userId: sender.id,
 					sdpAnswer: sdpAnswer
 				};
 				userSession.sendMessage(data);
@@ -264,7 +282,7 @@ class SocketHandler {
 
 		console.log('notify all user that ' + userSession.id + ' is leaving the room ' + room.name);
 		var usersInRoom = room.participants;
-		delete usersInRoom[userSession.name];
+		delete usersInRoom[userSession.id];
 		userSession.outgoingMedia.release();
 
 		// release incoming media for the leaving user
@@ -275,20 +293,20 @@ class SocketHandler {
 
 		var data = {
 			id: 'participantLeft',
-			name: userSession.name
+			userId: userSession.id
 		};
 		for (var i in usersInRoom) {
 			var user = usersInRoom[i];
 			// release viewer from this
-			user.incomingMedia[userSession.name].release();
-			delete user.incomingMedia[userSession.name];
+			user.incomingMedia[userSession.id].release();
+			delete user.incomingMedia[userSession.id];
 
 			// notify all user in the room
 			user.sendMessage(data);
 		}
 
 		// Release pipeline and delete room when room is empty
-		if (Object.keys(room.participants).length == 0) {
+		if (Object.keys(room.participants).length === 0) {
 			room.pipeline.release();
 			delete self.rooms[userSession.roomName];
 		}
@@ -337,14 +355,14 @@ class SocketHandler {
 	getEndpointForUser(userSession, sender, callback) {
 		const self = this;
 
-		if (userSession.name === sender.name) {
+		if (userSession.id === sender.id) {
 			return callback(null, userSession.outgoingMedia);
 		}
 
-		let incoming = userSession.incomingMedia[sender.name];
+		let incoming = userSession.incomingMedia[sender.id];
 
 		if (incoming == null) {
-			console.log(`user : ${userSession.name} create endpoint to receive video from : ${sender.name}`);
+			console.log(`user : ${userSession.id} create endpoint to receive video from : ${sender.id}`);
 
 			// getRoom
 			self.getRoom(userSession.roomName, (error, room) => {
@@ -364,26 +382,25 @@ class SocketHandler {
 					console.log(`user: ${userSession.id} successfully create pipeline`);
 					incomingMedia.setMaxVideoRecvBandwidth(300);
 					incomingMedia.setMinVideoRecvBandwidth(100);
-					userSession.incomingMedia[sender.name] = incomingMedia;
+					userSession.incomingMedia[sender.id] = incomingMedia;
 
 
 					// add ice candidate the get sent before endpoints is establlished
-					let iceCandidateQueue = userSession.iceCandidateQueue[sender.name];
+					let iceCandidateQueue = userSession.iceCandidateQueue[sender.id];
 					if (iceCandidateQueue) {
 						while (iceCandidateQueue.length) {
 							let message = iceCandidateQueue.shift();
-							console.log(`user: ${userSession.name} collect candidate for ${message.data.sender}`);
+							console.log(`user: ${userSession.id} collect candidate for ${message.data.sender}`);
 							incomingMedia.addIceCandidate(message.candidate);
 						}
 					}
 
 					incomingMedia.on('OnIceCandidate', event => {
-						// ka ka ka ka ka
-						// console.log(`generate incoming media candidate: ${userSession.id} from ${sender.name}`);
+						console.log(`generate incoming media candidate: ${userSession.id} from ${sender.id}`);
 						let candidate = kurento.register.complexTypes.IceCandidate(event.candidate);
 						userSession.sendMessage({
 							id: 'iceCandidate',
-							name: sender.name,
+							userId: sender.id,
 							candidate: candidate
 						});
 					});
@@ -394,9 +411,6 @@ class SocketHandler {
 						callback(null, incomingMedia);
 					});
 
-					/*sender.hubPort.connect(incomingMedia);
-
-					callback(null, incomingMedia);*/
 				});
 			})
 		} else {
@@ -411,7 +425,7 @@ class SocketHandler {
 	}
 
 
-	initEvents() {
+	initEventsPeerConnection() {
 		const self = this;
 		self.io.on('connection', (socket) => {
 			self.sockets[socket.id] = socket;
@@ -463,12 +477,12 @@ class SocketHandler {
 			});
 
 
-
 		});
 	}
-	initOtherEvents(){
-		const self=this;
-		self.io.on('connection', socket=>{
+
+	initOtherEvents() {
+		const self = this;
+		self.io.on('connection', socket => {
 			/*
 			* CHAT EVENTS
 			* */

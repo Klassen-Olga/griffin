@@ -1,7 +1,6 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Duplex</title>
     <meta charset="UTF-8"/>
     <link href="/styles.css" rel="stylesheet">
     <link href="favicon.ico" rel="shortcut icon" type="image/x-icon"/>
@@ -11,11 +10,13 @@
 <body>
 
 <script>
-	var participantsNumber = "<%= participantsNumber %>"
+    if (typeof participantsNumber!==null){
+	    var participantsNumber = "<%= participantsNumber %>"
+    }
 	var roomId = "<%= roomId %>"
 </script>
 <div class="split left">
-    <video id="selfStream" controls="false" playsinline muted autoplay></video>
+    <video name="selfStream" controls="false" playsinline muted autoplay></video>
     <br>
     <p id="fullName"></p>
     <button id="audioOn" onclick="addMediaTrack(false, true)" id="enable-audio">Audio on</button>
@@ -24,6 +25,8 @@
     <button id="videoOff" onclick="removeMediaTrack('video')" id="enable-audio">Video off</button>
 
     <button id="enterTheRoom" onclick="enter('audio')" id="enable-audio">Enter the room</button>
+    <button id="leaveTheRoom" onclick="leaveRoom()" id="leaveRoom">Leave the room</button>
+
     <br>
     <div id="nameDiv">
         <label for="fullName">Full Name: </label>

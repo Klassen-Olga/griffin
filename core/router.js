@@ -60,16 +60,18 @@ class Router {
 	updateRoutes(uuid) {
 		const self = this;
 		self.app.get('/room/:roomId/:participantsNumber', (req, res) => {
-			if (req.params.participantsNumber) {
 				res.render('pages/room', {
 					roomId: req.params.roomId,
 					participantsNumber: req.params.participantsNumber
 				});
 
-			}
-			else{
-				res.render('pages/room', {roomId: req.params.roomId});
-			}
+
+
+		});
+		self.app.get('/room/:roomId', (req, res) => {
+			res.render('pages/room', {roomId: req.params.roomId,
+				participantsNumber: 'undefined'});
+
 		});
 		self.app.get('/videoChat', (req, res) => {
 			res.redirect('/room/' + uuid);

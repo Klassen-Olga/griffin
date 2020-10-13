@@ -9,25 +9,31 @@ const PARTICIPANT_CLASS = 'participant';
  *                        The tag of the new element will be 'video<name>'
  * @return
  */
-function Participant(name) {
-	this.name = name;
-	var container = document.createElement('div');
-	container.className = isPresentMainParticipant() ? PARTICIPANT_CLASS : PARTICIPANT_MAIN_CLASS;
-	container.id = name;
-	var span = document.createElement('span');
-	var video = document.createElement('video');
-	var rtcPeer;
+function Participant(name, userId, selfStream) {
+	var container = document.getElementById('foreignVideoContainer');
+	if (typeof selfStream !== 'undefined'){
+		this.name = name;
+		this.userId=userId;
+		var video=selfStream;
+		video.id=userId;
+	}
+	else{
+		this.name = name;
+		this.userId=userId;
+		var span = document.createElement('span');
+		var video = document.createElement('video');
+		var rtcPeer;
 
-	container.appendChild(video);
-	container.appendChild(span);
-	container.onclick = switchContainerClass;
-	document.getElementById('foreignVideoContainer').appendChild(container);
+		container.appendChild(video);
+		container.appendChild(span);
 
-	span.appendChild(document.createTextNode(name));
+		span.appendChild(document.createTextNode(name));
 
-	video.id = 'video-' + name;
-	video.autoplay = true;
-	video.controls = false;
+		video.id = userId;
+		video.autoplay = true;
+		video.controls = false;
+	}
+
 
 
 	this.getElement = function() {
@@ -38,17 +44,7 @@ function Participant(name) {
 		return video;
 	}
 
-	function switchContainerClass() {
-		if (container.className === PARTICIPANT_CLASS) {
-			var elements = Array.prototype.slice.call(document.getElementsByClassName(PARTICIPANT_MAIN_CLASS));
-			elements.forEach(function(item) {
-				item.className = PARTICIPANT_CLASS;
-			});
-			container.className = PARTICIPANT_MAIN_CLASS;
-		} else {
-			container.className = PARTICIPANT_CLASS;
-		}
-	}
+
 
 	function isPresentMainParticipant() {
 		return ((document.getElementsByClassName(PARTICIPANT_MAIN_CLASS)).length != 0);
@@ -59,7 +55,7 @@ function Participant(name) {
 		console.log('Invoking SDP offer callback function');
 		var msg =  {
 				id : "receiveVideoFrom",
-				sender : name,
+				sender : this.userId,
 				sdpOffer : offerSdp
 		};
 		sendMessage(msg);
@@ -72,7 +68,7 @@ function Participant(name) {
 		  var message = {
 		    id: 'onIceCandidate',
 		    candidate: candidate,
-		    sender: name
+		    sender: this.userId
 		  };
 		  sendMessage(message);
 	}
@@ -82,6 +78,15 @@ function Participant(name) {
 	this.dispose = function() {
 		console.log('Disposing participant ' + this.name);
 		this.rtcPeer.dispose();
-		container.parentNode.removeChild(container);
+
+		container.removeChild(video);
+		if (span){
+			container.removeChild(span);
+		}
 	};
+	this.disposeSelf=function () {
+		console.log('Disposing self ' + this.name);
+		this.rtcPeer.dispose();
+
+	}
 }

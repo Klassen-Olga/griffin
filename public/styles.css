@@ -12,7 +12,7 @@ html {
 video chat
 */
 
-#selfStream{
+video[name= selfStream]{
     position: fixed;
     bottom: 3%;
     left: 2%;
@@ -128,4 +128,13 @@ label{
     color: white;
     font-size: 60px;
 
+}
+/*
+for toggling
+*/
+#leaveTheRoom{
+    display: none;
+}
+#enterTheRoom{
+    display: block;
 }
