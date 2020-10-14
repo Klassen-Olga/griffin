@@ -66,41 +66,6 @@ function addMediaTrack(boolVideo, boolAudio) {
     });
 }
 
-
-function getTracksFromStream(stream, boolVideo) {
-  let tracks = null;
-  if (boolVideo === true) {
-    tracks = stream.getVideoTracks();
-  } else {
-    tracks = stream.getAudioTracks();
-  }
-  return tracks;
-}
-
-
-function toggleMediaButtons(button,on) {
-  if (button ==='video'){
-    if (on === true) {
-      document.getElementById('videoOff').disabled=false;
-      document.getElementById('videoOn').disabled=true;
-    }
-    else{
-      document.getElementById('videoOff').disabled = true;
-      document.getElementById('videoOn').disabled = false;
-
-    }
-  }
-  else{
-    if (on === true) {
-      document.getElementById('audioOff').disabled=false;
-      document.getElementById('audioOn').disabled=true;
-    }
-    else{
-      document.getElementById('audioOff').disabled = true;
-      document.getElementById('audioOn').disabled = false;
-    }
-  }
-}
 function removeMediaTrack(deviceType) {
   if (selfVideoElement.srcObject !== null) {
     if (deviceType === 'video') {
@@ -113,3 +78,16 @@ function removeMediaTrack(deviceType) {
     toggleMediaButtons(deviceType, false);
   }
 }
+function getTracksFromStream(stream, boolVideo) {
+  let tracks = null;
+  if (boolVideo === true) {
+    tracks = stream.getVideoTracks();
+  } else {
+    tracks = stream.getAudioTracks();
+  }
+  return tracks;
+}
+
+
+
+

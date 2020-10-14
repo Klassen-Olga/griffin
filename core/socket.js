@@ -86,6 +86,19 @@ class SocketHandler {
 
 				}
 			});
+			/*
+			*
+			* chat event
+			* */
+			socket.on('chat message', (message, roomId) => {
+				self.sendChatMessageToRoomParticipants(message, roomId, socket.id, (err) => {
+					if (err){
+						console.log(err);
+						return;
+					}
+					console.log('Sending chat message from ' + socket.id + " to the room " + roomId);
+				})
+			});
 
 		});
 	}
@@ -503,6 +516,18 @@ class SocketHandler {
 				socket.to(userIdToSendHimOffer).emit("mediaOnAnswer", socket.id, description);
 			});
 
+			/*
+			*
+			* chat event
+			* */
+			socket.on('chat message', (msg, roomId, fromName) => {
+				console.log('message: ' + msg);
+				let data={
+					message: msg,
+					fromName: fromName
+				}
+				self.io.in(roomId).emit('chat message', data);
+			});
 
 		});
 	}
@@ -510,32 +535,6 @@ class SocketHandler {
 	initOtherEvents() {
 		const self = this;
 		self.io.on('connection', socket => {
-			/*
-			* CHAT EVENTS FOR WEBRTC PeerToMany
-			* */
-			socket.on('chat message', (msg, roomId) => {
-				console.log('message: ' + msg);
-				self.io.in(roomId).emit('chat message', msg);
-			});
-
-			/*
-			*
-			*
-			* */
-
-			socket.on('chat message', (message, roomId) => {
-				self.sendChatMessageToRoomParticipants(message, roomId, socket.id, (err) => {
-					if (err){
-						console.log(err);
-						return;
-					}
-					console.log('Sending chat message from ' + socket.id + " to the room " + roomId);
-				})
-			});
-
-			/*
-			* Link generator event
-			* */
 
 			socket.on('uuid', () => {
 				socket.emit('uuid', uuidv4());

@@ -47,6 +47,7 @@
     </form>
 </div>
 <script src="/socket.io/socket.io.js"></script>
+<script src="/script/helper.js"></script>
 <script src="/script/chatHandler.js"></script>
 <script>
 	var head = document.getElementsByTagName('head')[0];
@@ -75,7 +76,7 @@
 		head.appendChild(script4);
 
 	} else {
-		script1.src = "/script/helperRoom.js";
+		script1.src = "/script/helperPeerConnection.js";
 		script2.src = "/script/peerConnectionHandler.js";
 		head.appendChild(script1);
 		head.appendChild(script2);

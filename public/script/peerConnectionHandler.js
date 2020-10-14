@@ -1,3 +1,10 @@
+window.onload=()=>{
+	document.getElementById('enterTheRoom').style.display='block';
+	document.getElementById('leaveTheRoom').style.display='none';
+}
+
+
+
 //all remote peer connections
 const peerConnections = {};
 //configuration for peer connection including stun and turn servers
@@ -9,7 +16,7 @@ const config = {
 	]
 };
 //connection to the socket (link to the repo in room.ejs)
-const socket = io.connect(window.location.origin);
+let socket = io.connect(window.location.origin);
 //own window were users video and audio will be saved
 const selfVideoElement = document.getElementsByName("selfStream")[0];
 //to enter to the video chat room user needs minimum an audio device available
@@ -32,7 +39,12 @@ navigator.mediaDevices.getUserMedia({audio: true})
 * and then newUser event will be sent to the server side.
 * It will be also removed username input and enter button
 * */
+//TODO: when left  the room remove name and make input name available
+//TODO: when reenter navigator.getusermedia should be called
 function enter() {
+	if (socket.connected===false){
+		socket = io.connect(window.location.origin);
+	}
 	if (selfVideoElement.srcObject === null) {
 		alert("Please enable audio");
 		return;
@@ -50,10 +62,10 @@ function enter() {
 
 	}
 	document.getElementById('fullName').innerText = fullNameInput.value;
-	document.getElementById('enterTheRoom').style.display = 'none';
 	nameDiv.style.display = 'none';
 
 	socket.emit("newUser", roomId);
+	toggleEnterLeaveButtons();
 
 }
 
@@ -64,7 +76,6 @@ socket.on("newUser", (newUserId) => {
 	let fullName = document.getElementById('fullName').innerText;
 	socket.emit("requestForOffer", newUserId, fullName);
 });
-
 
 /*
 * new user creates a peer connection and sends an offer to remote user
@@ -144,7 +155,7 @@ socket.on("candidate", (id, candidate) => {
 * and all connected users will remove this user from the video chat
 * */
 socket.on("disconnectPeer", id => {
-	peerConnections[id].iceConnectionState === 'disconnected';
+	peerConnections[id].iceConnectionState == 'disconnected';
 	peerConnections[id].close();
 	let video = document.getElementById(id);
 	let div = document.getElementById('foreignVideoContainer');
@@ -227,10 +238,28 @@ function createPeerConnection(id, fullName) {
 }
 
 window.onunload = window.onbeforeunload = () => {
+
 	socket.close();
 };
+function leaveRoom(){
+	for(var key in peerConnections){
+		peerConnections[key].close();
+		delete peerConnections[key];
+	}
+
+	selfVideoElement.srcObject=null;
+	clearRemoteVideos();
+	socket.close();
+	toggleEnterLeaveButtons();
+
+}
+
+function sendMessageInChat() {
+	var textarea = document.getElementById('message');
+	let name=document.getElementById('fullName').innerText;
+	socket.emit('chat message', textarea.value, roomId, document.getElementById('fullName').innerText);
+	textarea.value = '';
+}
 
 
-
-
-
+socket.on('chat message', data=> receiveChatMessage(data));

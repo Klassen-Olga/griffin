@@ -1,14 +1,6 @@
-/*
-* chat handler
-* */
 
 
-function sendMessageInChat(elm) {
-	var textarea = document.getElementById('message');
-	socket.emit('chat message', textarea.value, roomId);
-	textarea.value = '';
-}
-function initChatEvents(){
+/*function initChatEvents(){
 	socket.on('chat message', function (msg) {
 		let chat = document.getElementById('messages');
 		let messagesDiv = document.createElement('DIV');
@@ -17,7 +9,11 @@ function initChatEvents(){
 		chat.scrollTop = chat.scrollHeight;
 	});
 
-}
+}*/
+/*
+*
+* listener on message attach
+* */
 function receiveChatMessage (data) {
 	let chat = document.getElementById('messages');
 	let messagesDiv = document.createElement('DIV');

@@ -20,7 +20,6 @@ window.onload=()=>{
 function enter() {
 
 	socketInit();
-	initChatEvents();
 	name = document.getElementsByName('fullName')[0].value;
 	var roomName = roomId;
 
@@ -66,8 +65,7 @@ function socketInit() {
 				break;
 			case'chat message':
 				receiveChatMessage(parsedMessage);
-			default:
-				console.error('Unrecognized message', parsedMessage);
+
 		}
 	});
 }
@@ -83,19 +81,7 @@ function receiveVideoResponse(result) {
 		if (error) return console.error(error);
 	});
 }
-function toggleEnterLeaveButtons() {
-	var enterButton=document.getElementById('enterTheRoom');
-	var leaveButton=document.getElementById('leaveTheRoom');
 
-	if (enterButton.style.display=='block'){
-		enterButton.style.display='none';
-		leaveButton.style.display='block';
-	}
-	else{
-		enterButton.style.display='block';
-		leaveButton.style.display='none';
-	}
-}
 function callResponse(message) {
 	if (message.response != 'accepted') {
 		console.info('Call not accepted by peer. Closing call');
@@ -157,13 +143,6 @@ function leaveRoom() {
 	socket.close();
 }
 
-function clearRemoteVideos() {
-	var container = document.getElementById('foreignVideoContainer');
-	container.childNodes.forEach(child => {
-		container.removeChild(child);
-	})
-}
-
 function receiveVideo(sender) {
 	var participant = new Participant(sender.name, sender.userId);
 	participants[sender.userId] = participant;
@@ -196,4 +175,10 @@ function onParticipantLeft(request) {
 function sendMessage(message) {
 	console.log('Senging message: ' + message.id);
 	socket.emit('message', message);
+}
+
+function sendMessageInChat() {
+	var textarea = document.getElementById('message');
+	socket.emit('chat message', textarea.value, roomId);
+	textarea.value = '';
 }
