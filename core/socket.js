@@ -265,6 +265,32 @@ class SocketHandler {
 	}
 
 
+	sendChatMessageToRoomParticipants(message, roomId, userId, callback) {
+		const self = this;
+		let userSession = userRegister.getById(userId);
+
+		let room=self.rooms[userSession.roomName];
+		if (!userSession || !room || (roomId !== room.name)) {
+			return callback('Incorrect room name or room does not exist');
+		}
+
+		let usersInRoom = room.participants;
+
+
+		let data={
+			id:'chat message',
+			message:message,
+			fromName:userSession.name,
+			fromId:userId
+		}
+		for(let key in usersInRoom){
+			usersInRoom[key].sendMessage(data);
+		}
+
+		return callback(null);
+
+	}
+
 	leaveRoom(socket, callback) {
 		const self = this;
 
@@ -273,6 +299,7 @@ class SocketHandler {
 		if (!userSession) {
 			return;
 		}
+
 
 		var room = self.rooms[userSession.roomName];
 
@@ -484,11 +511,26 @@ class SocketHandler {
 		const self = this;
 		self.io.on('connection', socket => {
 			/*
-			* CHAT EVENTS
+			* CHAT EVENTS FOR WEBRTC PeerToMany
 			* */
 			socket.on('chat message', (msg, roomId) => {
 				console.log('message: ' + msg);
 				self.io.in(roomId).emit('chat message', msg);
+			});
+
+			/*
+			*
+			*
+			* */
+
+			socket.on('chat message', (message, roomId) => {
+				self.sendChatMessageToRoomParticipants(message, roomId, socket.id, (err) => {
+					if (err){
+						console.log(err);
+						return;
+					}
+					console.log('Sending chat message from ' + socket.id + " to the room " + roomId);
+				})
 			});
 
 			/*

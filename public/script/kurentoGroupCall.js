@@ -20,6 +20,7 @@ window.onload=()=>{
 function enter() {
 
 	socketInit();
+	initChatEvents();
 	name = document.getElementsByName('fullName')[0].value;
 	var roomName = roomId;
 
@@ -29,6 +30,8 @@ function enter() {
 		roomName: roomName,
 	}
 	sendMessage(message);
+	toggleEnterLeaveButtons();
+
 }
 function socketInit() {
 	socket = io();
@@ -61,11 +64,16 @@ function socketInit() {
 					}
 				});
 				break;
+			case'chat message':
+				receiveChatMessage(parsedMessage);
 			default:
 				console.error('Unrecognized message', parsedMessage);
 		}
 	});
 }
+
+
+
 function onNewParticipant(request) {
 	receiveVideo(request);
 }
@@ -73,7 +81,6 @@ function onNewParticipant(request) {
 function receiveVideoResponse(result) {
 	participants[result.userId].rtcPeer.processAnswer(result.sdpAnswer, function (error) {
 		if (error) return console.error(error);
-		toggleEnterLeaveButtons();
 	});
 }
 function toggleEnterLeaveButtons() {
@@ -142,8 +149,8 @@ function leaveRoom() {
 			participants[key].dispose();
 		} else {
 			participants[key].disposeSelf();
-			delete participants[key];
 		}
+		delete participants[key];
 	}
 	clearRemoteVideos();
 	toggleEnterLeaveButtons();

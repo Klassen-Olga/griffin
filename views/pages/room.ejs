@@ -43,10 +43,11 @@
     <ul id="messages"></ul>
     <form action="">
         <input id="message" autocomplete="off"/>
-        <button onclick="sendMessage();return false;">Send</button>
+        <button onclick="sendMessageInChat();return false;">Send</button>
     </form>
 </div>
 <script src="/socket.io/socket.io.js"></script>
+<script src="/script/chatHandler.js"></script>
 <script>
 	var head = document.getElementsByTagName('head')[0];
 	var script1 = document.createElement("script");

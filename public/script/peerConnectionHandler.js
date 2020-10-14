@@ -230,24 +230,6 @@ window.onunload = window.onbeforeunload = () => {
 	socket.close();
 };
 
-/*
-* chat handler
-* */
-
-
-function sendMessage(elm) {
-	var textarea = document.getElementById('message');
-	socket.emit('chat message', textarea.value, roomId);
-	textarea.value = '';
-}
-
-socket.on('chat message', function (msg) {
-	let chat = document.getElementById('messages');
-	let messagesDiv = document.createElement('DIV');
-	messagesDiv.innerText = msg;
-	chat.appendChild(messagesDiv);
-	chat.scrollTop = chat.scrollHeight;
-});
 
 
 
