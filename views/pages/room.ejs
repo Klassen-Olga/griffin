@@ -24,6 +24,7 @@
     <button id="audioOff" onclick="removeMediaTrack('audio')" id="enable-audio">Audio off</button>
     <button id="videoOff" onclick="removeMediaTrack('video')" id="enable-audio">Video off</button>
 
+
     <button id="enterTheRoom" onclick="enter('audio')" id="enable-audio">Enter the room</button>
     <button id="leaveTheRoom" onclick="leaveRoom()" id="leaveRoom">Leave the room</button>
 
@@ -60,12 +61,15 @@
 	if (typeof participantsNumber !== 'undefined' && participantsNumber > 3) {
 		var script3 = document.createElement("script");
 		var script4 = document.createElement("script");
+		var script5 = document.createElement("script");
 		script4.type = "text/javascript";
 		script3.type = "text/javascript";
+		script5.type = "text/javascript";
 
 		script1.src = "/script/adapter.js";
 
 		script2.src = "/script/kurento-utils.min.js";
+		script5.src = "/script/helperKurentoGroupCall.js";
 		script3.src = "/script/kurentoGroupCall.js";
 		script4.src = "/script/participants.js";
 
@@ -73,6 +77,7 @@
 		head.appendChild(script2);
 		head.appendChild(script3);
 		head.appendChild(script4);
+		head.appendChild(script5);
 
 	} else {
 		script1.src = "/script/helperPeerConnection.js";

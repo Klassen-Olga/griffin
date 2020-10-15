@@ -24,6 +24,7 @@ function Participant(name, userId, selfStream) {
 		var video = document.createElement('video');
 		var rtcPeer;
 
+		video.controls=false;
 		container.appendChild(video);
 		container.appendChild(span);
 

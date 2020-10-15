@@ -14,9 +14,6 @@ window.onload=()=>{
 	document.getElementById('leaveTheRoom').style.display='none';
 }
 
-
-
-
 function enter() {
 
 	socketInit();
