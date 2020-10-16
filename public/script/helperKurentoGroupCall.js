@@ -5,7 +5,7 @@ window.onload = () => {
 
 /**
  *
- * function used to turn on or off a user's video or audio
+ * function used to turn on a user's video or audio
  * will be called from certain buttons with microphone or camera icons
  *
  * @param {boolean} boolVideo true if user wants to make camera on
@@ -48,7 +48,13 @@ function addMediaTrack(boolVideo, boolAudio) {
 		}
 	}
 }
-
+/**
+ *
+ * function used to turn off a user's video or audio
+ * will be called from certain buttons with microphone or camera icons
+ *
+ * @param {string} deviceType 'video' or 'audio'
+ */
 function removeMediaTrack(deviceType) {
 
 	//before user entered the room
@@ -70,3 +76,5 @@ function removeMediaTrack(deviceType) {
 	toggleMediaButtons(deviceType, false);
 
 }
+
+

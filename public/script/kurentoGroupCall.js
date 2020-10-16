@@ -1,64 +1,3 @@
-
-const constraints = {
-	'video': true,
-	'audio': true
-}
-
-var audioDeviceNumber=0;
-var videoDeviceNumber=0;
-var acceptAudio=false;
-var acceptVideo=false;
-var audioBeforeEnterTheRoom=true;
-var videoBeforeEnterTheRoom=true;
-
-navigator.mediaDevices.enumerateDevices()
-	.then(function(devices) {
-		videoDeviceNumber= devices.filter(device => device.kind === 'videoinput').length;
-		audioDeviceNumber= devices.filter(device => device.kind === 'audioinput').length;
-		console.log("Number of video devices: "+ videoDeviceNumber);
-		console.log("Number of audio devices: "+ audioDeviceNumber);
-		// or not permited
-		if (audioDeviceNumber>0){
-			navigator.mediaDevices.getUserMedia({audio:true})
-				.then(stream => {
-					acceptAudio=true;
-					toggleMediaButtons('audio', true);
-					console.log('Got MediaStream:', stream);
-				})
-				.catch(error => {
-					toggleMediaButtons('audio', false);
-					console.error('Error accessing media devices.', error);
-				});
-		}
-		if (videoDeviceNumber>0){
-			navigator.mediaDevices.getUserMedia({video:true})
-				.then(stream => {
-					acceptVideo=true;
-					toggleMediaButtons('video', true);
-					console.log('Got MediaStream:', stream);
-					document.getElementById('videoTest').srcObject=stream;
-				})
-				.catch(error => {
-					toggleMediaButtons('video', false);
-					console.error('Error accessing media devices.', error);
-				});
-
-		}
-	})
-	.catch(function(err) {
-		console.error(err.name + ": " + err.message);
-	});
-
-
-
-var socket = null;
-var participants = {};
-var name = null;
-var userId = null;
-var selfStream = document.getElementsByName('selfStream')[0];
-/*window.onbeforeunload = function() {
-	socket.disconnect();
-};*/
 window.onbeforeunload = () => {
 	socket.close();
 };
@@ -66,26 +5,26 @@ window.onload=()=>{
 	document.getElementById('enterTheRoom').style.display='block';
 	document.getElementById('leaveTheRoom').style.display='none';
 }
+checkUsersDevicesAndAccessPermissions();
 
+/*
+* variables for managing device access
+* */
+var audioDeviceNumber=0;
+var videoDeviceNumber=0;
+var acceptAudio=false;
+var acceptVideo=false;
+var audioBeforeEnterTheRoom=false;
+var videoBeforeEnterTheRoom=false;
+/*
+* variables for managing peer connections and users personal data
+* */
+var socket = null;
+var participants = {};
+var name = null;
+var userId = null;
+var selfStream = document.getElementsByName('selfStream')[0];
 
-function enter() {
-	socketInit();
-	var roomName = roomId;
-	name = document.getElementsByName('fullName')[0].value;
-
-	var message = {
-		id: 'joinRoom',
-		name: name,
-		roomName: roomName,
-		audioOn:acceptAudio,
-		videoOn:acceptVideo
-	}
-
-
-	sendMessage(message);
-	toggleEnterLeaveButtons();
-
-}
 function socketInit() {
 	socket = io();
 
@@ -125,7 +64,77 @@ function socketInit() {
 }
 
 
+function enter() {
+	socketInit();
+	var roomName = roomId;
+	name = document.getElementsByName('fullName')[0].value;
 
+	var message = {
+		id: 'joinRoom',
+		name: name,
+		roomName: roomName,
+		audioOn:acceptAudio,
+		videoOn:acceptVideo
+	}
+
+
+	sendMessage(message);
+	toggleEnterLeaveButtons();
+
+}
+
+function checkUsersDevicesAndAccessPermissions(){
+	const constraints = {
+		'video': true,
+		'audio': true
+	}
+
+	navigator.mediaDevices.enumerateDevices()
+		.then(function(devices) {
+			videoDeviceNumber= devices.filter(device => device.kind === 'videoinput').length;
+			audioDeviceNumber= devices.filter(device => device.kind === 'audioinput').length;
+			console.log("Number of video devices: "+ videoDeviceNumber);
+			console.log("Number of audio devices: "+ audioDeviceNumber);
+			// or not permited
+			if (audioDeviceNumber>0){
+				navigator.mediaDevices.getUserMedia({audio:true})
+					.then(stream => {
+						acceptAudio=true;
+						audioBeforeEnterTheRoom=true;
+						toggleMediaButtons('audio', true);
+						console.log('Got MediaStream:', stream);
+					})
+					.catch(error => {
+						acceptAudio=false;
+						audioBeforeEnterTheRoom=false;
+						toggleMediaButtons('audio', false);
+						console.error('Error accessing media devices.', error);
+					});
+			}
+			if (videoDeviceNumber>0){
+				navigator.mediaDevices.getUserMedia({video:true})
+					.then(stream => {
+						acceptVideo=true;
+						videoBeforeEnterTheRoom=true;
+						toggleMediaButtons('video', true);
+						console.log('Got MediaStream:', stream);
+						document.getElementById('videoTest').srcObject=stream;
+					})
+					.catch(error => {
+						acceptVideo=false;
+						videoBeforeEnterTheRoom=false;
+						toggleMediaButtons('video', false);
+						console.error('Error accessing media devices.', error);
+					});
+
+			}
+		})
+		.catch(function(err) {
+			console.error(err.name + ": " + err.message);
+		});
+
+
+}
 function onNewParticipant(request) {
 	receiveVideo(request);
 }
