@@ -11,20 +11,18 @@ const PARTICIPANT_CLASS = 'participant';
  */
 function Participant(name, userId, selfStream) {
 	var container = document.getElementById('foreignVideoContainer');
-	if (typeof selfStream !== 'undefined'){
+	if (typeof selfStream !== 'undefined') {
 		this.name = name;
-		this.userId=userId;
-		var video=selfStream;
-		video.id=userId;
-	}
-	else{
+		this.userId = userId;
+		var video = selfStream;
+		video.id = userId;
+	} else {
 		this.name = name;
-		this.userId=userId;
+		this.userId = userId;
 		var span = document.createElement('span');
 		var video = document.createElement('video');
 		var rtcPeer;
 
-		video.controls=false;
 		container.appendChild(video);
 		container.appendChild(span);
 
@@ -36,56 +34,61 @@ function Participant(name, userId, selfStream) {
 	}
 
 
-
-	this.getElement = function() {
+	this.getElement = function () {
 		return container;
 	}
 
-	this.getVideoElement = function() {
+	this.getVideoElement = function () {
 		return video;
 	}
-
+	this.changeVideoElementToAudioTag = function () {
+		var audio= document.createElement('audio');
+		audio.id=this.userId;
+		audio.autoplay = true;
+		container.replaceChild(audio, video);
+		video=audio;
+	}
 
 
 	function isPresentMainParticipant() {
 		return ((document.getElementsByClassName(PARTICIPANT_MAIN_CLASS)).length != 0);
 	}
 
-	this.offerToReceiveVideo = function(error, offerSdp, wp){
-		if (error) return console.error ("sdp offer error")
+	this.offerToReceiveVideo = function (error, offerSdp, wp) {
+		if (error) return console.error("sdp offer error")
 		console.log('Invoking SDP offer callback function');
-		var msg =  {
-				id : "receiveVideoFrom",
-				sender : this.userId,
-				sdpOffer : offerSdp
+		var msg = {
+			id: "receiveVideoFrom",
+			sender: this.userId,
+			sdpOffer: offerSdp
 		};
 		sendMessage(msg);
 	}
 
 
 	this.onIceCandidate = function (candidate, wp) {
-		  console.log("Local candidate" + candidate);
+		console.log("Local candidate" + candidate);
 
-		  var message = {
-		    id: 'onIceCandidate',
-		    candidate: candidate,
-		    sender: this.userId
-		  };
-		  sendMessage(message);
+		var message = {
+			id: 'onIceCandidate',
+			candidate: candidate,
+			sender: this.userId
+		};
+		sendMessage(message);
 	}
 
-	Object.defineProperty(this, 'rtcPeer', { writable: true});
+	Object.defineProperty(this, 'rtcPeer', {writable: true});
 
-	this.dispose = function() {
+	this.dispose = function () {
 		console.log('Disposing participant ' + this.name);
 		this.rtcPeer.dispose();
 
 		container.removeChild(video);
-		if (span){
+		if (span) {
 			container.removeChild(span);
 		}
 	};
-	this.disposeSelf=function () {
+	this.disposeSelf = function () {
 		console.log('Disposing self ' + this.name);
 		this.rtcPeer.dispose();
 

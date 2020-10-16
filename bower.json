@@ -1,0 +1,21 @@
+{
+  "name": "Klassen Olga",
+  "description": "",
+  "main": "index.js",
+  "authors": [
+    "Klassen.Olga <lefelog@mail.ru>"
+  ],
+  "license": "ISC",
+  "homepage": "https://github.com/Klassen-Olga/griffin",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "webrtc-adapter": "^7.4.0",
+    "kurento-utils": "^6.9.0"
+  }
+}

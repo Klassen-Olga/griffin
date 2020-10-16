@@ -17,6 +17,7 @@
 </script>
 <div class="split left">
     <video name="selfStream" controls="false" playsinline muted autoplay></video>
+    <video id="videoTest" controls="false" playsinline muted autoplay></video>
     <br>
     <p id="fullName"></p>
     <button id="audioOn" onclick="addMediaTrack(false, true)" id="enable-audio">Audio on</button>
@@ -48,8 +49,18 @@
     </form>
 </div>
 <script src="/socket.io/socket.io.js"></script>
+<script src="/bower_components/kurento-utils/js/kurento-utils.js"></script>
 <script src="/script/helper.js"></script>
+
+<!--
+<script src="/script/adapter.js"></script>
+-->
+<!--
+<script src="/script/kurento-utils.min.js"></script>
+-->
+<script src="/bower_components/webrtc-adapter/release/adapter.js"></script>
 <script>
+
 	var head = document.getElementsByTagName('head')[0];
 	var script1 = document.createElement("script");
 	script1.type = "text/javascript";
@@ -66,15 +77,13 @@
 		script3.type = "text/javascript";
 		script5.type = "text/javascript";
 
-		script1.src = "/script/adapter.js";
 
-		script2.src = "/script/kurento-utils.min.js";
 		script5.src = "/script/helperKurentoGroupCall.js";
 		script3.src = "/script/kurentoGroupCall.js";
 		script4.src = "/script/participants.js";
 
-		head.appendChild(script1);
-		head.appendChild(script2);
+		//head.appendChild(script1);
+		// head.appendChild(script2);
 		head.appendChild(script3);
 		head.appendChild(script4);
 		head.appendChild(script5);

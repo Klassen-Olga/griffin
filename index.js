@@ -4,6 +4,8 @@ let http = require("http").createServer(app);
 const bodyParser = require('body-parser');
 
 app.use(express.static('public'));
+app.use('/bower_components',  express.static(__dirname + '/bower_components'));
+
 app.set('view engine', 'ejs');
 app.use(bodyParser.urlencoded({extended: false}));
 app.use(bodyParser.json());

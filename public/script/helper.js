@@ -31,6 +31,7 @@ function toggleMediaButtons(button,on) {
 		}
 	}
 	else{
+
 		if (on === true) {
 			document.getElementById('audioOff').disabled=false;
 			document.getElementById('audioOn').disabled=true;

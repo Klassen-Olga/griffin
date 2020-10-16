@@ -6,7 +6,6 @@ const Register = require('../lib/register.js');
 const Session = require('../lib/session.js');
 let userRegister = new Register();
 
-
 var argv = minimist(process.argv.slice(2), {
 	default: {
 		as_uri: 'http://localhost:3000',
@@ -111,7 +110,7 @@ class SocketHandler {
 				callback(error);
 				return;
 			}
-			self.join(socket, room, message.name, (err, user) => {
+			self.join(socket, room, message, (err, user) => {
 				console.log(`join success : ${socket.id}`);
 				if (err) {
 					callback(err);
@@ -156,16 +155,16 @@ class SocketHandler {
 		}
 	}
 
-	join(socket, room, userName, callback) {
+	join(socket, room, message, callback) {
 
 		// add user to session
-		let userSession = new Session(socket, userName, room.name);
+		let userSession = new Session(socket, message.name, room.name, message.videoOn, message.audioOn);
 
 		// register
 		userRegister.register(userSession);
 
 
-		room.pipeline.create('WebRtcEndpoint', (error, outgoingMedia) => {
+		room.pipeline.create('WebRtcEndpoint'/*, {mediaProfile : 'WEBM_AUDIO_ONLY'}*/, (error, outgoingMedia) => {
 			if (error) {
 				console.error('no participant in room');
 				if (Object.keys(room.participants).length === 0) {
@@ -212,7 +211,9 @@ class SocketHandler {
 					usersInRoom[i].sendMessage({
 						id: 'newParticipantArrived',
 						userId: userSession.id,
-						name: userSession.name
+						name: userSession.name,
+						videoOn: message.videoOn,
+						audioOn:message.audioOn
 					});
 				}
 			}
@@ -223,7 +224,9 @@ class SocketHandler {
 				if (usersInRoom[i].id !== userSession.id) {
 					existingUsers.push({
 						name: usersInRoom[i].name,
-						userId: usersInRoom[i].id
+						userId: usersInRoom[i].id,
+						videoOn:usersInRoom[i].videoOn,
+						audioOn:usersInRoom[i].audioOn
 					});
 				}
 			}
@@ -231,7 +234,9 @@ class SocketHandler {
 				id: 'existingParticipants',
 				data: existingUsers,
 				roomName: room.name,
-				userId: socket.id
+				userId: socket.id,
+				videoOn: message.videoOn,
+				audioOn:message.audioOn
 			});
 
 			// register user to room
@@ -410,7 +415,7 @@ class SocketHandler {
 					return callback(error);
 				}
 				// 　create WebRtcEndpoint for sender user
-				room.pipeline.create('WebRtcEndpoint', (error, incomingMedia) => {
+				room.pipeline.create('WebRtcEndpoint', /*{mediaProfile : 'WEBM_AUDIO_ONLY'},*/ (error, incomingMedia) => {
 
 					if (error) {
 						if (Object.keys(room.participants).length === 0) {
@@ -444,7 +449,7 @@ class SocketHandler {
 							candidate: candidate
 						});
 					});
-					sender.outgoingMedia.connect(incomingMedia, error => {
+					sender.outgoingMedia.connect(incomingMedia,/*"AUDIO",*/ error => {
 						if (error) {
 							callback(error);
 						}
@@ -455,7 +460,7 @@ class SocketHandler {
 			})
 		} else {
 			console.log(`user: ${userSession.id} get existing endpoint to receive video from: ${sender.id}`);
-			sender.outgoingMedia.connect(incoming, error => {
+			sender.outgoingMedia.connect(incoming, /*"AUDIO",*/ error => {
 				if (error) {
 					callback(error);
 				}

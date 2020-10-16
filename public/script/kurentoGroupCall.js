@@ -1,3 +1,56 @@
+
+const constraints = {
+	'video': true,
+	'audio': true
+}
+
+var audioDeviceNumber=0;
+var videoDeviceNumber=0;
+var acceptAudio=false;
+var acceptVideo=false;
+var audioBeforeEnterTheRoom=true;
+var videoBeforeEnterTheRoom=true;
+
+navigator.mediaDevices.enumerateDevices()
+	.then(function(devices) {
+		videoDeviceNumber= devices.filter(device => device.kind === 'videoinput').length;
+		audioDeviceNumber= devices.filter(device => device.kind === 'audioinput').length;
+		console.log("Number of video devices: "+ videoDeviceNumber);
+		console.log("Number of audio devices: "+ audioDeviceNumber);
+		// or not permited
+		if (audioDeviceNumber>0){
+			navigator.mediaDevices.getUserMedia({audio:true})
+				.then(stream => {
+					acceptAudio=true;
+					toggleMediaButtons('audio', true);
+					console.log('Got MediaStream:', stream);
+				})
+				.catch(error => {
+					toggleMediaButtons('audio', false);
+					console.error('Error accessing media devices.', error);
+				});
+		}
+		if (videoDeviceNumber>0){
+			navigator.mediaDevices.getUserMedia({video:true})
+				.then(stream => {
+					acceptVideo=true;
+					toggleMediaButtons('video', true);
+					console.log('Got MediaStream:', stream);
+					document.getElementById('videoTest').srcObject=stream;
+				})
+				.catch(error => {
+					toggleMediaButtons('video', false);
+					console.error('Error accessing media devices.', error);
+				});
+
+		}
+	})
+	.catch(function(err) {
+		console.error(err.name + ": " + err.message);
+	});
+
+
+
 var socket = null;
 var participants = {};
 var name = null;
@@ -14,17 +67,21 @@ window.onload=()=>{
 	document.getElementById('leaveTheRoom').style.display='none';
 }
 
-function enter() {
 
+function enter() {
 	socketInit();
-	name = document.getElementsByName('fullName')[0].value;
 	var roomName = roomId;
+	name = document.getElementsByName('fullName')[0].value;
 
 	var message = {
 		id: 'joinRoom',
 		name: name,
 		roomName: roomName,
+		audioOn:acceptAudio,
+		videoOn:acceptVideo
 	}
+
+
 	sendMessage(message);
 	toggleEnterLeaveButtons();
 
@@ -93,14 +150,9 @@ function callResponse(message) {
 function onExistingParticipants(msg) {
 	userId = msg.userId;
 	var constraints = {
-		audio: true,
-		video: {
-			mandatory: {
-				maxWidth: 320,
-				maxFrameRate: 15,
-				minFrameRate: 15
-			}
-		}
+		audio: msg.audioOn,
+		video: msg.videoOn
+
 	};
 	console.log(userId + " registered in room " + roomId);
 	var participant = new Participant(name, userId, selfStream);
@@ -109,14 +161,22 @@ function onExistingParticipants(msg) {
 	var options = {
 		localVideo: selfStream,
 		mediaConstraints: constraints,
-		onicecandidate: participant.onIceCandidate.bind(participant)
+		onicecandidate: participant.onIceCandidate.bind(participant),
+
 	}
 	participant.rtcPeer = new kurentoUtils.WebRtcPeer.WebRtcPeerSendonly(options,
 		function (error) {
 			if (error) {
-				return console.error(error);
+				/*return*/ console.error(error);
 			}
 			this.generateOffer(participant.offerToReceiveVideo.bind(participant));
+			if (audioBeforeEnterTheRoom===false){
+				removeMediaTrack('audio');
+			}
+			if (videoBeforeEnterTheRoom===false){
+				removeMediaTrack('video');
+			}
+			document.getElementById('videoTest').style.display='none';
 		});
 
 	msg.data.forEach(receiveVideo);
@@ -142,6 +202,10 @@ function leaveRoom() {
 
 function receiveVideo(sender) {
 	var participant = new Participant(sender.name, sender.userId);
+	//kurento bug: in combination audio true and video false does not play audio in video DOM element
+	if (sender.audioOn===true && sender.videoOn===false){
+		participant.changeVideoElementToAudioTag();
+	}
 	participants[sender.userId] = participant;
 	var video = participant.getVideoElement();
 
@@ -154,11 +218,12 @@ function receiveVideo(sender) {
 	participant.rtcPeer = new kurentoUtils.WebRtcPeer.WebRtcPeerRecvonly(options,
 		function (error) {
 			if (error) {
-				return console.error(error);
+				/*return*/ console.error(error);
 			}
 			this.generateOffer(participant.offerToReceiveVideo.bind(participant));
 		}
 	);
+
 }
 
 function onParticipantLeft(request) {

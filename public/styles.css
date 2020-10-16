@@ -11,13 +11,15 @@ html {
 /*
 video chat
 */
-
+video{
+    width: 300px;
+    height: 300px;
+}
 video[name= selfStream]{
     position: fixed;
     bottom: 3%;
     left: 2%;
-    width: 350px;
-    height: 250px;
+
 }
 .split {
     height: 100%;
