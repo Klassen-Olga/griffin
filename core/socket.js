@@ -11,6 +11,7 @@ class SocketHandler {
 		self.io = io;
 		//object for sockets
 		self.sockets = {};
+		self.participants={};
 		self.initOtherEvents();
 		self.initEventsKurento();
 		self.initEventsPeerConnection();
@@ -79,9 +80,10 @@ class SocketHandler {
 		const self = this;
 		self.io.on('connection', (socket) => {
 			// 1)
-			socket.on("newUser", (roomId) => {
+			socket.on("newUser", (roomId, fullName) => {
 				console.log("newUser " + socket.id + " sends data to all users");
-				socket.join(roomId);
+				self.participants[socket.id]=fullName;
+					socket.join(roomId);
 				socket.broadcast.to(roomId).emit("newUser", socket.id);
 				socket.on("disconnect", () => {
 
@@ -105,7 +107,7 @@ class SocketHandler {
 			socket.on("answer", (newUserId, message) => {
 				console.log("answer from " + socket.id + " to new " + newUserId);
 
-				socket.to(newUserId).emit("answer", socket.id, message);
+				socket.to(newUserId).emit("answer", socket.id, message, self.participants[socket.id]);
 			});
 			socket.on("candidate", (id, message) => {
 				console.log("new candidate " + id + " for " + socket.id);
@@ -113,16 +115,12 @@ class SocketHandler {
 				socket.to(id).emit("candidate", socket.id, message);
 			});
 
-			socket.on("mediaOnOffer", (description, userIdToSendHimOffer) => {
+			/*socket.on("mediaOnOffer", (description, userIdToSendHimOffer) => {
 				console.log("offer for audio from " + socket.id + "to " + userIdToSendHimOffer);
 
 				socket.to(userIdToSendHimOffer).emit("mediaOnAnswer", socket.id, description);
-			});
+			});*/
 
-			/*
-			*
-			* chat event
-			* */
 			socket.on('chat message', (msg, roomId, fromName) => {
 				console.log('message: ' + msg);
 				let data={

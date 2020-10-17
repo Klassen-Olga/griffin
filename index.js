@@ -22,12 +22,9 @@ router.updateRoutes(uuid);
 let SocketHandler = require('./core/socket');
 let socketHandler = new SocketHandler(io);
 
-
-
-
 http.listen(3000, '127.0.0.1', function () {
 	console.log(
-		'\nApp listening at http://localhost:3000/room/a76f6b90-bea8-41b9-82fc-dcd32a8dcf54/4' +
+		'\nApp listening at http://localhost:3000/room/a76f6b90-bea8-41b9-82fc-dcd32a8dcf54/3' +
 		'\nApp listening at http://localhost:3000/kurentoManyToMany' +
 		'\nApp listening at http://localhost:3000/videoChat');
 });

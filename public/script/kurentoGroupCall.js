@@ -84,12 +84,8 @@ function enter() {
 }
 
 function checkUsersDevicesAndAccessPermissions(){
-	const constraints = {
-		'video': true,
-		'audio': true
-	}
 
-	navigator.mediaDevices.enumerateDevices()
+		navigator.mediaDevices.enumerateDevices()
 		.then(function(devices) {
 			videoDeviceNumber= devices.filter(device => device.kind === 'videoinput').length;
 			audioDeviceNumber= devices.filter(device => device.kind === 'audioinput').length;

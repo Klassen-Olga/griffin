@@ -9,12 +9,12 @@ window.onload = () => {
  * will be called from certain buttons with microphone or camera icons
  *
  * @param {boolean} boolVideo true if user wants to make camera on
- * @param {boolean} boolAudio true if user wants to make microphone on
+
  */
-function addMediaTrack(boolVideo, boolAudio) {
+function addMediaTrack(mediaType) {
 
 	//user wants to make the video on
-	if (boolVideo === true) {
+	if (mediaType === 'video') {
 		// no video device available but user wants to make it on
 		if (acceptVideo === false) {
 			alert("Please restart the page and enable any video device");
@@ -32,7 +32,7 @@ function addMediaTrack(boolVideo, boolAudio) {
 		}
 	}
 	//user wants to make the audio on
-	else if (boolAudio === true) {
+	else {
 		// no audio device available but user wants to make it on
 		if (acceptAudio === false) {
 			alert("Please restart the page and enable any audio device");
