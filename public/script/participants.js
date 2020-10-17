@@ -35,11 +35,6 @@ function Participant(name, userId, selfStream) {
 		video.controls = false;
 	}
 
-
-	this.getElement = function () {
-		return container;
-	}
-
 	this.getVideoElement = function () {
 		return video;
 	}

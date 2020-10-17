@@ -245,11 +245,19 @@ function onParticipantLeft(request) {
 
 function sendMessage(message) {
 	console.log('Senging message: ' + message.id);
-	socket.emit('message', message);
+	if (socket){
+		socket.emit('message', message);
+	}
 }
 
 function sendMessageInChat() {
 	var textarea = document.getElementById('message');
-	socket.emit('chat message', textarea.value, roomId);
+	let data={
+		id:'chatMessage',
+		message:textarea.value,
+		roomId:roomId
+
+	}
+	sendMessage(data);
 	textarea.value = '';
 }

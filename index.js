@@ -22,7 +22,7 @@ router.updateRoutes(uuid);
 let SocketHandler = require('./core/socket');
 let socketHandler = new SocketHandler(io);
 
-socketHandler.initEventsKurento();
+
 
 
 http.listen(3000, '127.0.0.1', function () {
