@@ -82,7 +82,7 @@ module.exports = class Helper {
 		self.userRegister.register(userSession);
 
 
-		room.pipeline.create('WebRtcEndpoint'/*, {mediaProfile : 'WEBM_AUDIO_ONLY'}*/, (error, outgoingMedia) => {
+		room.pipeline.create('WebRtcEndpoint', (error, outgoingMedia) => {
 			if (error) {
 				console.error('no participant in room');
 				if (Object.keys(room.participants).length === 0) {
@@ -335,7 +335,7 @@ module.exports = class Helper {
 					return callback(error);
 				}
 				// 　create WebRtcEndpoint for sender user
-				room.pipeline.create('WebRtcEndpoint', /*{mediaProfile : 'WEBM_AUDIO_ONLY'},*/ (error, incomingMedia) => {
+				room.pipeline.create('WebRtcEndpoint', (error, incomingMedia) => {
 
 					if (error) {
 						if (Object.keys(room.participants).length === 0) {
@@ -369,7 +369,7 @@ module.exports = class Helper {
 							candidate: candidate
 						});
 					});
-					sender.outgoingMedia.connect(incomingMedia,/*"AUDIO",*/ error => {
+					sender.outgoingMedia.connect(incomingMedia, error => {
 						if (error) {
 							callback(error);
 						}
@@ -380,7 +380,7 @@ module.exports = class Helper {
 			})
 		} else {
 			console.log(`user: ${userSession.id} get existing endpoint to receive video from: ${sender.id}`);
-			sender.outgoingMedia.connect(incoming, /*"AUDIO",*/ error => {
+			sender.outgoingMedia.connect(incoming, error => {
 				if (error) {
 					callback(error);
 				}
