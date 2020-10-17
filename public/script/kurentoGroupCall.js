@@ -213,7 +213,7 @@ function receiveVideo(sender) {
 	var participant = new Participant(sender.name, sender.userId);
 	//kurento bug: in combination audio true and video false does not play audio in video DOM element
 	if (sender.audioOn===true && sender.videoOn===false){
-		participant.changeVideoElementToAudioTag();
+		participant.changeVideoElementToAudioElement();
 	}
 	participants[sender.userId] = participant;
 	var video = participant.getVideoElement();

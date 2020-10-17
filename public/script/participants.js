@@ -19,12 +19,14 @@ function Participant(name, userId, selfStream) {
 	} else {
 		this.name = name;
 		this.userId = userId;
+		var div=document.createElement('div');
+		div.classList.add('videoDiv');
 		var span = document.createElement('span');
 		var video = document.createElement('video');
-		var rtcPeer;
 
-		container.appendChild(video);
-		container.appendChild(span);
+		div.appendChild(span);
+		div.appendChild(video);
+		container.appendChild(div);
 
 		span.appendChild(document.createTextNode(name));
 
@@ -41,18 +43,15 @@ function Participant(name, userId, selfStream) {
 	this.getVideoElement = function () {
 		return video;
 	}
-	this.changeVideoElementToAudioTag = function () {
+	this.changeVideoElementToAudioElement = function () {
 		var audio= document.createElement('audio');
 		audio.id=this.userId;
 		audio.autoplay = true;
-		container.replaceChild(audio, video);
+		let div=video.parentNode;
+		div.replaceChild(audio, video);
 		video=audio;
 	}
 
-
-	function isPresentMainParticipant() {
-		return ((document.getElementsByClassName(PARTICIPANT_MAIN_CLASS)).length != 0);
-	}
 
 	this.offerToReceiveVideo = function (error, offerSdp, wp) {
 		if (error) return console.error("sdp offer error")
@@ -83,10 +82,8 @@ function Participant(name, userId, selfStream) {
 		console.log('Disposing participant ' + this.name);
 		this.rtcPeer.dispose();
 
-		container.removeChild(video);
-		if (span) {
-			container.removeChild(span);
-		}
+		let div=video.parentNode;
+		div.remove();
 	};
 	this.disposeSelf = function () {
 		console.log('Disposing self ' + this.name);

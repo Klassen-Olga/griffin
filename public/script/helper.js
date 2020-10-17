@@ -15,7 +15,7 @@ function toggleEnterLeaveButtons() {
 function clearRemoteVideos() {
 	var container = document.getElementById('foreignVideoContainer');
 	while(container.firstChild){
-		container.removeChild(container.lastChild);
+		container.lastChild.remove();
 	}
 }
 function toggleMediaButtons(button,on) {
