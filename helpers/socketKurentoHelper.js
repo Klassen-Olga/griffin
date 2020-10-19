@@ -15,10 +15,11 @@ var argv = minimist(process.argv.slice(2), {
 module.exports = class Helper {
 
 	constructor(userRegister) {
-		const self=this;
+		const self = this;
 		self.rooms = {};
-		self.userRegister=userRegister;
+		self.userRegister = userRegister;
 	}
+
 	joinRoom(socket, message, callback) {
 		const self = this;
 
@@ -59,7 +60,8 @@ module.exports = class Helper {
 						name: roomName,
 						pipeline: pipeline,
 						participants: {},
-						kurentoClient: kurentoClient
+						kurentoClient: kurentoClient,
+						moderator:'Klassen Olga'
 					};
 
 					self.rooms[roomName] = room;
@@ -74,7 +76,7 @@ module.exports = class Helper {
 
 	join(socket, room, message, callback) {
 
-		const self=this;
+		const self = this;
 		// add user to session
 		let userSession = new Session(socket, message.name, room.name, message.videoOn, message.audioOn);
 
@@ -302,7 +304,7 @@ module.exports = class Helper {
 	 * @param {*} callback
 	 */
 	addIceCandidate(socket, message, callback) {
-		const self=this;
+		const self = this;
 
 		let user = self.userRegister.getById(socket.id);
 		if (user != null) {
@@ -388,5 +390,51 @@ module.exports = class Helper {
 			});
 		}
 	}
+
+	proceedRequestForModerator(message, socket) {
+		const self = this;
+
+		let data1 = {
+			id: 'onEnterNotification',
+			error: null
+		}
+		//does room exist in database
+		//get moderator from db
+		if (/*self.rooms.hasOwnProperty(message.roomName)*/true === false) {
+			data1.error = 'Please check if the url is entered correctly';
+			socket.emit('message', data1);
+			return;
+		}
+
+		//vremenno, potom id brati iz rooms moderator
+		let moderatorDb='Olga Klassen';
+		let roomDb=message.roomName;
+
+		//does user exists in db
+		if (true){
+			// is current user moderator
+			if (moderatorDb === message.name) {
+				socket.emit('message', data1);
+				return;
+			}
+		}
+
+		let moderator= self.userRegister.getByName(moderatorDb);
+		// after all is room empty or isn't moderator already registered
+		if (Object.keys(self.rooms).length===0 || typeof moderator==='undefined'){
+			data1.error = 'No moderator present, please reenter later';
+			socket.emit('message', data1);
+			return;
+		}
+
+		let data = {
+			id: 'requestForModerator',
+			userId: socket.id,
+			name: message.name
+		}
+		socket.emit('message', {id:'waitModeratorResponse'});
+		socket.to(moderator.id).emit('message', data);
+	}
+
 
 }

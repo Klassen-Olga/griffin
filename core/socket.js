@@ -1,8 +1,8 @@
 const {v4: uuidv4} = require('uuid');
 const Register = require('../lib/register.js');
 let userRegister = new Register();
-const Helper=require('../helpers/socketKurentoHelper');
-let helper= new Helper(userRegister);
+const Helper = require('../helpers/socketKurentoHelper');
+let helper = new Helper(userRegister);
 
 class SocketHandler {
 
@@ -11,7 +11,7 @@ class SocketHandler {
 		self.io = io;
 		//object for sockets
 		self.sockets = {};
-		self.participants={};
+		self.participants = {};
 		self.initOtherEvents();
 		self.initEventsKurento();
 		self.initEventsPeerConnection();
@@ -63,13 +63,20 @@ class SocketHandler {
 						break;
 					case 'chatMessage':
 						helper.sendChatMessageToRoomParticipants(message.message, message.roomId, socket.id, (err) => {
-							if (err){
+							if (err) {
 								console.log(err);
 								return;
 							}
-							console.log('Sending chat message from ' + socket.id + " to the room " +message.roomId);
+							console.log('Sending chat message from ' + socket.id + " to the room " + message.roomId);
 						})
 						break;
+					case 'requestForModerator':
+						helper.proceedRequestForModerator(message, socket);
+						break;
+					case 'moderatorResponse':
+						socket.to(message.userId).emit('message', message);
+						break;
+
 
 				}
 			});
@@ -82,8 +89,8 @@ class SocketHandler {
 			// 1)
 			socket.on("newUser", (roomId, fullName) => {
 				console.log("newUser " + socket.id + " sends data to all users");
-				self.participants[socket.id]=fullName;
-					socket.join(roomId);
+				self.participants[socket.id] = fullName;
+				socket.join(roomId);
 				socket.broadcast.to(roomId).emit("newUser", socket.id);
 				socket.on("disconnect", () => {
 
@@ -117,7 +124,7 @@ class SocketHandler {
 
 			socket.on('chat message', (msg, roomId, fromName) => {
 				console.log('message: ' + msg);
-				let data={
+				let data = {
 					message: msg,
 					fromName: fromName
 				}
@@ -133,8 +140,8 @@ class SocketHandler {
 			self.sockets[socket.id] = socket;
 
 			socket.on('disconnect', () => {
-				console.log('User '+ socket.id+' disconnects');
-				if (userRegister.getById(socket.id)){
+				console.log('User ' + socket.id + ' disconnects');
+				if (userRegister.getById(socket.id)) {
 					helper.leaveRoom(socket, err => {
 						if (err) {
 							console.error(err);
@@ -144,8 +151,7 @@ class SocketHandler {
 							delete self.sockets[socket.id];
 						}
 					});
-				}
-				else{
+				} else {
 					if (self.sockets[socket.id]) {
 						delete self.sockets[socket.id];
 					}

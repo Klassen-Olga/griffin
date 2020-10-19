@@ -1,21 +1,21 @@
 window.onbeforeunload = () => {
 	socket.close();
 };
-window.onload=()=>{
-	document.getElementById('enterTheRoom').style.display='block';
-	document.getElementById('leaveTheRoom').style.display='none';
+window.onload = () => {
+	document.getElementById('enterTheRoom').style.display = 'block';
+	document.getElementById('leaveTheRoom').style.display = 'none';
 }
 checkUsersDevicesAndAccessPermissions();
 
 /*
 * variables for managing device access
 * */
-var audioDeviceNumber=0;
-var videoDeviceNumber=0;
-var acceptAudio=false;
-var acceptVideo=false;
-var audioBeforeEnterTheRoom=false;
-var videoBeforeEnterTheRoom=false;
+var audioDeviceNumber = 0;
+var videoDeviceNumber = 0;
+var acceptAudio = false;
+var acceptVideo = false;
+var audioBeforeEnterTheRoom = false;
+var videoBeforeEnterTheRoom = false;
 /*
 * variables for managing peer connections and users personal data
 * */
@@ -58,18 +58,48 @@ function socketInit() {
 				break;
 			case'chat message':
 				receiveChatMessage(parsedMessage);
+				break;
+			case 'requestForModerator':
+				let data={
+					id:'moderatorResponse',
+					userId:parsedMessage.userId,
+					accepted:false
+				}
+				if (confirm('New user '+parsedMessage.name+' want to join the conference room.' +
+					'\n Are you agree?')) {
+					data.accepted=true;
+				}
+				sendMessage(data);
+				break;
+			case 'moderatorResponse':
+				if (parsedMessage.accepted===true){
+					enter();
+				}
+				else{
+					alert('Moderator does not accept your entry');
+				}
+				break;
+			case 'onEnterNotification':
+				// for moderator self
+				if (parsedMessage.error===null){
+					enter();
+				}
+				else{
+					alert(parsedMessage.error);
+				}
+				break;
+			case 'waitModeratorResponse':
+				alert('Please wait until moderator accepts your entry');
+				break;
 
 		}
 	});
 }
 
-
-function enter() {
-
-	var roomName = roomId;
+function requestForModerator() {
 	name = document.getElementsByName('fullName')[0].value;
 	let err = "Your name should be more then 1 symbol";
-	if (validateStrLength(name, 2, document.getElementById('nameDiv'), err)===false) {
+	if (validateStrLength(name, 2, document.getElementById('nameDiv'), err) === false) {
 		return;
 	}
 
@@ -80,14 +110,39 @@ function enter() {
 		return;
 
 	}
+	var message = {
+		id: 'requestForModerator',
+		name: document.getElementsByName('fullName')[0].value,
+		roomName: roomId
+	}
+
+	sendMessage(message);
+}
+
+function enter() {
+
+	/*
+	name = document.getElementsByName('fullName')[0].value;
+	let err = "Your name should be more then 1 symbol";
+	if (validateStrLength(name, 2, document.getElementById('nameDiv'), err) === false) {
+		return;
+	}
+
+	socketInit();
+
+	if (!socket) {
+		console.error('Socket not defined');
+		return;
+
+	}*/
 
 	disableNameInputAndPrintSelfName();
 	var message = {
 		id: 'joinRoom',
 		name: name,
-		roomName: roomName,
-		audioOn:acceptAudio,
-		videoOn:acceptVideo
+		roomName: roomId,
+		audioOn: acceptAudio,
+		videoOn: acceptVideo
 	}
 
 
@@ -96,54 +151,55 @@ function enter() {
 
 }
 
-function checkUsersDevicesAndAccessPermissions(){
+function checkUsersDevicesAndAccessPermissions() {
 
-		navigator.mediaDevices.enumerateDevices()
-		.then(function(devices) {
-			videoDeviceNumber= devices.filter(device => device.kind === 'videoinput').length;
-			audioDeviceNumber= devices.filter(device => device.kind === 'audioinput').length;
-			console.log("Number of video devices: "+ videoDeviceNumber);
-			console.log("Number of audio devices: "+ audioDeviceNumber);
+	navigator.mediaDevices.enumerateDevices()
+		.then(function (devices) {
+			videoDeviceNumber = devices.filter(device => device.kind === 'videoinput').length;
+			audioDeviceNumber = devices.filter(device => device.kind === 'audioinput').length;
+			console.log("Number of video devices: " + videoDeviceNumber);
+			console.log("Number of audio devices: " + audioDeviceNumber);
 			// or not permited
-			if (audioDeviceNumber>0){
-				navigator.mediaDevices.getUserMedia({audio:true})
+			if (audioDeviceNumber > 0) {
+				navigator.mediaDevices.getUserMedia({audio: true})
 					.then(stream => {
-						acceptAudio=true;
-						audioBeforeEnterTheRoom=true;
+						acceptAudio = true;
+						audioBeforeEnterTheRoom = true;
 						toggleMediaButtons('audio', true);
 						console.log('Got MediaStream:', stream);
 					})
 					.catch(error => {
-						acceptAudio=false;
-						audioBeforeEnterTheRoom=false;
+						acceptAudio = false;
+						audioBeforeEnterTheRoom = false;
 						toggleMediaButtons('audio', false);
 						console.error('Error accessing media devices.', error);
 					});
 			}
-			if (videoDeviceNumber>0){
-				navigator.mediaDevices.getUserMedia({video:true})
+			if (videoDeviceNumber > 0) {
+				navigator.mediaDevices.getUserMedia({video: true})
 					.then(stream => {
-						acceptVideo=true;
-						videoBeforeEnterTheRoom=true;
+						acceptVideo = true;
+						videoBeforeEnterTheRoom = true;
 						toggleMediaButtons('video', true);
 						console.log('Got MediaStream:', stream);
-						document.getElementById('videoTest').srcObject=stream;
+						document.getElementById('videoTest').srcObject = stream;
 					})
 					.catch(error => {
-						acceptVideo=false;
-						videoBeforeEnterTheRoom=false;
+						acceptVideo = false;
+						videoBeforeEnterTheRoom = false;
 						toggleMediaButtons('video', false);
 						console.error('Error accessing media devices.', error);
 					});
 
 			}
 		})
-		.catch(function(err) {
+		.catch(function (err) {
 			console.error(err.name + ": " + err.message);
 		});
 
 
 }
+
 function onNewParticipant(request) {
 	receiveVideo(request);
 }
@@ -185,16 +241,17 @@ function onExistingParticipants(msg) {
 	participant.rtcPeer = new kurentoUtils.WebRtcPeer.WebRtcPeerSendonly(options,
 		function (error) {
 			if (error) {
-				/*return*/ console.error(error);
+				/*return*/
+				console.error(error);
 			}
 			this.generateOffer(participant.offerToReceiveVideo.bind(participant));
-			if (audioBeforeEnterTheRoom===false){
+			if (audioBeforeEnterTheRoom === false) {
 				removeMediaTrack('audio');
 			}
-			if (videoBeforeEnterTheRoom===false){
+			if (videoBeforeEnterTheRoom === false) {
 				removeMediaTrack('video');
 			}
-			document.getElementById('videoTest').style.display='none';
+			document.getElementById('videoTest').style.display = 'none';
 		});
 
 	msg.data.forEach(receiveVideo);
@@ -222,7 +279,7 @@ function leaveRoom() {
 function receiveVideo(sender) {
 	var participant = new Participant(sender.name, sender.userId);
 	//kurento bug: in combination audio true and video false does not play audio in video DOM element
-	if (sender.audioOn===true && sender.videoOn===false){
+	if (sender.audioOn === true && sender.videoOn === false) {
 		participant.changeVideoElementToAudioElement();
 	}
 	participants[sender.userId] = participant;
@@ -237,7 +294,8 @@ function receiveVideo(sender) {
 	participant.rtcPeer = new kurentoUtils.WebRtcPeer.WebRtcPeerRecvonly(options,
 		function (error) {
 			if (error) {
-				/*return*/ console.error(error);
+				/*return*/
+				console.error(error);
 			}
 			this.generateOffer(participant.offerToReceiveVideo.bind(participant));
 		}
@@ -255,17 +313,17 @@ function onParticipantLeft(request) {
 
 function sendMessage(message) {
 	console.log('Senging message: ' + message.id);
-	if (socket){
+	if (socket) {
 		socket.emit('message', message);
 	}
 }
 
 function sendMessageInChat() {
 	var textarea = document.getElementById('message');
-	let data={
-		id:'chatMessage',
-		message:textarea.value,
-		roomId:roomId
+	let data = {
+		id: 'chatMessage',
+		message: textarea.value,
+		roomId: roomId
 
 	}
 	sendMessage(data);
