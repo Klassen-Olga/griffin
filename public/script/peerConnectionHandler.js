@@ -1,9 +1,3 @@
-window.onload = () => {
-	document.getElementById('enterTheRoom').style.display = 'block';
-	document.getElementById('leaveTheRoom').style.display = 'none';
-	document.getElementById('videoTest').style.display='none';
-}
-
 
 //all remote peer connections
 const peerConnections = {};
@@ -19,22 +13,8 @@ const config = {
 let socket = null;
 //own window were users video and audio will be saved
 const selfVideoElement = document.getElementsByName("selfStream")[0];
+const videoTest=document.getElementById('videoTest');
 
-
-//to enter to the video chat room user needs minimum an audio device available
-/*
-navigator.mediaDevices.getUserMedia({audio: true})
-	.then(stream => {
-		selfVideoElement.srcObject = stream;
-		document.getElementById('audioOn').disabled = true;
-
-	})
-	.catch(error => {
-
-		handleError(error);
-		console.error("EE: " + error);
-	});
-*/
 /*
 * variables for managing device access
 * */
@@ -44,9 +24,18 @@ var acceptAudio = false;
 var acceptVideo = false;
 var audioBeforeEnterTheRoom = false;
 var videoBeforeEnterTheRoom = false;
-checkUsersDevicesAndAccessPermissions();
+window.onload = () => {
+	document.getElementById('enterTheRoom').style.display = 'block';
+	document.getElementById('leaveTheRoom').style.display = 'none';
+	videoTest.style.display='none';
+	checkUsersDevicesAndAccessPermissions(selfVideoElement);
 
-function checkUsersDevicesAndAccessPermissions() {
+}
+
+
+
+
+function checkUsersDevicesAndAccessPermissions(videoElement) {
 
 	navigator.mediaDevices.enumerateDevices()
 		.then(function (devices) {
@@ -62,7 +51,7 @@ function checkUsersDevicesAndAccessPermissions() {
 						audioBeforeEnterTheRoom = true;
 						toggleMediaButtons('audio', true);
 						console.log('Got MediaStream:', stream);
-						addTrackToSrcObject('audio', stream);
+						addTrackToSrcObject('audio', stream, videoElement);
 					})
 					.catch(error => {
 						acceptAudio = false;
@@ -78,7 +67,7 @@ function checkUsersDevicesAndAccessPermissions() {
 						videoBeforeEnterTheRoom = true;
 						toggleMediaButtons('video', true);
 						console.log('Got MediaStream:', stream);
-						addTrackToSrcObject('video', stream);
+						addTrackToSrcObject('video', stream, videoElement);
 
 					})
 					.catch(error => {
@@ -107,12 +96,16 @@ function checkUsersDevicesAndAccessPermissions() {
 * */
 //TODO: when left  the room remove name and make input name available
 //TODO: when reenter navigator.getusermedia should be called
-function enter() {
+async function enter() {
 	socket = io.connect(window.location.origin);
 
 	if (!socket){
 		console.error('Socket not defined');
 		return;
+	}
+
+	if (videoTest.srcObject!==null){
+		selfVideoElement.srcObject=videoTest.srcObject;
 	}
 	initEvents();
 	var fullNameInput = document.getElementsByName('fullName')[0];
@@ -225,50 +218,34 @@ function initEvents() {
 
 	/*
 	*
-	* when user closes tab peer connection will be closed
-	* and all connected users will remove this user from the video chat
+	* when user closes tab or presses leave button peer connection will be closed
+	* and all connected users will remove the user from the video chat
 	* */
 	socket.on("disconnectPeer", id => {
-		peerConnections[id].iceConnectionState == 'disconnected';
+		peerConnections[id].iceConnectionState = 'disconnected';
 		peerConnections[id].close();
-		let video = document.getElementById(id);
+		let foreignUserContainer = document.getElementById(id);
 		let div = document.getElementById('foreignVideoContainer');
-		div.removeChild(video);
-	});
 
-	/*
-	*remote user will save session description of user, who added media tracks
-	*and will response with an answer
-	* */
-	socket.on("mediaOnAnswer", (userWhichAddedAudioTrack, description) => {
-		peerConnections[userWhichAddedAudioTrack]
-			.setRemoteDescription(description)
-			.then(() => peerConnections[userWhichAddedAudioTrack].createAnswer())
-			.then(sdp => peerConnections[userWhichAddedAudioTrack].setLocalDescription(sdp))
-			.then(() => {
-				socket.emit("answer", userWhichAddedAudioTrack, peerConnections[userWhichAddedAudioTrack].localDescription);
-			});
+		if (foreignUserContainer===null){
+			return;
+		}
+
+
+		if (foreignUserContainer.tagName==='VIDEO'){
+			div.removeChild(foreignUserContainer.parentNode);
+		}
+		//case when there is no video and audio available
+		else if(foreignUserContainer.tagName==='DIV'){
+			div.removeChild(foreignUserContainer);
+		}
 
 	});
+
 	socket.on('chat message', data => receiveChatMessage(data));
 
 }
 
-/*/!*
-* if a user wants to add his audio or video after the connection was established,
-* function will iterate over all users remote connections and will make offer to each of them
-* *!/
-
-async function updateTracksOnRemotePeers(tracks) {
-	for (let key in peerConnections) {
-		if (peerConnections.hasOwnProperty(key)) {
-			peerConnections[key].addTrack(tracks[0], selfVideoElement.srcObject);
-			let sdp = await peerConnections[key].createOffer({offerToReceiveVideo: true, offerToReceiveAudio: true});
-			await peerConnections[key].setLocalDescription(sdp);
-			await socket.emit("mediaOnOffer", peerConnections[key].localDescription, key);
-		}
-	}
-}*/
 
 function appendNewVideoWindow(fullName, video) {
 	let div = document.createElement('div');
@@ -328,9 +305,11 @@ function createPeerConnection(id, fullName) {
 	return peerConnection;
 }
 
-window.onunload = window.onbeforeunload = () => {
-
-	socket.close();
+window.onbeforeunload = () => {
+	leaveRoom();
+	if (socket){
+		socket.close();
+	}
 };
 
 function leaveRoom() {
@@ -341,9 +320,10 @@ function leaveRoom() {
 
 	selfVideoElement.srcObject = null;
 	clearRemoteVideos();
+	socket.emit('disconnect');
 	socket.close();
 	toggleEnterLeaveButtons();
-
+	checkUsersDevicesAndAccessPermissions(videoTest);
 }
 
 function sendMessageInChat() {
@@ -352,6 +332,5 @@ function sendMessageInChat() {
 	socket.emit('chat message', textarea.value, roomId, document.getElementById('fullName').innerText);
 	textarea.value = '';
 }
-
 
 

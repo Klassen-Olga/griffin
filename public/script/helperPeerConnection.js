@@ -37,28 +37,28 @@ function addMediaTrack(mediaType) {
 
 }
 
-function addTrackToSrcObject(mediaType, stream) {
+function addTrackToSrcObject(mediaType, stream, videoElement) {
 
 	let tracks = getTracksFromStream(stream, mediaType);
 
 	//insert media track for first time
-	if (selfVideoElement.srcObject !== null) {
-		let localStream = selfVideoElement.srcObject;
+	if (videoElement.srcObject !== null) {
+		let localStream = videoElement.srcObject;
 		localStream.addTrack(tracks[0]);
-		selfVideoElement.srcObject = null;
-		selfVideoElement.srcObject = localStream;
+		videoElement.srcObject = null;
+		videoElement.srcObject = localStream;
 	} else {
-		selfVideoElement.srcObject = stream;
+		videoElement.srcObject = stream;
 	}
 
 }
 
 function removeMediaTrack(deviceType) {
 	if (selfVideoElement.srcObject !== null) {
-		if (deviceType === 'video') {
+		if (deviceType === 'video' && selfVideoElement.srcObject.getVideoTracks().length>0) {
 			selfVideoElement.srcObject.getVideoTracks()[0].enabled = false;
 
-		} else if (deviceType === 'audio') {
+		} else if (deviceType === 'audio'&& selfVideoElement.srcObject.getAudioTracks().length>0) {
 			selfVideoElement.srcObject.getAudioTracks()[0].enabled = false;
 
 		}

@@ -115,12 +115,6 @@ class SocketHandler {
 				socket.to(id).emit("candidate", socket.id, message);
 			});
 
-			/*socket.on("mediaOnOffer", (description, userIdToSendHimOffer) => {
-				console.log("offer for audio from " + socket.id + "to " + userIdToSendHimOffer);
-
-				socket.to(userIdToSendHimOffer).emit("mediaOnAnswer", socket.id, description);
-			});*/
-
 			socket.on('chat message', (msg, roomId, fromName) => {
 				console.log('message: ' + msg);
 				let data={

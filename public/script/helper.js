@@ -2,13 +2,22 @@ function toggleEnterLeaveButtons() {
 	var enterButton=document.getElementById('enterTheRoom');
 	var leaveButton=document.getElementById('leaveTheRoom');
 
-	if (enterButton.style.display=='block'){
+	// from leave to enter
+	if (enterButton.style.display==='block'){
 		enterButton.style.display='none';
 		leaveButton.style.display='block';
 	}
+	// from enter to leave
 	else{
-		enterButton.style.display='block';
+		enterButton.innerText='Load';
 		leaveButton.style.display='none';
+		enterButton.style.display='block';
+		enterButton.disabled=true;
+		setTimeout(function () {
+			enterButton.innerText='Enter the room';
+			enterButton.disabled=false;
+		}, 1000);
+
 	}
 }
 
