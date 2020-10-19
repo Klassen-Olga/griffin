@@ -1,4 +1,3 @@
-
 //all remote peer connections
 const peerConnections = {};
 //configuration for peer connection including stun and turn servers
@@ -13,7 +12,7 @@ const config = {
 let socket = null;
 //own window were users video and audio will be saved
 const selfVideoElement = document.getElementsByName("selfStream")[0];
-const videoTest=document.getElementById('videoTest');
+const videoTest = document.getElementById('videoTest');
 
 /*
 * variables for managing device access
@@ -27,12 +26,10 @@ var videoBeforeEnterTheRoom = false;
 window.onload = () => {
 	document.getElementById('enterTheRoom').style.display = 'block';
 	document.getElementById('leaveTheRoom').style.display = 'none';
-	videoTest.style.display='none';
+	videoTest.style.display = 'none';
 	checkUsersDevicesAndAccessPermissions(selfVideoElement);
 
 }
-
-
 
 
 function checkUsersDevicesAndAccessPermissions(videoElement) {
@@ -96,30 +93,26 @@ function checkUsersDevicesAndAccessPermissions(videoElement) {
 * */
 
 async function enter() {
-	socket = io.connect(window.location.origin);
 
-	if (!socket){
-		console.error('Socket not defined');
-		return;
-	}
-
-	if (videoTest.srcObject!==null){
-		selfVideoElement.srcObject=videoTest.srcObject;
-	}
-	initEvents();
 	var fullNameInput = document.getElementsByName('fullName')[0];
 	let nameDiv = document.getElementById('nameDiv');
+	let message = "Your name should be more then 1 symbol";
 
-	if (fullNameInput.value.length < 2) {
-		if (nameDiv.lastChild.tagName !== 'P') {
-			let p = document.createElement('p');
-			p.classList.add('error');
-			p.innerText = "Your name should be more then 1 symbol";
-			nameDiv.appendChild(p);
-		}
+	if (validateStrLength(fullNameInput.value, 2, nameDiv, message)===false) {
+		return;
+	}
+
+	socketInit();
+
+	if (!socket) {
+		console.error('Socket not defined');
 		return;
 
 	}
+	if (videoTest.srcObject !== null) {
+		selfVideoElement.srcObject = videoTest.srcObject;
+	}
+
 	disableNameInputAndPrintSelfName();
 
 	socket.emit("newUser", roomId, fullNameInput.value);
@@ -127,8 +120,9 @@ async function enter() {
 
 }
 
-function initEvents() {
+function socketInit() {
 
+	socket = io.connect();
 	/*
 	* remote user gets info about new user entered the room and sends him his full name
 	* */
@@ -185,7 +179,7 @@ function initEvents() {
 				socket.emit("candidate", newUserId, event.candidate);
 			}
 		};
-		if (document.getElementById(newUserId)===null){
+		if (document.getElementById(newUserId) === null) {
 			appendNewVideoWindow(fullName).setAttribute('id', newUserId);
 		}
 	});
@@ -198,7 +192,7 @@ function initEvents() {
 	* */
 	socket.on("answer", (oldUserId, description, fullName) => {
 		peerConnections[oldUserId].setRemoteDescription(description);
-		if (document.getElementById(oldUserId)===null){
+		if (document.getElementById(oldUserId) === null) {
 			appendNewVideoWindow(fullName).setAttribute('id', oldUserId);
 		}
 	});
@@ -226,16 +220,16 @@ function initEvents() {
 		let foreignUserContainer = document.getElementById(id);
 		let div = document.getElementById('foreignVideoContainer');
 
-		if (foreignUserContainer===null){
+		if (foreignUserContainer === null) {
 			return;
 		}
 
 
-		if (foreignUserContainer.tagName==='VIDEO'){
+		if (foreignUserContainer.tagName === 'VIDEO') {
 			div.removeChild(foreignUserContainer.parentNode);
 		}
 		//case when there is no video and audio available
-		else if(foreignUserContainer.tagName==='DIV'){
+		else if (foreignUserContainer.tagName === 'DIV') {
 			div.removeChild(foreignUserContainer);
 		}
 
@@ -249,15 +243,16 @@ function initEvents() {
 function appendNewVideoWindow(fullName, video) {
 	let div = document.createElement('div');
 	div.classList.add('videoDiv');
-	let span=document.createElement('span');
+	let span = document.createElement('span');
 	span.appendChild(document.createTextNode(fullName));
 	div.appendChild(span);
-	if (video){
+	if (video) {
 		div.appendChild(video);
 	}
 	document.getElementById('foreignVideoContainer').appendChild(div);
 	return div;
 }
+
 function createPeerConnection(id, fullName) {
 
 	const peerConnection = new RTCPeerConnection(config);
@@ -277,7 +272,7 @@ function createPeerConnection(id, fullName) {
 	peerConnection.ontrack = (event) => {
 		console.log('On track event for user with id ' + id + ' ' + ' number of tracks ' + JSON.stringify(event.streams[0].getTracks().length));
 		//case if div for no video already appended
-		if (document.getElementById(id)!==null && document.getElementById(id).tagName==='DIV'){
+		if (document.getElementById(id) !== null && document.getElementById(id).tagName === 'DIV') {
 			document.getElementById(id).remove();
 		}
 		let video = document.getElementById(id);
@@ -306,7 +301,7 @@ function createPeerConnection(id, fullName) {
 
 window.onbeforeunload = () => {
 	leaveRoom();
-	if (socket){
+	if (socket) {
 		socket.close();
 	}
 };

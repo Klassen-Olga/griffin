@@ -65,10 +65,23 @@ function socketInit() {
 
 
 function enter() {
-	socketInit();
+
 	var roomName = roomId;
 	name = document.getElementsByName('fullName')[0].value;
+	let err = "Your name should be more then 1 symbol";
+	if (validateStrLength(name, 2, document.getElementById('nameDiv'), err)===false) {
+		return;
+	}
 
+	socketInit();
+
+	if (!socket) {
+		console.error('Socket not defined');
+		return;
+
+	}
+
+	disableNameInputAndPrintSelfName();
 	var message = {
 		id: 'joinRoom',
 		name: name,
@@ -201,6 +214,7 @@ function leaveRoom() {
 		delete participants[key];
 	}
 	clearRemoteVideos();
+	enableNameInputAndRemoveSelfName();
 	toggleEnterLeaveButtons();
 	socket.close();
 }

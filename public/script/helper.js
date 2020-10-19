@@ -75,6 +75,18 @@ function enableNameInputAndRemoveSelfName() {
 		nameDiv.removeChild(errorNameInput);
 	}
 }
+function validateStrLength(str, length, appendElement, message) {
+	if (str.length < length) {
+		if (appendElement.lastChild.tagName !== 'P') {
+			let p = document.createElement('p');
+			p.classList.add('error');
+			p.innerText = message;
+			appendElement.appendChild(p);
+		}
+		return false;
+	}
+	return true;
+}
 function disableNameInputAndPrintSelfName() {
 
 	let fullName=document.getElementsByName('fullName')[0].value;
