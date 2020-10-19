@@ -1,3 +1,15 @@
+/*
+*
+* chat event
+* */
+function receiveChatMessage (data) {
+	let chat = document.getElementById('messages');
+	let messagesDiv = document.createElement('DIV');
+	messagesDiv.innerText = data.fromName + ': ' + data.message;
+	chat.appendChild(messagesDiv);
+	chat.scrollTop = chat.scrollHeight;
+}
+
 function toggleEnterLeaveButtons() {
 	var enterButton=document.getElementById('enterTheRoom');
 	var leaveButton=document.getElementById('leaveTheRoom');
@@ -52,14 +64,23 @@ function toggleMediaButtons(button,on) {
 	}
 }
 
-/*
-*
-* chat event
-* */
-function receiveChatMessage (data) {
-	let chat = document.getElementById('messages');
-	let messagesDiv = document.createElement('DIV');
-	messagesDiv.innerText = data.fromName + ': ' + data.message;
-	chat.appendChild(messagesDiv);
-	chat.scrollTop = chat.scrollHeight;
+function enableNameInputAndRemoveSelfName() {
+	document.getElementById('fullName').innerText='';
+	document.getElementsByName('fullName')[0].value='';
+	let nameDiv= document.getElementById('nameDiv');
+	let errorNameInput=document.getElementsByClassName('error')[0];
+	nameDiv.style.display='block';
+
+	if (typeof errorNameInput!=='undefined'){
+		nameDiv.removeChild(errorNameInput);
+	}
 }
+function disableNameInputAndPrintSelfName() {
+
+	let fullName=document.getElementsByName('fullName')[0].value;
+
+	document.getElementById('fullName').innerText = fullName;
+	document.getElementById('nameDiv').style.display = 'none';
+}
+
+

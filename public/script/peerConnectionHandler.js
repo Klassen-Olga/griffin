@@ -94,8 +94,7 @@ function checkUsersDevicesAndAccessPermissions(videoElement) {
 * and then newUser event will be sent to the server side.
 * It will be also removed username input and enter button
 * */
-//TODO: when left  the room remove name and make input name available
-//TODO: when reenter navigator.getusermedia should be called
+
 async function enter() {
 	socket = io.connect(window.location.origin);
 
@@ -114,14 +113,14 @@ async function enter() {
 	if (fullNameInput.value.length < 2) {
 		if (nameDiv.lastChild.tagName !== 'P') {
 			let p = document.createElement('p');
+			p.classList.add('error');
 			p.innerText = "Your name should be more then 1 symbol";
 			nameDiv.appendChild(p);
 		}
 		return;
 
 	}
-	document.getElementById('fullName').innerText = fullNameInput.value;
-	nameDiv.style.display = 'none';
+	disableNameInputAndPrintSelfName();
 
 	socket.emit("newUser", roomId, fullNameInput.value);
 	toggleEnterLeaveButtons();
@@ -318,6 +317,8 @@ function leaveRoom() {
 		delete peerConnections[key];
 	}
 
+
+	enableNameInputAndRemoveSelfName();
 	selfVideoElement.srcObject = null;
 	clearRemoteVideos();
 	socket.emit('disconnect');
