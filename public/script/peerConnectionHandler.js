@@ -92,8 +92,7 @@ function checkUsersDevicesAndAccessPermissions(videoElement) {
 * It will be also removed username input and enter button
 * */
 
-async function enter() {
-
+function requestForModerator() {
 	var fullNameInput = document.getElementsByName('fullName')[0];
 	let nameDiv = document.getElementById('nameDiv');
 	let message = "Your name should be more then 1 symbol";
@@ -109,6 +108,26 @@ async function enter() {
 		return;
 
 	}
+
+	socket.emit('requestForModeratorPeer', fullNameInput.value, roomId);
+}
+async function enter() {
+	var fullNameInput = document.getElementsByName('fullName')[0];
+	/*
+	let nameDiv = document.getElementById('nameDiv');
+	let message = "Your name should be more then 1 symbol";
+
+	if (validateStrLength(fullNameInput.value, 2, nameDiv, message)===false) {
+		return;
+	}
+
+	socketInit();
+
+	if (!socket) {
+		console.error('Socket not defined');
+		return;
+
+	}*/
 	if (videoTest.srcObject !== null) {
 		selfVideoElement.srcObject = videoTest.srcObject;
 	}
@@ -117,6 +136,7 @@ async function enter() {
 
 	socket.emit("newUser", roomId, fullNameInput.value);
 	toggleEnterLeaveButtons();
+
 
 }
 
@@ -236,6 +256,36 @@ function socketInit() {
 	});
 
 	socket.on('chat message', data => receiveChatMessage(data));
+	socket.on('onEnterNotification', err=>{
+		if (err===null){
+			enter();
+		}
+		else{
+			alert(err);
+		}
+
+	});
+	socket.on('waitModeratorResponse', ()=>{
+		alert('Please wait until moderator accepts your entry');
+	});
+	socket.on('requestForModerator', (userId, fullName)=>{
+
+		if (confirm('New user '+fullName+' want to join the conference room.' +
+			'\n Are you agree?')) {
+			socket.emit('moderatorResponsePeer', true, userId)
+		}
+		else{
+			socket.emit('moderatorResponsePeer', false, userId)
+		}
+	});
+	socket.on('moderatorResponsePeer', (accepted)=>{
+		if (accepted===true){
+			enter();
+		}
+		else{
+			alert('Moderator does not accept your entry');
+		}
+	})
 
 }
 

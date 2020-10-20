@@ -11,7 +11,8 @@ class SocketHandler {
 		self.io = io;
 		//object for sockets
 		self.sockets = {};
-		self.participants = {};
+		self.participantsById = {};
+		self.participantsByName={};
 		self.initOtherEvents();
 		self.initEventsKurento();
 		self.initEventsPeerConnection();
@@ -89,7 +90,8 @@ class SocketHandler {
 			// 1)
 			socket.on("newUser", (roomId, fullName) => {
 				console.log("newUser " + socket.id + " sends data to all users");
-				self.participants[socket.id] = fullName;
+				self.participantsById[socket.id] = fullName;
+				self.participantsByName[fullName]=socket.id;
 				socket.join(roomId);
 				socket.broadcast.to(roomId).emit("newUser", socket.id);
 				socket.on("disconnect", () => {
@@ -114,7 +116,7 @@ class SocketHandler {
 			socket.on("answer", (newUserId, message) => {
 				console.log("answer from " + socket.id + " to new " + newUserId);
 
-				socket.to(newUserId).emit("answer", socket.id, message, self.participants[socket.id]);
+				socket.to(newUserId).emit("answer", socket.id, message, self.participantsById[socket.id]);
 			});
 			socket.on("candidate", (id, message) => {
 				console.log("new candidate " + id + " for " + socket.id);
@@ -130,10 +132,48 @@ class SocketHandler {
 				}
 				self.io.in(roomId).emit('chat message', data);
 			});
+			socket.on('requestForModeratorPeer', (fullName, roomId)=>{
+				self.proceedRequestForModeratorPeer(fullName, roomId, socket)
+			});
+			socket.on('moderatorResponsePeer', (accepted, userId)=>{
+				socket.to(userId).emit('moderatorResponsePeer', accepted);
+			});
 
 		});
 	}
+	proceedRequestForModeratorPeer(fullName,roomId, socket) {
+		const self = this;
+		let error=null;
+		//does room exist in database
+		if (/*self.rooms.hasOwnProperty(message.roomName)*/true === false) {
+			socket.emit('onEnterNotification', error);
+			return;
+		}
+		let moderatorDb='Olga Klassen';
+		let roomDb=roomId;
 
+		//does user exists in db
+		if (true){
+			// is current user moderator
+			if (moderatorDb === fullName) {
+				socket.emit('onEnterNotification', error);
+				return;
+			}
+		}
+
+
+		let moderator= self.participantsByName['Olga Klassen'];
+		let room=socket.adapter.rooms[roomId];
+		// after all is room empty or isn't moderator already registered
+		if (room.length===0 || typeof moderator==='undefined'){
+			error = 'No moderator present, please reenter later';
+			socket.emit('onEnterNotification', error);
+			return;
+		}
+
+		socket.emit('waitModeratorResponse');
+		socket.to(moderator).emit('requestForModerator', socket.id, fullName);
+	}
 	initOtherEvents() {
 		const self = this;
 		self.io.on('connection', socket => {
