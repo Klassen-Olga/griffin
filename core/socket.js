@@ -107,16 +107,16 @@ class SocketHandler {
 				socket.to(newUserId).emit("requestForOffer", socket.id, fullName);
 			});
 			// 2)
-			socket.on("offer", (oldUserId, message, fullName) => {
+			socket.on("offer", (oldUserId, message, fullName, videoOn) => {
 				console.log("offer from new " + socket.id + " to old user " + oldUserId);
 
-				socket.to(oldUserId).emit("offer", socket.id, message, fullName);
+				socket.to(oldUserId).emit("offer", socket.id, message, fullName, videoOn);
 			});
 			// 4) this is only for me to register another users
-			socket.on("answer", (newUserId, message) => {
+			socket.on("answer", (newUserId, message, videoBeforeEnterTheRoom) => {
 				console.log("answer from " + socket.id + " to new " + newUserId);
 
-				socket.to(newUserId).emit("answer", socket.id, message, self.participantsById[socket.id]);
+				socket.to(newUserId).emit("answer", socket.id, message, self.participantsById[socket.id], videoBeforeEnterTheRoom);
 			});
 			socket.on("candidate", (id, message) => {
 				console.log("new candidate " + id + " for " + socket.id);
@@ -137,6 +137,12 @@ class SocketHandler {
 			});
 			socket.on('moderatorResponsePeer', (accepted, userId)=>{
 				socket.to(userId).emit('moderatorResponsePeer', accepted);
+			});
+			socket.on('videoDisabled', roomId=>{
+				socket.broadcast.to(roomId).emit('videoDisabled', socket.id);
+			});
+			socket.on('videoEnabled', roomId=>{
+				socket.broadcast.to(roomId).emit('videoEnabled', socket.id);
 			});
 
 		});

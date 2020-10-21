@@ -3,11 +3,6 @@ const PARTICIPANT_CLASS = 'participant';
 
 /**
  * Creates a video element for a new participant
- *
- * @param {String} name - the name of the new participant, to be used as tag
- *                        name of the video element.
- *                        The tag of the new element will be 'video<name>'
- * @return
  */
 function Participant(name, userId, selfStream) {
 	var container = document.getElementById('foreignVideoContainer');
@@ -24,8 +19,8 @@ function Participant(name, userId, selfStream) {
 		var span = document.createElement('span');
 		var video = document.createElement('video');
 
-		div.appendChild(span);
 		div.appendChild(video);
+		div.appendChild(span);
 		container.appendChild(div);
 
 		span.appendChild(document.createTextNode(name));

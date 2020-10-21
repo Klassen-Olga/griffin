@@ -62,6 +62,7 @@ function requestForModerator() {
 
 	socket.emit('requestForModeratorPeer', fullNameInput.value, roomId);
 }
+
 /*
 * The function will be called if moderator allows new user to enter the room or for moderator self
 * */
@@ -107,6 +108,27 @@ function enter2() {
 
 
 }
+
+function putNameOverVideo(video) {
+	let divAroundVideoAndSpan = video.parentNode;
+	let span = divAroundVideoAndSpan.childNodes[1];
+	span.style.color = 'white';
+	span.style.position = 'relative';
+	span.style.bottom = '150px';
+	span.style.left = '50px';
+	span.style.fontSize = 'xx-large';
+}
+
+function putVideoOverName(video) {
+	let divAroundVideoAndSpan = video.parentNode;
+	let span = divAroundVideoAndSpan.childNodes[1];
+	span.style.color = 'black';
+	span.style.position = 'static';
+	span.style.bottom = '0px';
+	span.style.left = '0px';
+	span.style.fontSize = 'medium';
+}
+
 /*
 *
 * The function initializes all socket event listeners for peer connection(ManyToMany)
@@ -147,7 +169,7 @@ function socketInit() {
 			.then(sdp => peerConnection.setLocalDescription(sdp))
 			.then(() => {
 				let myFullName = document.getElementById('fullName').innerText;
-				socket.emit("offer", oldUserId, peerConnection.localDescription, myFullName);
+				socket.emit("offer", oldUserId, peerConnection.localDescription, myFullName, videoBeforeEnterTheRoom);
 			});
 	});
 
@@ -155,7 +177,7 @@ function socketInit() {
 	/*
 	* remote user creates his peer connection and sends answer to new user
 	* */
-	socket.on("offer", (newUserId, description, fullName) => {
+	socket.on("offer", (newUserId, description, fullName, videoOn) => {
 		const peerConnection = createPeerConnection(newUserId, fullName);
 
 		peerConnections[newUserId] = peerConnection;
@@ -164,7 +186,7 @@ function socketInit() {
 			.then(() => peerConnection.createAnswer())
 			.then(sdp => peerConnection.setLocalDescription(sdp))
 			.then(() => {
-				socket.emit("answer", newUserId, peerConnection.localDescription);
+				socket.emit("answer", newUserId, peerConnection.localDescription, videoBeforeEnterTheRoom);
 			});
 
 		peerConnection.onicecandidate = event => {
@@ -173,7 +195,11 @@ function socketInit() {
 			}
 		};
 		if (document.getElementById(newUserId) === null) {
-			appendNewVideoWindow(fullName).setAttribute('id', newUserId);
+			let div = appendNewVideoWindow(fullName);
+			div.setAttribute('id', newUserId);
+			if (videoOn===false){
+				div.setAttribute('videoEnabled',false);
+			}
 		}
 	});
 
@@ -183,10 +209,18 @@ function socketInit() {
 	* new user gets the answer from the remote user and sets
 	 * the session description of remote user into his peer connection
 	* */
-	socket.on("answer", (oldUserId, description, fullName) => {
+	socket.on("answer", (oldUserId, description, fullName, remoteVideoBeforeEnterTheRoom) => {
 		peerConnections[oldUserId].setRemoteDescription(description);
+		// before on track is called create div,
+		// which represents new user for case if this user has no audio and video
 		if (document.getElementById(oldUserId) === null) {
-			appendNewVideoWindow(fullName).setAttribute('id', oldUserId);
+			let div = appendNewVideoWindow(fullName);
+			div.setAttribute('id', oldUserId);
+			// mark, that remote user has his video disabled
+			// for case on track will be called and user has granted permissions to the camera
+			if (remoteVideoBeforeEnterTheRoom === false) {
+				div.setAttribute('videoEnabled', false);
+			}
 		}
 	});
 
@@ -255,6 +289,23 @@ function socketInit() {
 	socket.on('moderatorResponsePeer', (accepted) => {
 		moderatorResponse(accepted);
 	})
+	socket.on('videoDisabled', userId => {
+		let video = document.getElementById(userId);
+		if (!video) {
+			return;
+		}
+		putNameOverVideo(video);
+
+	});
+	socket.on('videoEnabled', userId => {
+		console.log('USER ' + userId + ' disables his video');
+		let video = document.getElementById(userId);
+		if (!video) {
+			return;
+		}
+		putVideoOverName(video);
+
+	});
 
 }
 
@@ -268,13 +319,14 @@ function appendNewVideoWindow(fullName, video) {
 	div.classList.add('videoDiv');
 	let span = document.createElement('span');
 	span.appendChild(document.createTextNode(fullName));
-	div.appendChild(span);
 	if (video) {
 		div.appendChild(video);
 	}
+	div.appendChild(span);
 	document.getElementById('foreignVideoContainer').appendChild(div);
 	return div;
 }
+
 
 function createPeerConnection(id, fullName) {
 
@@ -293,15 +345,13 @@ function createPeerConnection(id, fullName) {
 		console.log('NEGOTIATION NEEDED');
 	}
 	peerConnection.ontrack = (event) => {
+		let videoOn = true;
 		console.log('On track event for user with id ' + id + ' ' + ' number of tracks ' + JSON.stringify(event.streams[0].getTracks().length));
-		//case if div for no video already appended
-		if (document.getElementById(id) !== null && document.getElementById(id).tagName === 'DIV') {
-			document.getElementById(id).remove();
-		}
+		videoOn = removeDivAndGetVideoFlag(id, videoOn);
 		let video = document.getElementById(id);
 
 		//because on track will be fired twice: for video and for audio
-		if (document.getElementById(id) === null) {
+		if (video === null) {
 			let video = document.createElement("video");
 			video.setAttribute("autoplay", true);
 			video.setAttribute("playsinline", true);
@@ -311,6 +361,9 @@ function createPeerConnection(id, fullName) {
 			appendNewVideoWindow(fullName, video);
 			video.setAttribute('id', id);
 			video.srcObject = event.streams[0];
+			if (videoOn === false) {
+				putNameOverVideo(video);
+			}
 
 		} else {
 			video.srcObject = null;
@@ -320,6 +373,17 @@ function createPeerConnection(id, fullName) {
 	};
 
 	return peerConnection;
+}
+
+function removeDivAndGetVideoFlag(id, videoOn) {
+	//case if div for no video already appended
+	if (document.getElementById(id) !== null && document.getElementById(id).tagName === 'DIV') {
+		if (document.getElementById(id).getAttribute('videoEnabled') !== null) {
+			videoOn = false;
+		}
+		document.getElementById(id).remove();
+	}
+	return videoOn;
 }
 
 
@@ -338,6 +402,7 @@ function leaveRoom() {
 	toggleEnterLeaveButtons();
 	checkUsersDevicesAndAccessPermissions(videoTest);
 }
+
 /*
 * on click function used to attach new message to the cht area
 * */
@@ -348,4 +413,22 @@ function sendMessageInChat() {
 	textarea.value = '';
 }
 
+/*
+* Function used to inform all users in the room, that current user disabled the camera
+* after user enters the room
+* */
+function informUsersVideoOff() {
+	if (socket) {
+		socket.emit('videoDisabled', roomId);
+	}
+}
 
+/*
+* Function used to inform all users in the room, that current user enabled the camera
+* after user enters the room
+* */
+function informUsersVideoOn() {
+	if (socket) {
+		socket.emit('videoEnabled', roomId);
+	}
+}

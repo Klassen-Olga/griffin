@@ -214,8 +214,8 @@ function requestVideoDevice(videoElement) {
 				} else {
 					document.getElementById('videoTest').srcObject = stream;
 					acceptVideo = true;
-					videoBeforeEnterTheRoom = true;
 				}
+				videoBeforeEnterTheRoom = true;
 				toggleMediaButtons('video', true);
 				console.log('Got MediaStream:', stream);
 
@@ -223,8 +223,8 @@ function requestVideoDevice(videoElement) {
 			.catch(error => {
 				if (!videoElement) {
 					acceptVideo = false;
-					videoBeforeEnterTheRoom = false;
 				}
+				videoBeforeEnterTheRoom = false;
 				toggleMediaButtons('video', false);
 				console.error('Error accessing media devices.', error);
 			});

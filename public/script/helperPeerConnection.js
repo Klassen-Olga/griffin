@@ -22,7 +22,7 @@ function handleError(error) {
  * The function used to turn on a user's video or audio only if the user gave permissions to them.
  *              is onclick function for buttons with microphone or camera icons
  *
- * @param {boolean} mediaType 'video' or 'audio'
+ * @param {string} mediaType 'video' or 'audio'
 
  */
 function addMediaTrack(mediaType) {
@@ -40,6 +40,13 @@ function addMediaTrack(mediaType) {
 	if ((tracks !== undefined) && tracks.length > 0) {
 		toggleMediaButtons(mediaType, true);
 		tracks[0].enabled = true;
+		if (mediaType==='video'){
+			//case user is in the room and he turns video on
+			informUsersVideoOn();
+			//case user is not in the room and he turn video on
+			videoBeforeEnterTheRoom=true;
+
+		}
 	}
 
 
@@ -77,6 +84,10 @@ function removeMediaTrack(deviceType) {
 	if (selfVideoElement.srcObject !== null) {
 		if (deviceType === 'video' && selfVideoElement.srcObject.getVideoTracks().length>0) {
 			selfVideoElement.srcObject.getVideoTracks()[0].enabled = false;
+			//case is in the room and user turns off camera
+			informUsersVideoOff();
+			//case user is not in the room and we turn video off
+			videoBeforeEnterTheRoom=false;
 
 		} else if (deviceType === 'audio'&& selfVideoElement.srcObject.getAudioTracks().length>0) {
 			selfVideoElement.srcObject.getAudioTracks()[0].enabled = false;
