@@ -13,10 +13,18 @@ function handleError(error) {
 */
 
 /*
-*
-*
+* This module contains help functions for peerConnectionHandler module
 * */
 
+
+/**
+ *
+ * The function used to turn on a user's video or audio only if the user gave permissions to them.
+ *              is onclick function for buttons with microphone or camera icons
+ *
+ * @param {boolean} mediaType 'video' or 'audio'
+
+ */
 function addMediaTrack(mediaType) {
 	if (selfVideoElement.srcObject === null) {
 		alert("Please restart the page and enable any " + mediaType + " device");
@@ -37,6 +45,12 @@ function addMediaTrack(mediaType) {
 
 }
 
+/**
+ * Adds a media track to the source object of any video element before user enters the room
+ * @param {*} mediaType 'audio' or 'video' for track type
+ * @param {*} stream stream from which tracks should be taken
+ * @param {string} videoElement to which source object should be added
+ */
 function addTrackToSrcObject(mediaType, stream, videoElement) {
 
 	let tracks = getTracksFromStream(stream, mediaType);
@@ -52,7 +66,13 @@ function addTrackToSrcObject(mediaType, stream, videoElement) {
 	}
 
 }
-
+/**
+ *
+ * The function used to turn off a user's video or audio only if the user gave permissions to them.
+ *              is onclick function for buttons with microphone or camera icons
+ *
+ * @param {string} deviceType 'video' or 'audio'
+ */
 function removeMediaTrack(deviceType) {
 	if (selfVideoElement.srcObject !== null) {
 		if (deviceType === 'video' && selfVideoElement.srcObject.getVideoTracks().length>0) {

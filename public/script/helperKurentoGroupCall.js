@@ -1,3 +1,7 @@
+/*
+* This module contains help functions for kurentoGroupCall module
+* */
+
 window.onload = () => {
 	document.getElementById('enterTheRoom').style.display = 'block';
 	document.getElementById('leaveTheRoom').style.display = 'none';
@@ -5,10 +9,10 @@ window.onload = () => {
 
 /**
  *
- * function used to turn on a user's video or audio
- * will be called from certain buttons with microphone or camera icons
+ * The function used to turn on a user's video or audio only if the user gave permissions to them.
+ *              is onclick function for buttons with microphone or camera icons
  *
- * @param {boolean} boolVideo true if user wants to make camera on
+ * @param {boolean} mediaType 'video' or 'audio'
 
  */
 function addMediaTrack(mediaType) {
@@ -50,8 +54,8 @@ function addMediaTrack(mediaType) {
 }
 /**
  *
- * function used to turn off a user's video or audio
- * will be called from certain buttons with microphone or camera icons
+ * The function used to turn off a user's video or audio only if the user gave permissions to them.
+ *              is onclick function for buttons with microphone or camera icons
  *
  * @param {string} deviceType 'video' or 'audio'
  */

@@ -1,3 +1,23 @@
+/*
+* This module manages video conference from peer connection(ManyToMany) side for not more than 3 users.
+*
+* */
+window.onload = () => {
+	document.getElementById('enterTheRoom').style.display = 'block';
+	document.getElementById('leaveTheRoom').style.display = 'none';
+	videoTest.style.display = 'none';
+	checkUsersDevicesAndAccessPermissions(selfVideoElement);
+
+}
+
+window.onbeforeunload = () => {
+	leaveRoom();
+	if (socket) {
+		socket.close();
+	}
+};
+
+
 //all remote peer connections
 const peerConnections = {};
 //configuration for peer connection including stun and turn servers
@@ -8,84 +28,15 @@ const config = {
 		}
 	]
 };
-//connection to the socket (link to the repo in room.ejs)
+
 let socket = null;
-//own window were users video and audio will be saved
+//own window were users video and audio will be stored
 const selfVideoElement = document.getElementsByName("selfStream")[0];
 const videoTest = document.getElementById('videoTest');
 
-/*
-* variables for managing device access
-* */
-var audioDeviceNumber = 0;
-var videoDeviceNumber = 0;
-var acceptAudio = false;
-var acceptVideo = false;
-var audioBeforeEnterTheRoom = false;
-var videoBeforeEnterTheRoom = false;
-window.onload = () => {
-	document.getElementById('enterTheRoom').style.display = 'block';
-	document.getElementById('leaveTheRoom').style.display = 'none';
-	videoTest.style.display = 'none';
-	checkUsersDevicesAndAccessPermissions(selfVideoElement);
-
-}
-
-
-function checkUsersDevicesAndAccessPermissions(videoElement) {
-
-	navigator.mediaDevices.enumerateDevices()
-		.then(function (devices) {
-			videoDeviceNumber = devices.filter(device => device.kind === 'videoinput').length;
-			audioDeviceNumber = devices.filter(device => device.kind === 'audioinput').length;
-			console.log("Number of video devices: " + videoDeviceNumber);
-			console.log("Number of audio devices: " + audioDeviceNumber);
-			// or not permited
-			if (audioDeviceNumber > 0) {
-				navigator.mediaDevices.getUserMedia({audio: true})
-					.then(stream => {
-						acceptAudio = true;
-						audioBeforeEnterTheRoom = true;
-						toggleMediaButtons('audio', true);
-						console.log('Got MediaStream:', stream);
-						addTrackToSrcObject('audio', stream, videoElement);
-					})
-					.catch(error => {
-						acceptAudio = false;
-						audioBeforeEnterTheRoom = false;
-						toggleMediaButtons('audio', false);
-						console.error('Error accessing media devices.', error);
-					});
-			}
-			if (videoDeviceNumber > 0) {
-				navigator.mediaDevices.getUserMedia({video: true})
-					.then(stream => {
-						acceptVideo = true;
-						videoBeforeEnterTheRoom = true;
-						toggleMediaButtons('video', true);
-						console.log('Got MediaStream:', stream);
-						addTrackToSrcObject('video', stream, videoElement);
-
-					})
-					.catch(error => {
-						acceptVideo = false;
-						videoBeforeEnterTheRoom = false;
-						toggleMediaButtons('video', false);
-						console.error('Error accessing media devices.', error);
-					});
-
-			}
-		})
-		.catch(function (err) {
-			console.error(err.name + ": " + err.message);
-		});
-
-
-}
-
 
 /*
-* fires when user wants to enter to the video chat room
+* The function fires when user wants to enter to the video chat room
 *
 * here will be checked if the username is set
 * and then newUser event will be sent to the server side.
@@ -97,7 +48,7 @@ function requestForModerator() {
 	let nameDiv = document.getElementById('nameDiv');
 	let message = "Your name should be more then 1 symbol";
 
-	if (validateStrLength(fullNameInput.value, 2, nameDiv, message)===false) {
+	if (validateStrLength(fullNameInput.value, 2, nameDiv, message) === false) {
 		return;
 	}
 
@@ -111,23 +62,12 @@ function requestForModerator() {
 
 	socket.emit('requestForModeratorPeer', fullNameInput.value, roomId);
 }
-async function enter() {
+/*
+* The function will be called if moderator allows new user to enter the room or for moderator self
+* */
+function enter() {
 	var fullNameInput = document.getElementsByName('fullName')[0];
-	/*
-	let nameDiv = document.getElementById('nameDiv');
-	let message = "Your name should be more then 1 symbol";
 
-	if (validateStrLength(fullNameInput.value, 2, nameDiv, message)===false) {
-		return;
-	}
-
-	socketInit();
-
-	if (!socket) {
-		console.error('Socket not defined');
-		return;
-
-	}*/
 	if (videoTest.srcObject !== null) {
 		selfVideoElement.srcObject = videoTest.srcObject;
 	}
@@ -140,6 +80,39 @@ async function enter() {
 
 }
 
+function enter2() {
+	var fullNameInput = document.getElementsByName('fullName')[0];
+	let nameDiv = document.getElementById('nameDiv');
+	let message = "Your name should be more then 1 symbol";
+
+	if (validateStrLength(fullNameInput.value, 2, nameDiv, message) === false) {
+		return;
+	}
+
+	socketInit();
+
+	if (!socket) {
+		console.error('Socket not defined');
+		return;
+
+	}
+	if (videoTest.srcObject !== null) {
+		selfVideoElement.srcObject = videoTest.srcObject;
+	}
+
+	disableNameInputAndPrintSelfName();
+
+	socket.emit("newUser", roomId, fullNameInput.value);
+	toggleEnterLeaveButtons();
+
+
+}
+/*
+*
+* The function initializes all socket event listeners for peer connection(ManyToMany)
+* including chat message event and request to join room for moderator
+*
+* */
 function socketInit() {
 
 	socket = io.connect();
@@ -256,40 +229,40 @@ function socketInit() {
 	});
 
 	socket.on('chat message', data => receiveChatMessage(data));
-	socket.on('onEnterNotification', err=>{
-		if (err===null){
+	// event fired when moderator enters the room or if the moderator is not available
+	socket.on('onEnterNotification', err => {
+		if (err === null) {
 			enter();
-		}
-		else{
+		} else {
 			alert(err);
 		}
 
 	});
-	socket.on('waitModeratorResponse', ()=>{
+
+	socket.on('waitModeratorResponse', () => {
 		alert('Please wait until moderator accepts your entry');
 	});
-	socket.on('requestForModerator', (userId, fullName)=>{
+	// event for new user to receive a response of moderator
+	socket.on('requestForModerator', (userId, fullName) => {
 
-		if (confirm('New user '+fullName+' want to join the conference room.' +
+		if (confirm('New user ' + fullName + ' want to join the conference room.' +
 			'\n Are you agree?')) {
 			socket.emit('moderatorResponsePeer', true, userId)
-		}
-		else{
+		} else {
 			socket.emit('moderatorResponsePeer', false, userId)
 		}
 	});
-	socket.on('moderatorResponsePeer', (accepted)=>{
-		if (accepted===true){
-			enter();
-		}
-		else{
-			alert('Moderator does not accept your entry');
-		}
+	socket.on('moderatorResponsePeer', (accepted) => {
+		moderatorResponse(accepted);
 	})
 
 }
 
-
+/*
+* The function appends a div element around the video element ans fullName span
+* or if no video and no audio available remains as container for user presence
+*
+* */
 function appendNewVideoWindow(fullName, video) {
 	let div = document.createElement('div');
 	div.classList.add('videoDiv');
@@ -349,12 +322,6 @@ function createPeerConnection(id, fullName) {
 	return peerConnection;
 }
 
-window.onbeforeunload = () => {
-	leaveRoom();
-	if (socket) {
-		socket.close();
-	}
-};
 
 function leaveRoom() {
 	for (var key in peerConnections) {
@@ -371,7 +338,9 @@ function leaveRoom() {
 	toggleEnterLeaveButtons();
 	checkUsersDevicesAndAccessPermissions(videoTest);
 }
-
+/*
+* on click function used to attach new message to the cht area
+* */
 function sendMessageInChat() {
 	var textarea = document.getElementById('message');
 	let name = document.getElementById('fullName').innerText;

@@ -1,21 +1,16 @@
+/*
+* This module manages video conference from Kurento Media Server (KMS) side for more than 3 users.
+*
+* */
 window.onbeforeunload = () => {
 	socket.close();
 };
 window.onload = () => {
 	document.getElementById('enterTheRoom').style.display = 'block';
 	document.getElementById('leaveTheRoom').style.display = 'none';
+	checkUsersDevicesAndAccessPermissions();
 }
-checkUsersDevicesAndAccessPermissions();
 
-/*
-* variables for managing device access
-* */
-var audioDeviceNumber = 0;
-var videoDeviceNumber = 0;
-var acceptAudio = false;
-var acceptVideo = false;
-var audioBeforeEnterTheRoom = false;
-var videoBeforeEnterTheRoom = false;
 /*
 * variables for managing peer connections and users personal data
 * */
@@ -24,7 +19,12 @@ var participants = {};
 var name = null;
 var userId = null;
 var selfStream = document.getElementsByName('selfStream')[0];
-
+/*
+*
+* The function initializes all socket event listeners for kurento connection
+* including chat message event and request to join room for moderator
+*
+* */
 function socketInit() {
 	socket = io();
 
@@ -32,22 +32,28 @@ function socketInit() {
 		console.info('Received message: ' + parsedMessage.id);
 
 		switch (parsedMessage.id) {
+			//event for self user, when he leaves the room
 			case 'disconn':
 				participants[userId].disposeSelf();
 				socket.close();
 				break;
+			// event for new user to connect to KMS and register other users in room
 			case 'existingParticipants':
 				onExistingParticipants(parsedMessage);
 				break;
+			// event for other users to register new participant
 			case 'newParticipantArrived':
 				onNewParticipant(parsedMessage);
 				break;
+			// event for other users to register the leaving of user
 			case 'participantLeft':
 				onParticipantLeft(parsedMessage);
 				break;
+			// event to register answers : user-KMS and user-user
 			case 'receiveVideoAnswer':
 				receiveVideoResponse(parsedMessage);
 				break;
+			// event for exchanging ICE candidates between WebRTC peers
 			case 'iceCandidate':
 				participants[parsedMessage.userId].rtcPeer.addIceCandidate(parsedMessage.candidate, function (error) {
 					if (error) {
@@ -59,6 +65,7 @@ function socketInit() {
 			case'chat message':
 				receiveChatMessage(parsedMessage);
 				break;
+			//  event for requesting permission from the moderator to log in a new user
 			case 'requestForModerator':
 				let data={
 					id:'moderatorResponse',
@@ -71,16 +78,12 @@ function socketInit() {
 				}
 				sendMessage(data);
 				break;
+			// event for new user to receive a response of moderator
 			case 'moderatorResponse':
-				if (parsedMessage.accepted===true){
-					enter();
-				}
-				else{
-					alert('Moderator does not accept your entry');
-				}
+				moderatorResponse(parsedMessage.accepted);
 				break;
+			// event fired when moderator enters the room or if the moderator is not available
 			case 'onEnterNotification':
-				// for moderator self
 				if (parsedMessage.error===null){
 					enter();
 				}
@@ -95,7 +98,11 @@ function socketInit() {
 		}
 	});
 }
-
+/*
+* The function will be called if the user presses 'Enter the room' button
+* request to join the room will be sent to the moderator of current room
+*
+* */
 function requestForModerator() {
 	name = document.getElementsByName('fullName')[0].value;
 	let err = "Your name should be more then 1 symbol";
@@ -118,10 +125,8 @@ function requestForModerator() {
 
 	sendMessage(message);
 }
+function enter2() {
 
-function enter() {
-
-	/*
 	name = document.getElementsByName('fullName')[0].value;
 	let err = "Your name should be more then 1 symbol";
 	if (validateStrLength(name, 2, document.getElementById('nameDiv'), err) === false) {
@@ -134,7 +139,7 @@ function enter() {
 		console.error('Socket not defined');
 		return;
 
-	}*/
+	}
 
 	disableNameInputAndPrintSelfName();
 	var message = {
@@ -150,77 +155,44 @@ function enter() {
 	toggleEnterLeaveButtons();
 
 }
+/*
+* The function will be called if moderator allows new user to enter the room or for moderator self
+* */
+function enter() {
 
-function checkUsersDevicesAndAccessPermissions() {
-
-	navigator.mediaDevices.enumerateDevices()
-		.then(function (devices) {
-			videoDeviceNumber = devices.filter(device => device.kind === 'videoinput').length;
-			audioDeviceNumber = devices.filter(device => device.kind === 'audioinput').length;
-			console.log("Number of video devices: " + videoDeviceNumber);
-			console.log("Number of audio devices: " + audioDeviceNumber);
-			// or not permited
-			if (audioDeviceNumber > 0) {
-				navigator.mediaDevices.getUserMedia({audio: true})
-					.then(stream => {
-						acceptAudio = true;
-						audioBeforeEnterTheRoom = true;
-						toggleMediaButtons('audio', true);
-						console.log('Got MediaStream:', stream);
-					})
-					.catch(error => {
-						acceptAudio = false;
-						audioBeforeEnterTheRoom = false;
-						toggleMediaButtons('audio', false);
-						console.error('Error accessing media devices.', error);
-					});
-			}
-			if (videoDeviceNumber > 0) {
-				navigator.mediaDevices.getUserMedia({video: true})
-					.then(stream => {
-						acceptVideo = true;
-						videoBeforeEnterTheRoom = true;
-						toggleMediaButtons('video', true);
-						console.log('Got MediaStream:', stream);
-						document.getElementById('videoTest').srcObject = stream;
-					})
-					.catch(error => {
-						acceptVideo = false;
-						videoBeforeEnterTheRoom = false;
-						toggleMediaButtons('video', false);
-						console.error('Error accessing media devices.', error);
-					});
-
-			}
-		})
-		.catch(function (err) {
-			console.error(err.name + ": " + err.message);
-		});
-
+	disableNameInputAndPrintSelfName();
+	var message = {
+		id: 'joinRoom',
+		name: name,
+		roomName: roomId,
+		// Flags for use cases, where user did not give the permissions to his media devices.
+		// Constraints to the connection to KMS should be in the same way e.g. audio:true; video:false.
+		audioOn: acceptAudio,
+		videoOn: acceptVideo
+	}
+	sendMessage(message);
+	toggleEnterLeaveButtons();
 
 }
+
 
 function onNewParticipant(request) {
 	receiveVideo(request);
 }
 
 function receiveVideoResponse(result) {
+	console.log('Proceed answer');
 	participants[result.userId].rtcPeer.processAnswer(result.sdpAnswer, function (error) {
 		if (error) return console.error(error);
 	});
 }
 
-function callResponse(message) {
-	if (message.response != 'accepted') {
-		console.info('Call not accepted by peer. Closing call');
-		stop();
-	} else {
-		webRtcPeer.processAnswer(message.sdpAnswer, function (error) {
-			if (error) return console.error(error);
-		});
-	}
-}
-
+/*
+* Function will be called to connect a new user to KMS and to register all users present in conference room
+*
+* A connection to KMS will be created in send mode with constrains
+* depending on what permissions the user has granted and what multimedia devices the user has
+* */
 function onExistingParticipants(msg) {
 	userId = msg.userId;
 	var constraints = {
@@ -238,6 +210,7 @@ function onExistingParticipants(msg) {
 		onicecandidate: participant.onIceCandidate.bind(participant),
 
 	}
+	//user connects to KMS
 	participant.rtcPeer = new kurentoUtils.WebRtcPeer.WebRtcPeerSendonly(options,
 		function (error) {
 			if (error) {
@@ -245,6 +218,7 @@ function onExistingParticipants(msg) {
 				console.error(error);
 			}
 			this.generateOffer(participant.offerToReceiveVideo.bind(participant));
+			//if user decided to turn his media devices off before the call has started
 			if (audioBeforeEnterTheRoom === false) {
 				removeMediaTrack('audio');
 			}
@@ -254,6 +228,7 @@ function onExistingParticipants(msg) {
 			document.getElementById('videoTest').style.display = 'none';
 		});
 
+	//user registers other users in this chat room
 	msg.data.forEach(receiveVideo);
 }
 
@@ -275,7 +250,22 @@ function leaveRoom() {
 	toggleEnterLeaveButtons();
 	socket.close();
 }
-
+/*
+* 1. The function will be called on the side of the new user
+*    to register all users already in the conference room
+* 2. Or the function will be called on the old user side to register a new user
+*
+* To register the user:
+*                       1. A video DOM element or audio DOM element with id of his socket.id will be created
+*                          Video element, if user has or gave permissions to a) video and audio
+*                                                                            b) video only
+*
+*                          Audio DOM element, if has or gave permissions to  a) audio only
+*                          (In kurento-utils some flags are set to not provide this option in video element,
+*                           with audio there are no such problems)
+*                       2. A connection to KMS in receive mode only will be created
+*                       3. An offer to KMS will be sent
+* */
 function receiveVideo(sender) {
 	var participant = new Participant(sender.name, sender.userId);
 	//kurento bug: in combination audio true and video false does not play audio in video DOM element

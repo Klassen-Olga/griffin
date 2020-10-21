@@ -27,6 +27,12 @@ video[name= selfStream]{
     left: 2%;
 
 }
+/*#videoTest{
+    position: fixed;
+    bottom: 3%;
+    left: 2%;
+
+}*/
 .split {
     height: 100%;
     width: 50%;
