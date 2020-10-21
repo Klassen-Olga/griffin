@@ -109,25 +109,6 @@ function enter2() {
 
 }
 
-function putNameOverVideo(video) {
-	let divAroundVideoAndSpan = video.parentNode;
-	let span = divAroundVideoAndSpan.childNodes[1];
-	span.style.color = 'white';
-	span.style.position = 'relative';
-	span.style.bottom = '150px';
-	span.style.left = '50px';
-	span.style.fontSize = 'xx-large';
-}
-
-function putVideoOverName(video) {
-	let divAroundVideoAndSpan = video.parentNode;
-	let span = divAroundVideoAndSpan.childNodes[1];
-	span.style.color = 'black';
-	span.style.position = 'static';
-	span.style.bottom = '0px';
-	span.style.left = '0px';
-	span.style.fontSize = 'medium';
-}
 
 /*
 *
@@ -324,6 +305,14 @@ function appendNewVideoWindow(fullName, video) {
 	}
 	div.appendChild(span);
 	document.getElementById('foreignVideoContainer').appendChild(div);
+	if (!video){
+		div.style.display='flex';
+		div.style.justifyContent='center';
+		div.style.alignItems='center';
+		span.style.fontSize='x-large';
+	}
+
+
 	return div;
 }
 

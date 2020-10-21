@@ -77,8 +77,12 @@ class SocketHandler {
 					case 'moderatorResponse':
 						socket.to(message.userId).emit('message', message);
 						break;
-
-
+					case 'videoDisabled':
+						helper.sendVideoOffOrOnMessageToAllParticipants(message.roomId, socket.id, 'off');
+						break;
+					case 'videoEnabled':
+						helper.sendVideoOffOrOnMessageToAllParticipants(message.roomId, socket.id, 'on');
+						break;
 				}
 			});
 		});

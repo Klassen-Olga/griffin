@@ -240,3 +240,20 @@ function moderatorResponse(accepted) {
 		alert('Moderator does not accept your entry');
 	}
 }
+function putNameOverVideo(video) {
+	let divAroundVideoAndSpan = video.parentNode;
+	let span = divAroundVideoAndSpan.childNodes[1];
+	span.style.position = 'relative';
+	span.style.bottom = '150px';
+	span.style.left = '50px';
+	span.style.fontSize = 'xx-large';
+}
+
+function putVideoOverName(video) {
+	let divAroundVideoAndSpan = video.parentNode;
+	let span = divAroundVideoAndSpan.childNodes[1];
+	span.style.position = 'static';
+	span.style.bottom = '0px';
+	span.style.left = '0px';
+	span.style.fontSize = 'medium';
+}

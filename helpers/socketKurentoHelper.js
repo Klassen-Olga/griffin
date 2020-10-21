@@ -61,7 +61,7 @@ module.exports = class Helper {
 						pipeline: pipeline,
 						participants: {},
 						kurentoClient: kurentoClient,
-						moderator:'Klassen Olga'
+						moderator: 'Klassen Olga'
 					};
 
 					self.rooms[roomName] = room;
@@ -78,7 +78,8 @@ module.exports = class Helper {
 
 		const self = this;
 		// add user to session
-		let userSession = new Session(socket, message.name, room.name, message.videoOn, message.audioOn);
+		let userSession = new Session(socket, message.name, room.name, message.videoOn,
+			message.audioOn, message.videoBeforeEnterTheRoom);
 
 		// register
 		self.userRegister.register(userSession);
@@ -133,7 +134,8 @@ module.exports = class Helper {
 						userId: userSession.id,
 						name: userSession.name,
 						videoOn: message.videoOn,
-						audioOn: message.audioOn
+						audioOn: message.audioOn,
+						videoBeforeEnterTheRoom: message.videoBeforeEnterTheRoom
 					});
 				}
 			}
@@ -146,7 +148,8 @@ module.exports = class Helper {
 						name: usersInRoom[i].name,
 						userId: usersInRoom[i].id,
 						videoOn: usersInRoom[i].videoOn,
-						audioOn: usersInRoom[i].audioOn
+						audioOn: usersInRoom[i].audioOn,
+						videoBeforeEnterTheRoom:usersInRoom[i].videoBeforeEnterTheRoom
 					});
 				}
 			}
@@ -407,11 +410,11 @@ module.exports = class Helper {
 		}
 
 		//vremenno, potom id brati iz rooms moderator
-		let moderatorDb='Olga Klassen';
-		let roomDb=message.roomName;
+		let moderatorDb = 'Olga Klassen';
+		let roomDb = message.roomName;
 
 		//does user exists in db
-		if (true){
+		if (true) {
 			// is current user moderator
 			if (moderatorDb === message.name) {
 				socket.emit('message', data1);
@@ -419,9 +422,9 @@ module.exports = class Helper {
 			}
 		}
 
-		let moderator= self.userRegister.getByName(moderatorDb);
+		let moderator = self.userRegister.getByName(moderatorDb);
 		// after all is room empty or isn't moderator already registered
-		if (Object.keys(self.rooms).length===0 || typeof moderator==='undefined'){
+		if (Object.keys(self.rooms).length === 0 || typeof moderator === 'undefined') {
 			data1.error = 'No moderator present, please reenter later';
 			socket.emit('message', data1);
 			return;
@@ -432,8 +435,27 @@ module.exports = class Helper {
 			userId: socket.id,
 			name: message.name
 		}
-		socket.emit('message', {id:'waitModeratorResponse'});
+		socket.emit('message', {id: 'waitModeratorResponse'});
 		socket.to(moderator.id).emit('message', data);
+	}
+
+	sendVideoOffOrOnMessageToAllParticipants(roomId, userId, offOrOnFlag) {
+		const self = this;
+		let room = self.rooms[roomId];
+		let participants = room.participants;
+		let data = {
+			id: (offOrOnFlag === 'off') ? 'videoDisabled' : 'videoEnabled',
+			userId: userId
+		}
+		if (offOrOnFlag==='off'){
+			self.userRegister.getById(userId).videoBeforeEnterTheRoom=false;
+		}
+		for (let key in participants) {
+			if (participants[key].id !== userId) {
+				participants[key].sendMessage(data);
+			}
+		}
+
 	}
 
 

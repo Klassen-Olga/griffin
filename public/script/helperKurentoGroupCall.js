@@ -33,6 +33,8 @@ function addMediaTrack(mediaType) {
 		} else {
 			participants[Object.keys(participants)[0]].rtcPeer.videoEnabled = true;
 			toggleMediaButtons('video', true);
+			//notify other users
+			sendMessage({id: 'videoEnabled', roomId: roomId});
 		}
 	}
 	//user wants to make the audio on
@@ -73,6 +75,8 @@ function removeMediaTrack(deviceType) {
 	} else {
 		if (deviceType === 'video') {
 			participants[Object.keys(participants)[0]].rtcPeer.videoEnabled = false;
+			//notify other users
+			sendMessage({id: 'videoDisabled', roomId: roomId});
 		} else {
 			participants[Object.keys(participants)[0]].rtcPeer.audioEnabled = false;
 		}

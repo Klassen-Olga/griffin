@@ -19,6 +19,7 @@ var participants = {};
 var name = null;
 var userId = null;
 var selfStream = document.getElementsByName('selfStream')[0];
+
 /*
 *
 * The function initializes all socket event listeners for kurento connection
@@ -67,14 +68,14 @@ function socketInit() {
 				break;
 			//  event for requesting permission from the moderator to log in a new user
 			case 'requestForModerator':
-				let data={
-					id:'moderatorResponse',
-					userId:parsedMessage.userId,
-					accepted:false
+				let data = {
+					id: 'moderatorResponse',
+					userId: parsedMessage.userId,
+					accepted: false
 				}
-				if (confirm('New user '+parsedMessage.name+' want to join the conference room.' +
+				if (confirm('New user ' + parsedMessage.name + ' want to join the conference room.' +
 					'\n Are you agree?')) {
-					data.accepted=true;
+					data.accepted = true;
 				}
 				sendMessage(data);
 				break;
@@ -84,20 +85,26 @@ function socketInit() {
 				break;
 			// event fired when moderator enters the room or if the moderator is not available
 			case 'onEnterNotification':
-				if (parsedMessage.error===null){
+				if (parsedMessage.error === null) {
 					enter();
-				}
-				else{
+				} else {
 					alert(parsedMessage.error);
 				}
 				break;
 			case 'waitModeratorResponse':
 				alert('Please wait until moderator accepts your entry');
 				break;
+			case 'videoDisabled':
+				putNameOverVideo(document.getElementById(parsedMessage.userId));
+				break;
+			case 'videoEnabled':
+				putVideoOverName(document.getElementById(parsedMessage.userId));
+				break;
 
 		}
 	});
 }
+
 /*
 * The function will be called if the user presses 'Enter the room' button
 * request to join the room will be sent to the moderator of current room
@@ -125,6 +132,7 @@ function requestForModerator() {
 
 	sendMessage(message);
 }
+
 function enter2() {
 
 	name = document.getElementsByName('fullName')[0].value;
@@ -147,7 +155,8 @@ function enter2() {
 		name: name,
 		roomName: roomId,
 		audioOn: acceptAudio,
-		videoOn: acceptVideo
+		videoOn: acceptVideo,
+		videoBeforeEnterTheRoom: videoBeforeEnterTheRoom
 	}
 
 
@@ -155,6 +164,7 @@ function enter2() {
 	toggleEnterLeaveButtons();
 
 }
+
 /*
 * The function will be called if moderator allows new user to enter the room or for moderator self
 * */
@@ -168,7 +178,8 @@ function enter() {
 		// Flags for use cases, where user did not give the permissions to his media devices.
 		// Constraints to the connection to KMS should be in the same way e.g. audio:true; video:false.
 		audioOn: acceptAudio,
-		videoOn: acceptVideo
+		videoOn: acceptVideo,
+		videoBeforeEnterTheRoom: videoBeforeEnterTheRoom
 	}
 	sendMessage(message);
 	toggleEnterLeaveButtons();
@@ -224,6 +235,7 @@ function onExistingParticipants(msg) {
 			}
 			if (videoBeforeEnterTheRoom === false) {
 				removeMediaTrack('video');
+
 			}
 			document.getElementById('videoTest').style.display = 'none';
 		});
@@ -250,6 +262,7 @@ function leaveRoom() {
 	toggleEnterLeaveButtons();
 	socket.close();
 }
+
 /*
 * 1. The function will be called on the side of the new user
 *    to register all users already in the conference room
@@ -288,6 +301,9 @@ function receiveVideo(sender) {
 				console.error(error);
 			}
 			this.generateOffer(participant.offerToReceiveVideo.bind(participant));
+			if (sender.videoBeforeEnterTheRoom===false){
+				putNameOverVideo(participant.getVideoElement());
+			}
 		}
 	);
 

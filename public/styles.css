@@ -18,7 +18,7 @@ video{
 .videoDiv{
     width: 290px;
     height: 290px;
-    background-color: rgb(130, 224, 255);
+    background-color: black;
     margin: 6px;
 }
 video[name= selfStream]{
@@ -26,6 +26,9 @@ video[name= selfStream]{
     bottom: 3%;
     left: 2%;
 
+}
+span{
+    color: white;
 }
 /*#videoTest{
     position: fixed;
@@ -44,7 +47,7 @@ video[name= selfStream]{
 }
 .left {
     left: 0;
-    background-color: #111;
+    background-color: #3596B5;
 }
 .right {
     right: 0;
