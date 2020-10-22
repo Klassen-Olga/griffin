@@ -2,10 +2,6 @@
 * This module contains help functions for kurentoGroupCall module
 * */
 
-window.onload = () => {
-	document.getElementById('enterTheRoom').style.display = 'block';
-	document.getElementById('leaveTheRoom').style.display = 'none';
-}
 
 /**
  *
@@ -27,7 +23,7 @@ function addMediaTrack(mediaType) {
 		//before user entered the room
 		if (typeof participants[Object.keys(participants)[0]] === 'undefined') {
 			videoBeforeEnterTheRoom = true;
-			document.getElementById('videoTest').srcObject.getVideoTracks()[0].enabled = true;
+			document.getElementsByName('selfStream')[0].srcObject.getVideoTracks()[0].enabled = true;
 			toggleMediaButtons('video', true);
 
 		} else {
@@ -67,7 +63,7 @@ function removeMediaTrack(deviceType) {
 	if (typeof participants[Object.keys(participants)[0]] === 'undefined') {
 		if (deviceType === 'video') {
 			videoBeforeEnterTheRoom = false;
-			document.getElementById('videoTest').srcObject.getVideoTracks()[0].enabled = false;
+			document.getElementsByName('selfStream')[0].srcObject.getVideoTracks()[0].enabled = false;
 		} else if (deviceType === 'audio') {
 			audioBeforeEnterTheRoom = false;
 		}

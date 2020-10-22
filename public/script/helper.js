@@ -4,8 +4,6 @@
 * */
 
 
-
-
 /*
 * The function used to attach new message to the chat area
 * */
@@ -16,33 +14,29 @@ function receiveChatMessage(data) {
 	chat.appendChild(messagesDiv);
 	chat.scrollTop = chat.scrollHeight;
 }
+
 /*
 * The function used to replace enter to leave button when user enters the room
 * and leave to enter button when user leaves the room
 *
 * */
 function toggleEnterLeaveButtons() {
-	var enterButton = document.getElementById('enterTheRoom');
+	var enterButtonEnd = document.getElementById('enterTheRoomEnd');
+	var enterButtonStart = document.getElementById('enterTheRoomStart');
 	var leaveButton = document.getElementById('leaveTheRoom');
 
-	// from leave to enter
-	if (enterButton.style.display === 'block') {
-		enterButton.style.display = 'none';
+	// from enter to leave
+	if (enterButtonEnd.style.display === 'block') {
+		enterButtonEnd.style.display = 'none';
 		leaveButton.style.display = 'block';
 	}
 	// from enter to leave
 	else {
-		enterButton.innerText = 'Load';
 		leaveButton.style.display = 'none';
-		enterButton.style.display = 'block';
-		enterButton.disabled = true;
-		setTimeout(function () {
-			enterButton.innerText = 'Enter the room';
-			enterButton.disabled = false;
-		}, 1000);
-
+		enterButtonStart.style.display = 'block';
 	}
 }
+
 /*
 * The function used to clear all video windows when user presses leave button
 *
@@ -62,24 +56,51 @@ function clearRemoteVideos() {
 function toggleMediaButtons(button, on) {
 	if (button === 'video') {
 		if (on === true) {
-			document.getElementById('videoOff').disabled = false;
+			// turn video on
+			document.getElementById('videoOn').style.display = 'none';
 			document.getElementById('videoOn').disabled = true;
+			document.getElementById('videoOff').style.display = 'block';
+			document.getElementById('videoOff').disabled = false;
+
+
 		} else {
+			// turn video off
+			document.getElementById('videoOff').style.display = 'none';
 			document.getElementById('videoOff').disabled = true;
-			document.getElementById('videoOn').disabled = false;
+			document.getElementById('videoOn').style.display = 'block';
+			if (acceptVideo == false) {
+				document.getElementById('videoOn').disabled = true;
+			} else {
+				document.getElementById('videoOn').disabled = false;
+
+			}
 
 		}
 	} else {
 
 		if (on === true) {
-			document.getElementById('audioOff').disabled = false;
+			//turn audio on
+			document.getElementById('audioOn').style.display = 'none';
 			document.getElementById('audioOn').disabled = true;
+			document.getElementById('audioOff').style.display = 'block';
+			document.getElementById('audioOff').disabled = false;
+
 		} else {
+			// turn audio off
+			document.getElementById('audioOff').style.display = 'none';
 			document.getElementById('audioOff').disabled = true;
+			document.getElementById('audioOn').style.display = 'block';
 			document.getElementById('audioOn').disabled = false;
+			if (acceptAudio == false) {
+				document.getElementById('audioOn').disabled = true;
+			} else {
+				document.getElementById('audioOn').disabled = false;
+
+			}
 		}
 	}
 }
+
 /*
 * The function will be called when user presses leave room button
 * It makes name input available and removes self name
@@ -115,6 +136,7 @@ function validateStrLength(str, length, appendElement, message) {
 	}
 	return true;
 }
+
 /*
 * opposite function to enableNameInputAndRemoveSelfName
 * */
@@ -152,7 +174,7 @@ var videoBeforeEnterTheRoom = false;
 * otherwise for kurento use case
 *
 * */
-function checkUsersDevicesAndAccessPermissions(videoElement) {
+function checkUsersDevicesAndAccessPermissions(videoElement, useCase) {
 
 	// which devices has user
 	navigator.mediaDevices.enumerateDevices()
@@ -163,42 +185,54 @@ function checkUsersDevicesAndAccessPermissions(videoElement) {
 			console.log("Number of video devices: " + videoDeviceNumber);
 			console.log("Number of audio devices: " + audioDeviceNumber);
 
-			requestAudioDevice(videoElement);
-			requestVideoDevice(videoElement);
+			requestMediaDevices(videoElement, useCase);
 		})
 		.catch(function (err) {
 			console.error(err.name + ": " + err.message);
+			buttonsOnstart();
+			toggleMediaButtons('audio', false);
+			toggleMediaButtons('video', false);
+
+
 		});
 }
+
 /**
  * The function used to make a request for audio device permissions when user enters the room
  * If the param videoElement is present, will be called  peerConnection handler, otherwise kurento handler
  *
  * @param {string} videoElement 'video' or 'audio'
  */
-function requestAudioDevice(videoElement) {
+function requestMediaDevices(videoElement, useCase) {
 	if (audioDeviceNumber > 0) {
 		navigator.mediaDevices.getUserMedia({audio: true})
 			.then(stream => {
-				if (videoElement) {
+				console.log('Got MediaStream:', stream);
+
+				acceptAudio = true;
+				audioBeforeEnterTheRoom = true;
+
+				if (useCase!=='kurento'){
 					addTrackToSrcObject('audio', stream, videoElement);
-				} else {
-					acceptAudio = true;
-					audioBeforeEnterTheRoom = true;
 				}
 				toggleMediaButtons('audio', true);
-				console.log('Got MediaStream:', stream);
+				requestVideoDevice(videoElement);
+
+
 			})
 			.catch(error => {
-				if (!videoElement) {
-					acceptAudio = false;
-					audioBeforeEnterTheRoom = false;
-				}
-				toggleMediaButtons('audio', false);
 				console.error('Error accessing media devices.', error);
+
+				acceptAudio = false;
+				audioBeforeEnterTheRoom = false;
+
+				toggleMediaButtons('audio', false);
+				requestVideoDevice(videoElement);
+
 			});
 	}
 }
+
 /**
  * The function used to make a request for video device permissions when user enters the room
  * If the param videoElement is present, will be called  peerConnection handler, otherwise kurento handler
@@ -209,27 +243,27 @@ function requestVideoDevice(videoElement) {
 	if (videoDeviceNumber > 0) {
 		navigator.mediaDevices.getUserMedia({video: true})
 			.then(stream => {
-				if (videoElement) {
-					addTrackToSrcObject('video', stream, videoElement);
-				} else {
-					document.getElementById('videoTest').srcObject = stream;
-					acceptVideo = true;
-				}
-				videoBeforeEnterTheRoom = true;
-				toggleMediaButtons('video', true);
 				console.log('Got MediaStream:', stream);
 
+				acceptVideo = true;
+				videoBeforeEnterTheRoom = true;
+
+				addTrackToSrcObject('video', stream, videoElement);
+				toggleMediaButtons('video', true);
+				buttonsOnstart();
 			})
 			.catch(error => {
-				if (!videoElement) {
-					acceptVideo = false;
-				}
-				videoBeforeEnterTheRoom = false;
-				toggleMediaButtons('video', false);
 				console.error('Error accessing media devices.', error);
+
+				acceptVideo = false;
+				videoBeforeEnterTheRoom = false;
+
+				toggleMediaButtons('video', false);
+				buttonsOnstart();
 			});
 	}
 }
+
 /*
 * The function used to validate moderator response
 * */
@@ -240,6 +274,41 @@ function moderatorResponse(accepted) {
 		alert('Moderator does not accept your entry');
 	}
 }
+
+/**
+ * Adds a media track to the source object of any video element before user enters the room
+ * @param {*} mediaType 'audio' or 'video' for track type
+ * @param {*} stream stream from which tracks should be taken
+ * @param {string} videoElement to which source object should be added
+ */
+function addTrackToSrcObject(mediaType, stream, videoElement) {
+
+	let tracks = getTracksFromStream(stream, mediaType);
+
+	//insert media track for first time
+	if (videoElement.srcObject !== null) {
+		let localStream = videoElement.srcObject;
+		localStream.addTrack(tracks[0]);
+		videoElement.srcObject = null;
+		videoElement.srcObject = localStream;
+	} else {
+		videoElement.srcObject = stream;
+	}
+
+}
+
+function getTracksFromStream(stream, mediaType) {
+	let tracks = null;
+	if (mediaType === 'video') {
+		tracks = stream.getVideoTracks();
+	} else {
+		tracks = stream.getAudioTracks();
+	}
+	return tracks;
+}
+
+
+
 function putNameOverVideo(video) {
 	let divAroundVideoAndSpan = video.parentNode;
 	let span = divAroundVideoAndSpan.childNodes[1];
@@ -256,4 +325,22 @@ function putVideoOverName(video) {
 	span.style.bottom = '0px';
 	span.style.left = '0px';
 	span.style.fontSize = 'medium';
+}
+
+function buttonsOnstart() {
+	document.getElementById('enterTheRoomEnd').style.display = 'block';
+	document.getElementById('enterTheRoomStart').style.display = 'none';
+	document.getElementById('nameDiv').style.display = 'block';
+
+}
+
+
+function buttonsOnLoadThePage() {
+	document.getElementById('leaveTheRoom').style.display = 'none';
+	document.getElementById('enterTheRoomEnd').style.display = 'none';
+	document.getElementById('videoOn').style.display = 'none';
+	document.getElementById('videoOff').style.display = 'none';
+	document.getElementById('audioOn').style.display = 'none';
+	document.getElementById('audioOff').style.display = 'none';
+	document.getElementById('nameDiv').style.display = 'none';
 }

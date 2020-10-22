@@ -6,9 +6,6 @@ window.onbeforeunload = () => {
 	socket.close();
 };
 window.onload = () => {
-	document.getElementById('enterTheRoom').style.display = 'block';
-	document.getElementById('leaveTheRoom').style.display = 'none';
-	checkUsersDevicesAndAccessPermissions();
 }
 
 /*
@@ -133,6 +130,12 @@ function requestForModerator() {
 	sendMessage(message);
 }
 
+function takePermissions() {
+
+	checkUsersDevicesAndAccessPermissions(selfStream, 'kurento');
+
+}
+
 function enter2() {
 
 	name = document.getElementsByName('fullName')[0].value;
@@ -235,9 +238,7 @@ function onExistingParticipants(msg) {
 			}
 			if (videoBeforeEnterTheRoom === false) {
 				removeMediaTrack('video');
-
 			}
-			document.getElementById('videoTest').style.display = 'none';
 		});
 
 	//user registers other users in this chat room
@@ -260,6 +261,8 @@ function leaveRoom() {
 	clearRemoteVideos();
 	enableNameInputAndRemoveSelfName();
 	toggleEnterLeaveButtons();
+
+	buttonsOnLoadThePage();
 	socket.close();
 }
 
@@ -301,7 +304,7 @@ function receiveVideo(sender) {
 				console.error(error);
 			}
 			this.generateOffer(participant.offerToReceiveVideo.bind(participant));
-			if (sender.videoBeforeEnterTheRoom===false){
+			if (sender.videoBeforeEnterTheRoom === false) {
 				putNameOverVideo(participant.getVideoElement());
 			}
 		}

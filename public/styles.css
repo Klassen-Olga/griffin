@@ -87,14 +87,21 @@ form button {
     color: black;
     margin: 5px;
 }
-
+.buttons-onload-room{
+    display: none;
+}
+#nameDiv{
+    display: none;
+}
 #messages {
     list-style-type: none;
     margin: 0;
     padding: 10px;
     font-size: x-large;
 }
-
+#foreignVideoContainer{
+    display: flex;
+}
 #messages li {
     padding: 5px 10px;
 }

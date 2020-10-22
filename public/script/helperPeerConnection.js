@@ -52,27 +52,7 @@ function addMediaTrack(mediaType) {
 
 }
 
-/**
- * Adds a media track to the source object of any video element before user enters the room
- * @param {*} mediaType 'audio' or 'video' for track type
- * @param {*} stream stream from which tracks should be taken
- * @param {string} videoElement to which source object should be added
- */
-function addTrackToSrcObject(mediaType, stream, videoElement) {
 
-	let tracks = getTracksFromStream(stream, mediaType);
-
-	//insert media track for first time
-	if (videoElement.srcObject !== null) {
-		let localStream = videoElement.srcObject;
-		localStream.addTrack(tracks[0]);
-		videoElement.srcObject = null;
-		videoElement.srcObject = localStream;
-	} else {
-		videoElement.srcObject = stream;
-	}
-
-}
 /**
  *
  * The function used to turn off a user's video or audio only if the user gave permissions to them.
@@ -91,20 +71,10 @@ function removeMediaTrack(deviceType) {
 
 		} else if (deviceType === 'audio'&& selfVideoElement.srcObject.getAudioTracks().length>0) {
 			selfVideoElement.srcObject.getAudioTracks()[0].enabled = false;
-
+			audioBeforeEnterTheRoom=false;
 		}
 		toggleMediaButtons(deviceType, false);
 	}
-}
-
-function getTracksFromStream(stream, mediaType) {
-	let tracks = null;
-	if (mediaType === 'video') {
-		tracks = stream.getVideoTracks();
-	} else {
-		tracks = stream.getAudioTracks();
-	}
-	return tracks;
 }
 
 

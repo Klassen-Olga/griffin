@@ -2,13 +2,6 @@
 * This module manages video conference from peer connection(ManyToMany) side for not more than 3 users.
 *
 * */
-window.onload = () => {
-	document.getElementById('enterTheRoom').style.display = 'block';
-	document.getElementById('leaveTheRoom').style.display = 'none';
-	videoTest.style.display = 'none';
-	checkUsersDevicesAndAccessPermissions(selfVideoElement);
-
-}
 
 window.onbeforeunload = () => {
 	leaveRoom();
@@ -32,8 +25,10 @@ const config = {
 let socket = null;
 //own window were users video and audio will be stored
 const selfVideoElement = document.getElementsByName("selfStream")[0];
-const videoTest = document.getElementById('videoTest');
 
+// flags for last status of video and audio buttons
+let videoBeforeLeft=null;
+let audioBeforeLeft=null;
 
 /*
 * The function fires when user wants to enter to the video chat room
@@ -69,10 +64,6 @@ function requestForModerator() {
 function enter() {
 	var fullNameInput = document.getElementsByName('fullName')[0];
 
-	if (videoTest.srcObject !== null) {
-		selfVideoElement.srcObject = videoTest.srcObject;
-	}
-
 	disableNameInputAndPrintSelfName();
 
 	socket.emit("newUser", roomId, fullNameInput.value);
@@ -91,14 +82,10 @@ function enter2() {
 	}
 
 	socketInit();
-
 	if (!socket) {
 		console.error('Socket not defined');
 		return;
 
-	}
-	if (videoTest.srcObject !== null) {
-		selfVideoElement.srcObject = videoTest.srcObject;
 	}
 
 	disableNameInputAndPrintSelfName();
@@ -109,7 +96,11 @@ function enter2() {
 
 }
 
+function takePermissions() {
 
+	checkUsersDevicesAndAccessPermissions(selfVideoElement, 'peer');
+
+}
 /*
 *
 * The function initializes all socket event listeners for peer connection(ManyToMany)
@@ -118,7 +109,9 @@ function enter2() {
 * */
 function socketInit() {
 
-	socket = io.connect();
+	if (!socket){
+		socket = io.connect();
+	}
 	/*
 	* remote user gets info about new user entered the room and sends him his full name
 	* */
@@ -386,10 +379,14 @@ function leaveRoom() {
 	enableNameInputAndRemoveSelfName();
 	selfVideoElement.srcObject = null;
 	clearRemoteVideos();
-	socket.emit('disconnect');
-	socket.close();
-	toggleEnterLeaveButtons();
-	checkUsersDevicesAndAccessPermissions(videoTest);
+	if(socket){
+		socket.emit('disconnect');
+		socket.close();
+		socket=null;
+		toggleEnterLeaveButtons();
+		buttonsOnLoadThePage();
+	}
+
 }
 
 /*
