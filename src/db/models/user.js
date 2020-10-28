@@ -1,33 +1,45 @@
 'use strict';
 module.exports = (sequelize, DataTypes) => {
 	const User = sequelize.define('User', {
-		firstName:{
+		firstName: {
 			type: DataTypes.STRING,
 			allowNull: false
 		},
-		lastName:{
+		lastName: {
 			type: DataTypes.STRING,
 			allowNull: false
 		},
-		email:{
+		email: {
 			type: DataTypes.STRING,
 			allowNull: false
 		},
-		passwordHash:{
+		passwordHash: {
 			type: DataTypes.STRING(255),
-			allowNull:true
-		},
-		permissions:{
-			allowNull:false,
-			type:DataTypes.INTEGER,
-			defaultValue:0,
-			comment:'bitmask of permission from 2^0 until 2^30'
+			allowNull: true
 		}
 	}, {
-		tableName:'user'
+		tableName: 'user'
 	});
 	User.associate = function (models) {
-		User.hasMany(models.Message);
+		// moderator
+		User.hasMany(models.Room, {
+			as: 'userCreatedRooms',
+			foreignKey: 'moderatorId'
+		});
+
+		// can be in multiple rooms at the same time
+		User.hasMany(models.UserInRoom, {
+			as: 'allUsers',
+			foreignKey: 'userId'
+		});
+		User.hasMany(models.Message, {
+			as: 'messageTo',
+			foreignKey: 'toId'
+		});
+		User.hasMany(models.Message, {
+			as: 'messageFrom',
+			foreignKey: 'fromId'
+		});
 
 	};
 	return User;

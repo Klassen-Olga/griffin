@@ -5,8 +5,7 @@
 window.onbeforeunload = () => {
 	socket.close();
 };
-window.onload = () => {
-}
+
 
 /*
 * variables for managing peer connections and users personal data
@@ -209,9 +208,19 @@ function receiveVideoResponse(result) {
 * */
 function onExistingParticipants(msg) {
 	userId = msg.userId;
+	var iceServers = [
+		{
+			url: "turn:numb.viagenie.ca",
+			username: "klassen.olga96@gmail.com",
+			credential: "ufn5j88"
+		}
+	];
 	var constraints = {
 		audio: msg.audioOn,
-		video: msg.videoOn
+		video: msg.videoOn,
+		configurations: {
+			iceServers:iceServers
+		}
 
 	};
 	console.log(userId + " registered in room " + roomId);
@@ -222,6 +231,7 @@ function onExistingParticipants(msg) {
 		localVideo: selfStream,
 		mediaConstraints: constraints,
 		onicecandidate: participant.onIceCandidate.bind(participant),
+
 
 	}
 	//user connects to KMS

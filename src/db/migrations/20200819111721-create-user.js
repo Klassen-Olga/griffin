@@ -31,12 +31,6 @@ module.exports = {
 			updatedAt: {
 				allowNull: false,
 				type: Sequelize.DATE
-			},
-			permissions:{
-				allowNull:false,
-				type:Sequelize.INTEGER,
-				defaultValue:0,
-				comment:'bitmask of permission from 2^0 until 2^30'
 			}
 		});
 	},

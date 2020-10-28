@@ -1,18 +1,14 @@
 'use strict';
 module.exports = {
-	up: (queryInterface, Sequelize) => {
-		return queryInterface.createTable('message', {
+	up: async (queryInterface, Sequelize) => {
+		await queryInterface.createTable('userInRoom', {
 			id: {
 				allowNull: false,
 				autoIncrement: true,
 				primaryKey: true,
 				type: Sequelize.INTEGER
 			},
-			text: {
-				type: Sequelize.STRING,
-				allowNull: false,
-			},
-			fromId: {
+			userId: {
 				type: Sequelize.INTEGER,
 				references: {
 					model: {
@@ -22,15 +18,15 @@ module.exports = {
 				},
 				allowNull: false
 			},
-			toId: {
+			roomId: {
 				type: Sequelize.INTEGER,
 				references: {
 					model: {
-						tableName: 'user'
+						tableName: 'room'
 					},
 					key: 'id'
 				},
-				allowNull: true
+				allowNull: false
 			},
 			createdAt: {
 				allowNull: false,
@@ -42,7 +38,7 @@ module.exports = {
 			}
 		});
 	},
-	down: (queryInterface, Sequelize) => {
-		return queryInterface.dropTable('message');
+	down: async (queryInterface, Sequelize) => {
+		await queryInterface.dropTable('userInRoom');
 	}
 };

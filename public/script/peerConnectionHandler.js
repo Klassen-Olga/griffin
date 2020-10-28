@@ -17,7 +17,10 @@ const peerConnections = {};
 const config = {
 	iceServers: [
 		{
-			urls: ["stun:stun.l.google.com:19302"]
+			//urls: ["stun:stun.l.google.com:19302"]
+			urls: "turn:158.69.221.198",
+			username: "klassen.olga96@gmail.com",
+			credential: "ufn5j88"
 		}
 	]
 };
@@ -26,9 +29,7 @@ let socket = null;
 //own window were users video and audio will be stored
 const selfVideoElement = document.getElementsByName("selfStream")[0];
 
-// flags for last status of video and audio buttons
-let videoBeforeLeft=null;
-let audioBeforeLeft=null;
+
 
 /*
 * The function fires when user wants to enter to the video chat room

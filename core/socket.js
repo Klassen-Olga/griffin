@@ -12,7 +12,7 @@ class SocketHandler {
 		//object for sockets
 		self.sockets = {};
 		self.participantsById = {};
-		self.participantsByName={};
+		self.participantsByName = {};
 		self.initOtherEvents();
 		self.initEventsKurento();
 		self.initEventsPeerConnection();
@@ -95,7 +95,7 @@ class SocketHandler {
 			socket.on("newUser", (roomId, fullName) => {
 				console.log("newUser " + socket.id + " sends data to all users");
 				self.participantsById[socket.id] = fullName;
-				self.participantsByName[fullName]=socket.id;
+				self.participantsByName[fullName] = socket.id;
 				socket.join(roomId);
 				socket.broadcast.to(roomId).emit("newUser", socket.id);
 				socket.on("disconnect", () => {
@@ -136,34 +136,35 @@ class SocketHandler {
 				}
 				self.io.in(roomId).emit('chat message', data);
 			});
-			socket.on('requestForModeratorPeer', (fullName, roomId)=>{
+			socket.on('requestForModeratorPeer', (fullName, roomId) => {
 				self.proceedRequestForModeratorPeer(fullName, roomId, socket)
 			});
-			socket.on('moderatorResponsePeer', (accepted, userId)=>{
+			socket.on('moderatorResponsePeer', (accepted, userId) => {
 				socket.to(userId).emit('moderatorResponsePeer', accepted);
 			});
-			socket.on('videoDisabled', roomId=>{
+			socket.on('videoDisabled', roomId => {
 				socket.broadcast.to(roomId).emit('videoDisabled', socket.id);
 			});
-			socket.on('videoEnabled', roomId=>{
+			socket.on('videoEnabled', roomId => {
 				socket.broadcast.to(roomId).emit('videoEnabled', socket.id);
 			});
 
 		});
 	}
-	proceedRequestForModeratorPeer(fullName,roomId, socket) {
+
+	proceedRequestForModeratorPeer(fullName, roomId, socket) {
 		const self = this;
-		let error=null;
+		let error = null;
 		//does room exist in database
 		if (/*self.rooms.hasOwnProperty(message.roomName)*/true === false) {
 			socket.emit('onEnterNotification', error);
 			return;
 		}
-		let moderatorDb='Olga Klassen';
-		let roomDb=roomId;
+		let moderatorDb = 'Olga Klassen';
+		let roomDb = roomId;
 
 		//does user exists in db
-		if (true){
+		if (true) {
 			// is current user moderator
 			if (moderatorDb === fullName) {
 				socket.emit('onEnterNotification', error);
@@ -172,10 +173,10 @@ class SocketHandler {
 		}
 
 
-		let moderator= self.participantsByName['Olga Klassen'];
-		let room=socket.adapter.rooms[roomId];
+		let moderator = self.participantsByName['Olga Klassen'];
+		let room = socket.adapter.rooms[roomId];
 		// after all is room empty or isn't moderator already registered
-		if (room.length===0 || typeof moderator==='undefined'){
+		if (room.length === 0 || typeof moderator === 'undefined') {
 			error = 'No moderator present, please reenter later';
 			socket.emit('onEnterNotification', error);
 			return;
@@ -184,6 +185,7 @@ class SocketHandler {
 		socket.emit('waitModeratorResponse');
 		socket.to(moderator).emit('requestForModerator', socket.id, fullName);
 	}
+
 	initOtherEvents() {
 		const self = this;
 		self.io.on('connection', socket => {
@@ -191,21 +193,19 @@ class SocketHandler {
 
 			socket.on('disconnect', () => {
 				console.log('User ' + socket.id + ' disconnects');
-				if (userRegister.getById(socket.id)) {
+				let currentSocket=userRegister.getById(socket.id);
+				if (currentSocket) {
 					helper.leaveRoom(socket, err => {
 						if (err) {
 							console.error(err);
 						}
 						socket.emit('disconn');
-						if (self.sockets[socket.id]) {
-							delete self.sockets[socket.id];
-						}
 					});
-				} else {
-					if (self.sockets[socket.id]) {
-						delete self.sockets[socket.id];
-					}
 				}
+				if (self.sockets[socket.id]) {
+					delete self.sockets[socket.id];
+				}
+
 
 			});
 

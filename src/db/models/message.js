@@ -1,41 +1,25 @@
 'use strict';
-
-module.exports = {
-	up: (queryInterface, Sequelize) => {
-
-		return queryInterface.bulkInsert('message', [{
-			text: 'Hi Helga',
-			fromId: 1,
-			toId: 2,
-			createdAt: new Date(),
-			updatedAt: new Date()
-		},
-			{
-				text: 'Hi Joe',
-				fromId: 2,
-				toId: 1,
-				createdAt: new Date(),
-				updatedAt: new Date()
-			},
-			{
-				text: 'Hi all',
-				fromId: 2,
-				createdAt: new Date(),
-				updatedAt: new Date()
-			},
-			{
-				text: 'Hi all',
-				fromId:1,
-				createdAt: new Date(),
-				updatedAt: new Date()
-			}
-		], {});
-
-	},
-
-	down: (queryInterface, Sequelize) => {
-
-		return queryInterface.bulkDelete('message', null, {});
-
-	}
+module.exports = (sequelize, DataTypes) => {
+	const Message = sequelize.define('Message', {
+		text: {
+			type: DataTypes.STRING,
+			allowNull: false
+		}
+	}, {tableName: 'message'});
+	Message.associate = function (models) {
+		// associations can be defined here
+		Message.belongsTo(models.User, {
+			as: 'from',
+			foreignKey: 'fromId'
+		});
+		Message.belongsTo(models.User, {
+			as: 'to',
+			foreignKey: 'toId'
+		});
+		Message.belongsTo(models.Room, {
+			as: 'inRoom',
+			foreignKey: 'roomId'
+		});
+	};
+	return Message;
 };
