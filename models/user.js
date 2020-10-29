@@ -5,18 +5,11 @@ module.exports=function (Model, database) {
 	}
 	Model.prototype.writeRemotes=function (remoteData) {
 		const self=this;
-
-		if(typeof remoteData.firstName!='undefined'){
-			self.firstName=remoteData.firstName;
-		}
-		if(typeof remoteData.lastName!='undefined'){
-			self.lastName=remoteData.lastName;
-		}
-		if(typeof remoteData.email!='undefined'){
-			self.email=remoteData.email;
-		}
-		if(typeof remoteData.password!='undefined'){
-			self.passwordHash=Passport.hashPassword(remoteData.password);
+		for (let i in remoteData){
+			if (i==='password'){
+				self.passwordHash=Passport.hashPassword(remoteData.password);
+			}
+			self[i]=remoteData[i];
 		}
 	}
 }

@@ -61,7 +61,7 @@ class Passport {
 		response.cookie(config.cookieName, token,{
 			maxAge:config.jwtExpiresAfter,
 			httpOnly:false,
-			secure:request.sequre
+			secure:request.secure
 		});
 		return token;
 	}

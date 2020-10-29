@@ -20,19 +20,19 @@
 
     <br>
     <p id="fullName"></p>
-    <button class="buttons-onload-room" id="audioOn" onclick="addMediaTrack('audio')">Audio on</button>
-    <button class="buttons-onload-room" id="audioOff" onclick="removeMediaTrack('audio')">Audio off</button>
-    <button class="buttons-onload-room" id="videoOn" onclick="addMediaTrack('video')">Video on</button>
-    <button class="buttons-onload-room" id="videoOff" onclick="removeMediaTrack('video')">Video off</button>
+    <button class="buttons-onload-room room-button" id="audioOn" onclick="addMediaTrack('audio')">Audio on</button>
+    <button class="buttons-onload-room room-button" id="audioOff" onclick="removeMediaTrack('audio')">Audio off</button>
+    <button class="buttons-onload-room room-button" id="videoOn" onclick="addMediaTrack('video')">Video on</button>
+    <button class="buttons-onload-room room-button" id="videoOff" onclick="removeMediaTrack('video')">Video off</button>
 
 
-    <button id="enterTheRoomStart" onclick="takePermissions()">Enter start</button>
-    <button class="buttons-onload-room" id="enterTheRoomEnd" onclick="enter2()">Enter end</button>
-    <button class="buttons-onload-room" id="leaveTheRoom" onclick="leaveRoom()">Leave the room</button>
+    <button class="room-button" id="enterTheRoomStart" onclick="takePermissions()">Enter start</button>
+    <button class="buttons-onload-room room-button" id="enterTheRoomEnd" onclick="enter2()">Enter end</button>
+    <button class="buttons-onload-room room-button" id="leaveTheRoom" onclick="leaveRoom()">Leave the room</button>
 
     <br>
     <div id="nameDiv">
-        <label for="fullName">Full Name: </label>
+        <label class="room-label" for="fullName">Full Name: </label>
         <input name="fullName"/><br>
 
     </div>
@@ -44,9 +44,9 @@
 </div>
 <div class="split right">
     <ul id="messages"></ul>
-    <form action="">
+    <form class="room-form" action="">
         <input id="message" autocomplete="off"/>
-        <button onclick="sendMessageInChat();return false;">Send</button>
+        <button class="room-button" onclick="sendMessageInChat();return false;">Send</button>
     </form>
 </div>
 <script src="/script/roomScriptAppender.js"></script>

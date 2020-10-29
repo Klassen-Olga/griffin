@@ -20,10 +20,9 @@ document.getElementById("submitRegister").addEventListener("click", function (e)
 		setTimeout(function () {
 			if (xhr.status >= 200 && xhr.status < 300) {
 
-				console.log(JSON.parse(xhr.response).user)
-				/*setTimeout(function () {
-					window.location = '/';
-				}, 300);*/
+				console.log(JSON.parse(xhr.response).user);
+
+				window.location = '/login';
 			} else {
 				var error=document.getElementById('serverError');
 				var errorMessage=JSON.parse(xhr.response);

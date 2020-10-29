@@ -36,7 +36,7 @@ class ApiUsersController extends Controller {
 			error = "The email is in the wrong format";
 
 		}
-		/*if (user.password!==user.repeatPassword){
+		if (user.password!==user.repeatPassword){
 			error="Password and repeat password should match";
 
 		}
@@ -44,7 +44,7 @@ class ApiUsersController extends Controller {
 		const rePass=/^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$/;
 		if (rePass.test(user.password)===false){
 			error="Your password should contain at least one character and one number and should be at least 8 characters long";
-		}*/
+		}
 		return error;
 	}
 

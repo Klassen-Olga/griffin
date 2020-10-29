@@ -4,6 +4,7 @@
     <title><%= title %></title>
     <meta charset="utf-8"/>
     <link rel="shortcut icon" href="favicon.ico" type="image/x-icon">
+    <link rel="stylesheet" href="/styles.css">
 
 </head>
 
@@ -14,7 +15,7 @@
 <p id="serverError"></p>
 
 <form id="registerForm" action="<%- self.urlFor('api/users', 'register', null, 'post') %>" method="post">
-    <div class="container">
+    <div class="containerRegister">
         <hr>
         <label for="firstName"><b>First Name</b></label>
         <input type="text" placeholder="Enter First Name" name="firstName" id="firstName" required>
@@ -37,7 +38,7 @@
     </div>
 
     <div class="container signin">
-        <p>Already have an account? <a href="#">Sign in</a>.</p>
+        <p>Already have an account? <a href="<%= self.urlFor('pages', 'login')%>">Sign in</a>.</p>
     </div>
 </form>
 

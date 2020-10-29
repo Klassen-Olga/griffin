@@ -9,6 +9,7 @@ app.use('/bower_components',  express.static(__dirname + '/bower_components'));
 app.set('view engine', 'ejs');
 app.use(bodyParser.urlencoded({extended: false}));
 app.use(bodyParser.json());
+global.config=require('./config/config');
 
 const database  =   require('./core/database')();
 let Router = require('./core/router');
