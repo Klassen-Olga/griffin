@@ -1,8 +1,9 @@
-let PagesController = require('../controllers/pagesController');
-let StreamController = require('../controllers/streamController');
+let PagesController    = require('../controllers/pagesController');
+
+let ApiUsersController = require('../controllers/api/usersController');
 const path = require('path');
-let routes = [
-	{
+let routes = {
+	'pages': {
 		controllerName: PagesController,
 		actions: [
 			{path: '/', action: 'home', method: 'get'},
@@ -15,37 +16,59 @@ let routes = [
 			{path: '/kurentoOneToOne', action: 'kurentoOneToOne', method: 'get'},
 			{path: '/kurentoOneToMany', action: 'kurentoOneToMany', method: 'get'},
 			{path: '/kurentoManyToMany', action: 'kurentoManyToMany', method: 'get'},
-			{path: '/login', action: 'login', method: 'get'}
-		]
-	},
-	{
-		controllerName: StreamController,
-		actions: [
-			{path: '/stream/broadcast', action: 'broadcast', method: 'get'},
-			{path: '/stream/watch', action: 'watch', method: 'get'}
-		]
-	}
+			{path: '/login', action: 'login', method: 'get'}]
 
-];
+	},
+	'api/users': {
+		controllerName: ApiUsersController,
+		actions: [
+			{path: '/api/users', action: 'register', method: 'post'},]
+	}
+};
 
 class Router {
 
-	constructor(app) {
+	constructor(app, db) {
 		const self = this;
 		self.app = app;
+		self.database = db;
+		self.hashMap = [];
 
 	}
 
 	setRoutes() {
 		const self = this;
-		let route;
 		let action;
-		for (route of routes) {
-			let controllerName = route.controllerName;
-			for (action of route.actions) {
+		for (let i in routes) {
+			let controllerName = routes[i].controllerName;
+			for (action of routes[i].actions) {
 				self.setRoute(action.path, action.action, action.method, controllerName);
+				self.generatePaths(action, i);
 			}
 		}
+	}
+
+	generatePaths(action, controllerName) {
+		const self = this;
+		let hash = controllerName + action.action + action.method.toLowerCase();
+		const str = action.path;
+		let match;
+		let urlParameters = [];
+
+		const regexParams = /:([a-zA-Z](?:[a-zA-Z0-9]+))?/g;
+		while ((match = regexParams.exec(str)) != null) {
+			//match.index === match["index"]
+			if (match.index === regexParams.lastIndex) {
+				++regexParams.lastIndex;
+			}
+
+			urlParameters.push(match[1]);
+		}
+		urlParameters.sort();
+		if (urlParameters.length > 0) {
+			hash += urlParameters.join('');
+		}
+		self.hashMap[hash] = action.path;
 	}
 
 	setRoute(path, action, method, controllerName) {
@@ -60,17 +83,18 @@ class Router {
 	updateRoutes(uuid) {
 		const self = this;
 		self.app.get('/room/:roomId/:participantsNumber', (req, res) => {
-				res.render('pages/room', {
-					roomId: req.params.roomId,
-					participantsNumber: req.params.participantsNumber
-				});
-
+			res.render('pages/room', {
+				roomId: req.params.roomId,
+				participantsNumber: req.params.participantsNumber
+			});
 
 
 		});
 		self.app.get('/room/:roomId', (req, res) => {
-			res.render('pages/room', {roomId: req.params.roomId,
-				participantsNumber: 'undefined'});
+			res.render('pages/room', {
+				roomId: req.params.roomId,
+				participantsNumber: 'undefined'
+			});
 
 		});
 		self.app.get('/videoChat', (req, res) => {
@@ -79,16 +103,29 @@ class Router {
 
 	}
 
-	urlFor(controllerName, action) {
+	urlFor(controllerName, action, parameters = null, method = 'GET') {
 		const self = this;
-		let filePath = null;
-		if (controllerName !== 'pages') {
-			let filePath = path.join(controllerName.charAt(0).toLowerCase() + controllerName.substr(1), action + '.ejs');
-		} else {
-			let filePath = action + '.ejs';
-
+		let hash = controllerName + action + method.toLocaleLowerCase();
+		let paramsKeys = null;
+		if (parameters != null) {
+			paramsKeys = Object.keys(parameters).sort();
+			hash += paramsKeys.join('');
 		}
-		return filePath;
+		let path = '/';
+		if (self.hashMap[hash]) {
+			path = self.hashMap[hash];
+			if (paramsKeys != null) {
+				for (let index = 0; index < paramsKeys.length; ++index) {
+					path = path.replace(':' + paramsKeys[index], parameters[paramsKeys[index]]);
+				}
+			}
+
+		} else {
+			console.error("Can not generate any url for controller name: "
+				+ controllerName + " action: " + action + "method: " + method + "parameters :" + parameters);
+		}
+		console.log(path);
+		return path;
 	}
 }
 

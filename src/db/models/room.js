@@ -6,7 +6,7 @@ module.exports = (sequelize, DataTypes) => {
 			allowNull: false
 		},
 		startDateTime: {
-			type: DataTypes.Date,
+			type: DataTypes.DATE,
 			allowNull: false
 		},
 		numberOfUsers: {
