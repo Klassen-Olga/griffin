@@ -1,5 +1,19 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title><%= title %></title>
+    <meta charset="utf-8"/>
+    <link rel="shortcut icon" href="favicon.ico" type="image/x-icon">
+    <link rel="stylesheet" href="/styles.css">
+
+</head>
+
+<body>
+<h1>Login</h1>
+<p id="serverError"></p>
+
 <div class="signin-wrapper">
-    <form id="signin-form"action="api/users/login')%>" method="POST">
+    <form id="loginForm" action="<%= self.urlFor('api/users', 'login', null, 'post')%>" method="POST">
 
         <div class="input-wrapper">
             <label for="email">E-Mail</label>
@@ -10,8 +24,15 @@
             <input id="password" name="password" type="password" placeholder="Password"/>
         </div>
         <div class="button-wrapper">
-            <button onclick="submitPressed(this); return false;">Login</button>
+            <button id="submitLogin" type="submit">Login</button>
         </div>
-
+        <div class="container register">
+            <p>No account yet? <a href="<%= self.urlFor('pages', 'register')%>">Register</a>.</p>
+        </div>
     </form>
 </div>
+<script src="script/apiUsers/helper.js"></script>
+<script src="script/apiUsers/login.js"></script>
+</body>
+
+</html>

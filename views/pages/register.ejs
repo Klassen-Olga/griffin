@@ -37,12 +37,13 @@
         <button id="submitRegister" type="submit">Register</button>
     </div>
 
-    <div class="container signin">
-        <p>Already have an account? <a href="<%= self.urlFor('pages', 'login')%>">Sign in</a>.</p>
+    <div class="container login">
+        <p>Already have an account? <a href="<%= self.urlFor('pages', 'login')%>">Login</a>.</p>
     </div>
 </form>
 
-<script src="script/register.js"></script>
+<script src="script/apiUsers/helper.js"></script>
+<script src="script/apiUsers/register.js"></script>
 </body>
 
 </html>

@@ -22,7 +22,9 @@ let routes = {
 	'api/users': {
 		controllerName: ApiUsersController,
 		actions: [
-			{path: '/api/users', action: 'register', method: 'post'},]
+			{path: '/api/register', action: 'register', method: 'post'},
+			{path: '/api/login', action: 'login', method: 'post'}
+			]
 	}
 };
 

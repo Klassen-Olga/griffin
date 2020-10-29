@@ -1,32 +1,34 @@
 const Controller = require('../../core/controller');
 const ApiError = require('../../core/error');
+const Passport=require('../../core/passport');
 
 class ApiUsersController extends Controller {
 	constructor(...args) {
 		super(...args);
-		const self=this;
+		const self = this;
 		self.format = Controller.HTTP_FORMAT_JSON;
 
 	}
 
-	undefinedCheck(data){
-		for(let i in data){
-			if (typeof data[i]==='undefined'){
+	undefinedCheck(data) {
+		for (let i in data) {
+			if (typeof data[i] === 'undefined') {
 				return false;
 			}
 		}
 		return true;
 	}
-	validateRegisterForm(user) {
-		const self=this;
-		let error='';
 
-		if (self.undefinedCheck(user)===false){
-			error="Reload the page";
+	validateRegisterForm(user) {
+		const self = this;
+		let error = '';
+
+		if (self.undefinedCheck(user) === false) {
+			error = "Reload the page";
 		}
 		self.undefinedCheck(user);
 		if (user.firstName.length < 2) {
-			error="First name should be at least 2 characters long";
+			error = "First name should be at least 2 characters long";
 		}
 		if (user.lastName.length < 2) {
 			error = "Last name should be at least 2 characters long";
@@ -36,16 +38,43 @@ class ApiUsersController extends Controller {
 			error = "The email is in the wrong format";
 
 		}
-		if (user.password!==user.repeatPassword){
-			error="Password and repeat password should match";
+		if (user.password !== user.repeatPassword) {
+			error = "Password and repeat password should match";
 
 		}
 
-		const rePass=/^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$/;
-		if (rePass.test(user.password)===false){
-			error="Your password should contain at least one character and one number and should be at least 8 characters long";
+		const rePass = /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$/;
+		if (rePass.test(user.password) === false) {
+			error = "Your password should contain at least one character and one number and should be at least 8 characters long";
 		}
 		return error;
+	}
+
+
+
+	async insertIfNotExist(personalData, transaction) {
+		const self = this;
+		let sameUser = await self.database.User.findOne({
+			where: {
+				email: personalData.email
+			},
+			lock: true,
+			transaction: transaction
+		});
+
+
+		if (sameUser) {
+			throw new ApiError('User with this email already exists', 400);
+
+		}
+
+		let newUser = self.database.User.build();
+		newUser.writeRemotes(personalData);
+		await newUser.save({
+			transaction: transaction,
+			lock: true
+		});
+		return newUser;
 	}
 
 	async actionRegister() {
@@ -56,35 +85,17 @@ class ApiUsersController extends Controller {
 
 
 		try {
-			let validationError=self.validateRegisterForm(personalData);
-			if (validationError!=='') {
+			let validationError = self.validateRegisterForm(personalData);
+			if (validationError !== '') {
 				throw new ApiError(validationError, 400);
 			}
 			user = await self.database.sequelize.transaction(async (t) => {
-				let sameMail = await self.database.User.findOne({
-					where: {
-						email: personalData.email
-					},
-					lock: true,
-					transaction: t
-				});
 
-				if (sameMail) {
-					throw new ApiError('User with this email already exists', 400);
-
-				}
-
-				let newUser = self.database.User.build();
-				newUser.writeRemotes(personalData);
-				await newUser.save({
-					transaction: t,
-					lock: true
-				});
+				let newUser = self.insertIfNotExist(personalData, t);
 				return newUser;
-
 			});
 		} catch (e) {
-			error=e;
+			error = e;
 		}
 
 		if (!error) {
@@ -95,6 +106,47 @@ class ApiUsersController extends Controller {
 			})
 		} else {
 			self.handleError(error);
+		}
+
+	}
+	async actionLogin(){
+		const self=this;
+		let error='';
+		let user=null;
+		let personalData = self.param('user');
+		try {
+
+			user = await self.database.sequelize.transaction(async (t) => {
+				let dbUser = await self.database.User.findOne({
+					where: {
+						email: personalData.email
+					},
+					lock: true,
+					transaction: t
+				});
+				if (!dbUser){
+					throw new ApiError('User with this email does not exist', 404);
+				}
+				if (Passport.comparePassword(personalData.password, dbUser.passwordHash)===false){
+					throw new ApiError('Email or password is incorrect', 401);
+				}
+				return dbUser;
+			});
+		} catch (e) {
+			error = e;
+		}
+
+
+		if (error) {
+			self.handleError(error);
+		}
+		else{
+			let token = Passport.authorizeUserWithCookie(self.req, self.res, user.id);
+			self.render({
+				token: token
+			}, {
+				statusCode: 200
+			});
 		}
 
 	}
