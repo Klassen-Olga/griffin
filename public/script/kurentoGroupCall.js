@@ -208,19 +208,13 @@ function receiveVideoResponse(result) {
 * */
 function onExistingParticipants(msg) {
 	userId = msg.userId;
-	var iceServers = [
-		{
-			url: "turn:numb.viagenie.ca",
-			username: "klassen.olga96@gmail.com",
-			credential: "ufn5j88"
-		}
-	];
+
 	var constraints = {
 		audio: msg.audioOn,
 		video: msg.videoOn,
-		configurations: {
+		/*configurations: {
 			iceServers:iceServers
-		}
+		}*/
 
 	};
 	console.log(userId + " registered in room " + roomId);

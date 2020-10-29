@@ -109,7 +109,9 @@ form button {
 #messages li:nth-child(odd) {
     background: #eee;
 }
-
+#serverError{
+    color: darkred;
+}
 button {
     background-color: rgb(130, 224, 255);
     border: none;

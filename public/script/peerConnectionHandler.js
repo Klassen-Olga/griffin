@@ -17,10 +17,8 @@ const peerConnections = {};
 const config = {
 	iceServers: [
 		{
-			//urls: ["stun:stun.l.google.com:19302"]
-			urls: "turn:158.69.221.198",
-			username: "klassen.olga96@gmail.com",
-			credential: "ufn5j88"
+			urls: ["stun:stun.l.google.com:19302"]
+
 		}
 	]
 };

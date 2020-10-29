@@ -1,5 +1,4 @@
-
-//const Passport=require('../core/passport');
+const Passport=require('../core/passport');
 module.exports=function (Model, database) {
 	Model.prototype.fullName=function(){
 		return this.firstName+' '+this.lastName;
@@ -16,8 +15,8 @@ module.exports=function (Model, database) {
 		if(typeof remoteData.email!='undefined'){
 			self.email=remoteData.email;
 		}
-		/*if(typeof remoteData.password!='undefined'){
+		if(typeof remoteData.password!='undefined'){
 			self.passwordHash=Passport.hashPassword(remoteData.password);
-		}*/
+		}
 	}
 }

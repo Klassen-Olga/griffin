@@ -26,7 +26,7 @@ class ApiUsersController extends Controller {
 		}
 		self.undefinedCheck(user);
 		if (user.firstName.length < 2) {
-			error="Full name should be at least 2 characters long";
+			error="First name should be at least 2 characters long";
 		}
 		if (user.lastName.length < 2) {
 			error = "Last name should be at least 2 characters long";
@@ -40,17 +40,15 @@ class ApiUsersController extends Controller {
 			error="Password and repeat password should match";
 
 		}
-		if (user.password.length<8){
-			error="Your password should be at least 8 characters long";
-		}
+
 		const rePass=/^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$/;
 		if (rePass.test(user.password)===false){
-			error="Your password should contain at least one character and one number";
+			error="Your password should contain at least one character and one number and should be at least 8 characters long";
 		}*/
 		return error;
 	}
 
-	actionRegister() {
+	async actionRegister() {
 		const self = this;
 		let error = '';
 		let user = null;
@@ -60,9 +58,9 @@ class ApiUsersController extends Controller {
 		try {
 			let validationError=self.validateRegisterForm(personalData);
 			if (validationError!=='') {
-				throw new ApiError(error, 400);
+				throw new ApiError(validationError, 400);
 			}
-			user = self.database.sequelize.transaction(async (t) => {
+			user = await self.database.sequelize.transaction(async (t) => {
 				let sameMail = await self.database.User.findOne({
 					where: {
 						email: personalData.email
@@ -70,8 +68,10 @@ class ApiUsersController extends Controller {
 					lock: true,
 					transaction: t
 				});
+
 				if (sameMail) {
 					throw new ApiError('User with this email already exists', 400);
+
 				}
 
 				let newUser = self.database.User.build();

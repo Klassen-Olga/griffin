@@ -92,7 +92,6 @@ module.exports = class Helper {
 				}
 				return callback(error);
 			}
-			outgoingMedia.setTurnUrl("klassen.olga96@gmail.com:ufn5j88@158.69.221.198:3478");
 
 			// else
 			outgoingMedia.setMaxVideoRecvBandwidth(300);
@@ -353,7 +352,6 @@ module.exports = class Helper {
 /*					incomingMedia.setMaxVideoRecvBandwidth(300);
 					incomingMedia.setMinVideoRecvBandwidth(100);*/
 					userSession.incomingMedia[sender.id] = incomingMedia;
-					incomingMedia.setTurnUrl("klassen.olga96@gmail.com:ufn5j88@158.69.221.198:3478");
 
 
 					// add ice candidate the get sent before endpoints is establlished

@@ -6,8 +6,8 @@ document.getElementById("submitRegister").addEventListener("click", function (e)
 	var password = document.getElementById('password');
 	var repeatPassword = document.getElementById('repeatPassword');
 	var registerForm = document.getElementById('registerForm');
+
 	var xhr = new XMLHttpRequest();
-	console.log(registerForm.getAttribute('action'));
 	xhr.open(registerForm.getAttribute('method'), registerForm.getAttribute('action'));
 	xhr.setRequestHeader('Content-Type', 'application/json');
 	var start = new Date();
@@ -20,12 +20,14 @@ document.getElementById("submitRegister").addEventListener("click", function (e)
 		setTimeout(function () {
 			if (xhr.status >= 200 && xhr.status < 300) {
 
-				console.log(xhr.response)
+				console.log(JSON.parse(xhr.response).user)
 				/*setTimeout(function () {
 					window.location = '/';
 				}, 300);*/
 			} else {
-				console.log(xhr.response);
+				var error=document.getElementById('serverError');
+				var errorMessage=JSON.parse(xhr.response);
+				error.innerText=errorMessage.error;
 
 			}
 		}, duration);

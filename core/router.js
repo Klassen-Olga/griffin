@@ -124,7 +124,6 @@ class Router {
 			console.error("Can not generate any url for controller name: "
 				+ controllerName + " action: " + action + "method: " + method + "parameters :" + parameters);
 		}
-		console.log(path);
 		return path;
 	}
 }
