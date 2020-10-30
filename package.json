@@ -21,7 +21,7 @@
     "minimist": "^1.2.5",
     "mongoose": "^5.10.9",
     "mysql2": "^2.2.5",
-    "sequelize": "^5.22.3",
+    "sequelize": "^6.3.5",
     "sequelize-cli": "^6.2.0",
     "simple-peer": "^9.2.1",
     "socket.io": "^2.3.0",

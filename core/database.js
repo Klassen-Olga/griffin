@@ -23,7 +23,7 @@ module.exports= function (){
 		return (file.indexOf('.')!==0 && file.slice(-3)==='.js');
 	});
 	files.forEach(file=>{
-		const model=sequelize.import(path.join(modelsPath, file));
+		const model=require(path.join(modelsPath, file))(sequelize, Sequelize.DataTypes);
 		db[model.name]=model;
 	});
 	Object.keys(db).forEach(modelName=>{
