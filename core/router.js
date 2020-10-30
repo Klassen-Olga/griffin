@@ -7,16 +7,16 @@ let routes = {
 		controllerName: PagesController,
 		actions: [
 			{path: '/', action: 'home', method: 'get'},
-			{path: '/videoStream', action: 'videoStream', method: 'get'},
+			{path: '/room/:roomId/:participantsNumber', action: 'room', method: 'get'},
+			{path: '/login', action: 'login', method: 'get'},
 			{path: '/register', action: 'register', method: 'get'},
-			{path: '/register', action: 'register', method: 'post'},
 
-			{path: '/room', action: 'room', method: 'get'},
 			{path: '/kurentoExampleHelloWorld', action: 'kurentoExampleHelloWorld', method: 'get'},
 			{path: '/kurentoOneToOne', action: 'kurentoOneToOne', method: 'get'},
 			{path: '/kurentoOneToMany', action: 'kurentoOneToMany', method: 'get'},
 			{path: '/kurentoManyToMany', action: 'kurentoManyToMany', method: 'get'},
-			{path: '/login', action: 'login', method: 'get'}]
+			{path: '/videoStream', action: 'videoStream', method: 'get'}
+		]
 
 	},
 	'api/users': {
@@ -75,34 +75,13 @@ class Router {
 
 	setRoute(path, action, method, controllerName) {
 		const self = this;
-		self.app[method](path, (request, response) => {
+		self.app[method.toLowerCase()](path, (request, response) => {
 			let actionName = 'action' + action.charAt(0).toUpperCase() + action.substr(1);
 			let controller = new controllerName(request, response, action, self);
-			controller[actionName]();
-		});
-	}
-
-	updateRoutes(uuid) {
-		const self = this;
-		self.app.get('/room/:roomId/:participantsNumber', (req, res) => {
-			res.render('pages/room', {
-				roomId: req.params.roomId,
-				participantsNumber: req.params.participantsNumber
+			controller.executeBeforeList(()=>{
+				controller[actionName]();
 			});
-
-
 		});
-		self.app.get('/room/:roomId', (req, res) => {
-			res.render('pages/room', {
-				roomId: req.params.roomId,
-				participantsNumber: 'undefined'
-			});
-
-		});
-		self.app.get('/videoChat', (req, res) => {
-			res.redirect('/room/' + uuid);
-		});
-
 	}
 
 	urlFor(controllerName, action, parameters = null, method = 'GET') {

@@ -1,4 +1,4 @@
-const Controller = require('../../core/controller');
+const Controller = require('../mainController');
 const ApiError = require('../../core/error');
 const Passport=require('../../core/passport');
 

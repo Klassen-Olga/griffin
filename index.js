@@ -20,7 +20,7 @@ let io = require('socket.io')(http);
 const {v4: uuidv4} = require('uuid');
 
 let uuid = uuidv4();
-router.updateRoutes(uuid);
+//router.updateRoutes(uuid);
 
 let SocketHandler = require('./core/socket');
 let socketHandler = new SocketHandler(io);

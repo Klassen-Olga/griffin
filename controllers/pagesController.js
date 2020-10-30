@@ -1,9 +1,24 @@
-let Controller = require('../core/controller');
+let Controller = require('./mainController');
 
 class PagesController extends Controller {
 	constructor(req, res, action, router) {
 		super(req, res, action, router);
 		const self = this;
+		self.before(['*', '-register', '-login'], (next)=>{
+			if (self.req.authorized===true){
+				next();
+			}
+			else{
+				self.res.redirect(302, self.urlFor('pages', 'login'));
+			}
+		});
+		self.before(['login'], (next) => {
+			if (self.req.authorized === true) {
+				self.res.redirect(self.urlFor('pages', 'home'));
+			} else {
+				next();
+			}
+		});
 
 	}
 
@@ -14,17 +29,12 @@ class PagesController extends Controller {
 		});
 	}
 
-	actionVideoStream() {
-		const self = this;
-		self.render({
-			title: "Video Stream"
-		});
-	}
-
 	actionRoom() {
 		const self = this;
 		self.render({
-			title: "Chat Room"
+			title: "Chat Room",
+			roomId:self.req.params.roomId,
+			participantsNumber:self.req.params.participantsNumber
 		});
 	}
 
@@ -36,42 +46,12 @@ class PagesController extends Controller {
 		});
 	}
 
-	actionKurentoExampleHelloWorld() {
-		const self = this;
-		self.render({
-			title: "HelloWorld"
-		});
-	}
-
-
-	actionKurentoOneToOne() {
-		const self = this;
-		self.render({
-			title: "OneToOne"
-		});
-	}
-
-	actionKurentoOneToMany() {
-		const self = this;
-		self.render({
-			title: "OneToMany"
-		});
-	}
-
-	actionKurentoManyToMany() {
-		const self = this;
-		self.render({
-			title: "ManyToMany"
-		});
-	}
-
 	actionRegister() {
 		const self = this;
 		self.render({
 			title: "Register",
 			self: self
 		});
-
 
 	}
 

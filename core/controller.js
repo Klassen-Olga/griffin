@@ -1,29 +1,33 @@
 const path = require('path');
 const ApiError = require('./error');
 
-const renderOptions={
-	statusCode:200,
-	layoutFileName:'layout.ejs'
+const renderOptions = {
+	statusCode: 200,
+	layoutFileName: 'layout.ejs'
 }
 
-class Controller{
+class Controller {
 
 	constructor(req, res, action, router) {
-		const self=this;
-		self.req=req;
-		self.res=res;
-		self.action=action;
-		self.router=router;
+		const self = this;
+		self.req = req;
+		self.res = res;
+		self.action = action;
+		self.router = router;
+		self.beforeList = [];
+		self.format = Controller.HTTP_FORMAT_HTML;
 	}
-	get database(){
+
+	get database() {
 		return this.router.database;
 	}
-	render(params, options){
-		const self=this;
-		options = Object.assign({ ...renderOptions }, options);
 
-		if (!options.statusCode){
-			options.statusCode=200;
+	render(params, options) {
+		const self = this;
+		options = Object.assign({...renderOptions}, options);
+
+		if (!options.statusCode) {
+			options.statusCode = 200;
 		}
 		self.res.status(options.statusCode);
 
@@ -32,15 +36,15 @@ class Controller{
 			self.res.set('content-type', 'application/json');
 			self.res.set('content-length', jsonStr.length);
 			self.res.send(jsonStr);
-		}
-		else{
-			let controllerName =self.constructor.name;
-			controllerName=controllerName.replace('Controller', '');
-			let filePath=path.join(controllerName.charAt(0).toLowerCase()+controllerName.substr(1),self.action+'.ejs');
+		} else {
+			let controllerName = self.constructor.name;
+			controllerName = controllerName.replace('Controller', '');
+			let filePath = path.join(controllerName.charAt(0).toLowerCase() + controllerName.substr(1), self.action + '.ejs');
 			self.res.render(filePath, params);
 		}
 
 	}
+
 	param(key) {
 		const self = this;
 
@@ -54,30 +58,57 @@ class Controller{
 
 		return self.req.params[key];
 	}
-	urlFor(...args){
+
+	urlFor(...args) {
 		return this.router.urlFor(...args);
 	}
 
-
-
-	handleError(error){
+	before(actions, functionToBeCalled) {
 		const self = this;
 
-		if (error instanceof ApiError) {
-			self.render({
-				error: error.message
-			}, {
-				statusCode: error.statusCode
-			})
-		} else {
-			self.render({
-				error: error.message
-			}, {
-				statusCode: 500
+		if (typeof actions === 'string') {
+			actions = [actions];
+		}
+
+		self.beforeList.push({
+			actions: actions,
+			functionToBeCalled: functionToBeCalled
+		});
+	}
+
+	executeBeforeList(callback, index=0) {
+		const self=this;
+
+		if(index>=self.beforeList.length){
+			callback();
+		}
+		else{
+			self.executeBefore(self.beforeList[index], ()=>{
+				process.nextTick(function () {
+					self.executeBeforeList(callback, ++index);
+				});
 			});
 		}
 	}
+	executeBefore(beforeElement, callback){
+
+		const self=this;
+
+		if((beforeElement.actions.indexOf('*')!==-1 && beforeElement.actions.indexOf('-'+self.action)===-1)
+			|| beforeElement.actions.indexOf(self.action)!==-1){
+			beforeElement.functionToBeCalled.apply(self, [callback]);
+
+		}
+		else{
+			process.nextTick(function () {
+				callback();
+			});
+		}
+	}
+
+
 }
+
 Controller.HTTP_FORMAT_JSON = 'JSON';
 Controller.HTTP_FORMAT_HTML = 'HTML';
 Controller.HTTP_CODE_INTERNAL_SERVER_ERROR = 500;
@@ -88,4 +119,4 @@ Controller.HTTP_CODE_BAD_REQUEST = 400;
 Controller.HTTP_CODE_CREATED = 201;
 Controller.HTTP_CODE_OK = 200;
 
-module.exports=Controller;
+module.exports = Controller;
