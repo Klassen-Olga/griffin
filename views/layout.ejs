@@ -1,20 +1,18 @@
-<html>
+<!DOCTYPE html>
+<html lang="en">
 <head>
-    <title><%= title %></title>
-    <script src="/socket.io/socket.io.js"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="/styles.css" rel="stylesheet">
+    <link href="favicon.ico" rel="shortcut icon" type="image/x-icon"/>
+    <title> <%=title%> </title>
+
 </head>
 <body>
-<% if(typeof navigation==='undefined' || navigation!==false) { %>
-    <nav>
-        <ul>
-            <li><a href="<%= self.urlFor('pages', 'home') %>">Home</a></li>
-        </ul>
-        <!--<form action="<%-self.urlFor('api/users','signout', null, 'GET')%>" method="get">
-            <button>Sign out</button>
-        </form>-->
-    </nav>
-<%}//endif%>
-<%- body %>
-</body>
 
+
+    <main><%- body %></main>
+
+
+</body>
 </html>

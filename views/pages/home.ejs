@@ -1,13 +1,4 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title><%= title %></title>
-    <meta charset="utf-8"/>
-    <link rel="shortcut icon" href="favicon.ico" type="image/x-icon">
 
-</head>
-
-<body>
 
 <h3>Welcome To Griffin!</h3>
 <div id="link-container">
@@ -16,9 +7,6 @@
 </div>
 
 <script src="/socket.io/socket.io.js"></script>
-</body>
-
-</html>
 <script>
 	function getUuid() {
 
@@ -30,5 +18,4 @@
 			document.getElementById('link-container').appendChild(p);
 		});
 	}
-
 </script>

@@ -2,11 +2,16 @@ let express = require('express');
 let app = express();
 let http = require("http").createServer(app);
 const bodyParser = require('body-parser');
+let layouts=require('express-ejs-layouts');
 
 app.use(express.static('public'));
 app.use('/bower_components',  express.static(__dirname + '/bower_components'));
-
+app.use(layouts);
+app.set('layout', 'layout');
 app.set('view engine', 'ejs');
+
+
+
 app.use(bodyParser.urlencoded({extended: false}));
 app.use(bodyParser.json());
 global.config=require('./config/config');
@@ -17,10 +22,8 @@ let router = new Router(app, database);
 router.setRoutes();
 
 let io = require('socket.io')(http);
-const {v4: uuidv4} = require('uuid');
 
-let uuid = uuidv4();
-//router.updateRoutes(uuid);
+
 
 let SocketHandler = require('./core/socket');
 let socketHandler = new SocketHandler(io);
