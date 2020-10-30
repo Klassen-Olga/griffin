@@ -34,7 +34,6 @@ class Controller {
 		if (self.format === Controller.HTTP_FORMAT_JSON) {
 			let jsonStr = JSON.stringify(params);
 			self.res.set('content-type', 'application/json');
-			self.res.set('content-length', jsonStr.length);
 			self.res.send(jsonStr);
 		} else {
 			let controllerName = self.constructor.name;

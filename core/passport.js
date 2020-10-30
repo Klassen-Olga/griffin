@@ -34,9 +34,6 @@ class Passport {
 		if(cookies[config.cookieName]){
 			token=cookies[config.cookieName];
 		}
-		else if(request.headers && request.headers.authorization){
-			token=request.headers.authorization.replace('Bearer', '');
-		}
 		if (token!=null){
 			try{
 				//prueft wenn token signiert ist
@@ -92,7 +89,14 @@ class Passport {
 		}
 		return cookies;
 	}
+	static unauthorizeUser(request, response){
+		const self=this;
 
+		response.clearCookie(config.cookieName);
+
+
+
+	}
 }
 
 module.exports = Passport;

@@ -7,12 +7,57 @@
     <link href="favicon.ico" rel="shortcut icon" type="image/x-icon"/>
     <title> <%=title%> </title>
 
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
 </head>
 <body>
-
+<nav class="navbar navbar-inverse">
+    <div class="container-fluid">
+        <div class="navbar-header">
+            <a class="navbar-brand" href="#">Griffin</a>
+        </div>
+        <ul class="nav navbar-nav navbar-right">
+            <li><a href="#"><span class="glyphicon glyphicon-user"></span> Sign Up</a></li>
+<!--            <li><a href="#"><span class="glyphicon glyphicon-log-in"></span> Login</a></li>
+            <li><a href="#"><span class="glyphicon glyphicon-log-in"></span> Logout</a></li>-->
+        </ul>
+    </div>
+</nav>
+<button onclick="logout()">Logout</button>
 
     <main><%- body %></main>
 
 
 </body>
 </html>
+<script>
+	function getUuid() {
+
+		const socket = io.connect(window.location.origin);
+		socket.emit('uuid');
+		socket.on('uuid', (uuid) => {
+			let p = document.createElement('p');
+			p.innerText = window.location.href + 'room/' + uuid;
+			document.getElementById('link-container').appendChild(p);
+		});
+	}
+	function logout() {
+		var xhr = new XMLHttpRequest();
+		xhr.open('post', 'api/logout');
+		xhr.setRequestHeader('Content-Type', 'application/json');
+		var start = new Date();
+
+		xhr.onload=function(){
+			var end = new Date();
+			var duration = 820 - (end.getTime() - start.getTime());
+			duration = duration < 0 ? 0 : duration;
+
+			setTimeout(function () {
+				window.location='/login';
+			}, duration);
+		}
+		xhr.send('');
+
+	}
+</script>

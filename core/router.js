@@ -23,7 +23,8 @@ let routes = {
 		controllerName: ApiUsersController,
 		actions: [
 			{path: '/api/register', action: 'register', method: 'post'},
-			{path: '/api/login', action: 'login', method: 'post'}
+			{path: '/api/login', action: 'login', method: 'post'},
+			{path: '/api/logout', action: 'logout', method: 'post'},
 			]
 	}
 };

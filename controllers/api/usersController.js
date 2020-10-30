@@ -150,6 +150,11 @@ class ApiUsersController extends Controller {
 		}
 
 	}
+	actionLogout(){
+		const self=this;
+		Passport.unauthorizeUser(self.req, self.res);
+		self.render();
+	}
 }
 
 module.exports = ApiUsersController;
