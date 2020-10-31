@@ -2,8 +2,7 @@ const path = require('path');
 const ApiError = require('./error');
 
 const renderOptions = {
-	statusCode: 200,
-	layoutFileName: 'layout.ejs'
+	statusCode: 200
 }
 
 class Controller {
@@ -30,12 +29,12 @@ class Controller {
 			options.statusCode = 200;
 		}
 		self.res.status(options.statusCode);
-
 		if (self.format === Controller.HTTP_FORMAT_JSON) {
 			let jsonStr = JSON.stringify(params);
 			self.res.set('content-type', 'application/json');
 			self.res.send(jsonStr);
 		} else {
+			params.self=self;
 			let controllerName = self.constructor.name;
 			controllerName = controllerName.replace('Controller', '');
 			let filePath = path.join(controllerName.charAt(0).toLowerCase() + controllerName.substr(1), self.action + '.ejs');

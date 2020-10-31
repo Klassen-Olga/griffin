@@ -41,16 +41,14 @@ class PagesController extends Controller {
 	actionLogin() {
 		const self = this;
 		self.render({
-			title: "Login",
-			self: self
+			title: "Login"
 		});
 	}
 
 	actionRegister() {
 		const self = this;
 		self.render({
-			title: "Register",
-			self: self
+			title: "Register"
 		});
 
 	}
