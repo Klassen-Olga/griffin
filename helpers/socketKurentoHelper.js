@@ -93,10 +93,10 @@ module.exports = class Helper {
 				return callback(error);
 			}
 
-			outgoingMedia.setTurnUrl("klassen.olga96@gmail.com:ufn5j88@158.69.221.198:3478");
+			outgoingMedia.setTurnUrl("klassen.olga@fh-erfurt.de:123@158.69.221.198:3478");
 			// else
-			outgoingMedia.setMaxVideoRecvBandwidth(300);
-			outgoingMedia.setMinVideoRecvBandwidth(100);
+			outgoingMedia.setMaxVideoRecvBandwidth(100);
+			outgoingMedia.setMinVideoRecvBandwidth(20);
 			userSession.setOutgoingMedia(outgoingMedia);
 
 			// add ice candidate the get sent before endpoint is established
@@ -205,7 +205,7 @@ module.exports = class Helper {
 	}
 
 
-	sendChatMessageToRoomParticipants(message, roomId, userId, toId, fromId, callback) {
+	sendChatMessageToRoomParticipants(message, roomId, userId, toId, callback) {
 		const self = this;
 		let userSession = self.userRegister.getById(userId);
 
@@ -223,9 +223,8 @@ module.exports = class Helper {
 			fromId: userId
 		}
 		if(toId){
-
 			self.userRegister.getById(userId).sendMessage(data);
-			self.userRegister.getById(fromId).sendMessage(data);
+			self.userRegister.getById(toId).sendMessage(data);
 		}
 		else{
 			let usersInRoom = room.participants;
@@ -357,10 +356,10 @@ module.exports = class Helper {
 					}
 
 					console.log(`user: ${userSession.id} successfully create pipeline`);
-					/*					incomingMedia.setMaxVideoRecvBandwidth(300);
-										incomingMedia.setMinVideoRecvBandwidth(100);*/
+					incomingMedia.setMaxVideoSendBandwidth(100);
+					incomingMedia.setMaxVideoSendBandwidth(20);
 					userSession.incomingMedia[sender.id] = incomingMedia;
-					incomingMedia.setTurnUrl("klassen.olga96@gmail.com:ufn5j88@158.69.221.198:3478");
+					incomingMedia.setTurnUrl("klassen.olga@fh-erfurt.de:123@158.69.221.198:3478");
 
 					// add ice candidate the get sent before endpoints is establlished
 					let iceCandidateQueue = userSession.iceCandidateQueue[sender.id];

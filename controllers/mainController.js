@@ -11,7 +11,7 @@ class MainController extends Controller {
 		self.req.authorized = false;
 		self.req.user = null;
 
-		/*self.before(['*'], async function (next) {
+		self.before(['*'], async function (next) {
 			let tokenPayload = Passport.isAuthorized(self.req);
 			if (tokenPayload !== false) {
 				self.database.User.findOne({
@@ -32,7 +32,7 @@ class MainController extends Controller {
 				next();
 
 			}
-		});*/
+		});
 	}
 
 	paging(limit=25, page=1){

@@ -210,14 +210,34 @@ function onExistingParticipants(msg) {
 	userId = msg.userId;
 	var iceServers = [
 		{
-			url: "turn:numb.viagenie.ca",
+			url: "turn:158.69.221.198",
 			username: "klassen.olga@fh-erfurt.de",
 			credential: '123'
 		}
 	];
+	let videoConstraints=null;
+	if (msg.videoOn===true){
+		videoConstraints={
+			frameRate: {
+				min: 1, ideal: 15, max: 30
+			},
+			width: {
+				min: 32, ideal: 50, max: 320
+			},
+			height: {
+				min: 32, ideal: 50, max: 320
+			}
+		}
+	}
+	else{
+		videoConstraints=false;
+	}
 	var constraints = {
+
+
+
 		audio: msg.audioOn,
-		video: msg.videoOn,
+		video: videoConstraints,
 		configurations: {
 			iceServers:iceServers
 		}
@@ -269,7 +289,7 @@ function leaveRoom() {
 		delete participants[key];
 	}
 	clearRemoteVideos();
-	//clearAllSelectOptions();
+	clearAllSelectOptions();
 	enableNameInputAndRemoveSelfName();
 	toggleEnterLeaveButtons();
 
@@ -302,7 +322,7 @@ function receiveVideo(sender) {
 	participants[sender.userId] = participant;
 	var video = participant.getVideoElement();
 
-	//insertOptionToSelect(sender.userId, sender.name)
+	insertOptionToSelect(sender.userId, sender.name)
 	var options = {
 		remoteVideo: video,
 		onicecandidate: participant.onIceCandidate.bind(participant)
@@ -327,7 +347,7 @@ function onParticipantLeft(request) {
 	console.log('Participant ' + request.userId + ' left');
 	var participant = participants[request.userId];
 	participant.dispose();
-	//removeOptionFromSelect(request.userId);
+	removeOptionFromSelect(request.userId);
 	delete participants[request.userId];
 }
 

@@ -1,16 +1,3 @@
-<!DOCTYPE html>
-<html lang="en">
-
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link href="favicon.ico" rel="shortcut icon" type="image/x-icon"/>
-    <title> <%= title %> </title>
-
-
-    <link href="/styles.css" rel="stylesheet">
-</head>
-<body>
 <script>
     if (typeof participantsNumber!==null){
 	    var participantsNumber = "<%= participantsNumber %>"
@@ -20,20 +7,24 @@
 </script>
 <p id="<%=participantsNumber%>"></p>
 <p id="<%=roomId%>"></p>
+
 <div class="split left">
     <video name="selfStream" controls="false" playsinline muted autoplay></video>
 
     <br>
     <p id="fullName"></p>
-    <button class="buttons-onload-room room-button" id="audioOn" onclick="addMediaTrack('audio')">Audio on</button>
-    <button class="buttons-onload-room room-button" id="audioOff" onclick="removeMediaTrack('audio')">Audio off</button>
-    <button class="buttons-onload-room room-button" id="videoOn" onclick="addMediaTrack('video')">Video on</button>
-    <button class="buttons-onload-room room-button" id="videoOff" onclick="removeMediaTrack('video')">Video off</button>
+    <div class="buttonRoom">
+        <button class="buttons-onload-room room-button" id="audioOn" onclick="addMediaTrack('audio')">Audio on</button>
+        <button class="buttons-onload-room room-button" id="audioOff" onclick="removeMediaTrack('audio')">Audio off</button>
+        <button class="buttons-onload-room room-button" id="videoOn" onclick="addMediaTrack('video')">Video on</button>
+        <button class="buttons-onload-room room-button" id="videoOff" onclick="removeMediaTrack('video')">Video off</button>
 
 
-    <button class="room-button" id="enterTheRoomStart" onclick="takePermissions()">Enter start</button>
-    <button class="buttons-onload-room room-button" id="enterTheRoomEnd" onclick="enter2()">Enter end</button>
-    <button class="buttons-onload-room room-button" id="leaveTheRoom" onclick="leaveRoom()">Leave the room</button>
+        <button class="room-button" id="enterTheRoomStart" onclick="takePermissions()">Give media permissions</button>
+        <button class="buttons-onload-room room-button" id="enterTheRoomEnd" onclick="enter2()">Enter the room</button>
+        <button class="buttons-onload-room room-button" id="leaveTheRoom" onclick="leaveRoom()">Leave the room</button>
+
+    </div>
 
     <br>
     <div id="nameDiv">
@@ -47,7 +38,7 @@
 
     </div>
 </div>
-<!--<div class="split right">
+<div class="split right">
     <ul id="messages"></ul>
     <form class="room-form" action="">
         <input id="message" autocomplete="off"/>
@@ -57,7 +48,5 @@
             <option value=''>Everyone</option>
         </select>
     </form>
-</div>-->
+</div>
 <script src="/script/roomScriptAppender.js"></script>
-</body>
-</html>

@@ -1,4 +1,3 @@
-/*
 const bcrypt = require('bcrypt');
 const crypto = require('crypto');
 const jwt = require('jsonwebtoken');
@@ -100,4 +99,4 @@ class Passport {
 	}
 }
 
-module.exports = Passport;*/
+module.exports = Passport;

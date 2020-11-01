@@ -19,17 +19,13 @@ const config = {
 
 			{
 
-				urls: ["stun:stun.l.google.com:19302",
-					"stun:stun1.l.google.com:19302",
-					"stun:stun2.l.google.com:19302",
-					"stun:stun3.l.google.com:19302",
-					"stun:stun4.l.google.com:19302"
-				]
-				/*{
-					urls: "turn:158.69.221.198",
-					username: "klassen.olga@fh-erfurt.de",
-					credential: "123"
-				}*/
+				urls: ["stun:stun.l.google.com:19302"]
+
+			},
+			{
+				urls: "turn:158.69.221.198",
+				username: "klassen.olga@fh-erfurt.de",
+				credential: '123'
 			}
 		]
 	}
@@ -107,7 +103,7 @@ function enter2() {
 }
 
 function takePermissions() {
-
+	document.getElementById('enterTheRoomStart').style.display='none';
 	checkUsersDevicesAndAccessPermissions(selfVideoElement, 'peer');
 
 }
@@ -187,7 +183,7 @@ function socketInit() {
 			}
 		}
 		//insert old user to the chat select element
-		//insertOptionToSelect(newUserId, fullName);
+		insertOptionToSelect(newUserId, fullName);
 	});
 
 
@@ -210,7 +206,7 @@ function socketInit() {
 			}
 		}
 		//insert old user to the chat select element
-		//insertOptionToSelect(oldUserId, fullName);
+		insertOptionToSelect(oldUserId, fullName);
 	});
 
 	/*
@@ -393,7 +389,7 @@ function leaveRoom() {
 	enableNameInputAndRemoveSelfName();
 	selfVideoElement.srcObject = null;
 	clearRemoteVideos();
-	//clearAllSelectOptions();
+	clearAllSelectOptions();
 	if (socket) {
 		socket.emit('disconnect');
 		socket.close();

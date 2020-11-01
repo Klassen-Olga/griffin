@@ -3,10 +3,10 @@ html {
     height: 100%;
 }
 
-/*.video-container{
+.video-container{
     display: grid;
     grid-template-columns: auto auto auto auto;
-}*/
+}
 
 /*
 video chat
@@ -30,13 +30,13 @@ video[name= selfStream]{
 span{
     color: white;
 }
-/*#videoTest{
+#videoTest{
     position: fixed;
     bottom: 3%;
     left: 2%;
 
-}*/
-/*.split {
+}
+.split {
     height: 100%;
     width: 50%;
     position: fixed;
@@ -44,15 +44,15 @@ span{
     top: 0;
     overflow-x: hidden;
     padding-top: 20px;
-}*/
-/*.left {
+}
+.left {
     left: 0;
     background-color: #3596B5;
 }
 .right {
     right: 0;
     background-color: white;
-}*/
+}
 
  * {
      /*margin: 0;*/
@@ -100,6 +100,9 @@ span{
 #foreignVideoContainer{
     display: flex;
 }
+.buttonRoom{
+    display: flex;
+}
 #messages li {
     padding: 5px 10px;
 }
@@ -113,13 +116,13 @@ span{
 .room-button {
     background-color: rgb(130, 224, 255);
     border: none;
-    padding: 15px 32px;
+    padding: 4px 4px;
     text-align: center;
     text-decoration: none;
     display: inline-block;
     margin: 4px 2px;
     cursor: pointer;
-    font-size: 30px;
+    font-size: 25px;
     color: black;
 
 }

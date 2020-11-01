@@ -63,7 +63,7 @@ class SocketHandler {
 						});
 						break;
 					case 'chatMessage':
-						helper.sendChatMessageToRoomParticipants(message.message, message.roomId, socket.id, message.toId, socket.id, (err) => {
+						helper.sendChatMessageToRoomParticipants(message.message, message.roomId, socket.id, message.toId, (err) => {
 							if (err) {
 								console.log(err);
 								return;
