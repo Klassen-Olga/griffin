@@ -93,11 +93,11 @@ module.exports = class Helper {
 				return callback(error);
 			}
 
+			outgoingMedia.setTurnUrl("klassen.olga96@gmail.com:ufn5j88@158.69.221.198:3478");
 			// else
 			outgoingMedia.setMaxVideoRecvBandwidth(300);
 			outgoingMedia.setMinVideoRecvBandwidth(100);
 			userSession.setOutgoingMedia(outgoingMedia);
-
 
 			// add ice candidate the get sent before endpoint is established
 			// socket.id : room iceCandidate Queue
@@ -148,7 +148,7 @@ module.exports = class Helper {
 						userId: usersInRoom[i].id,
 						videoOn: usersInRoom[i].videoOn,
 						audioOn: usersInRoom[i].audioOn,
-						videoBeforeEnterTheRoom:usersInRoom[i].videoBeforeEnterTheRoom
+						videoBeforeEnterTheRoom: usersInRoom[i].videoBeforeEnterTheRoom
 					});
 				}
 			}
@@ -205,7 +205,7 @@ module.exports = class Helper {
 	}
 
 
-	sendChatMessageToRoomParticipants(message, roomId, userId, callback) {
+	sendChatMessageToRoomParticipants(message, roomId, userId, toId, fromId, callback) {
 		const self = this;
 		let userSession = self.userRegister.getById(userId);
 
@@ -214,7 +214,6 @@ module.exports = class Helper {
 			return callback('Incorrect room name or room does not exist');
 		}
 
-		let usersInRoom = room.participants;
 
 
 		let data = {
@@ -223,9 +222,18 @@ module.exports = class Helper {
 			fromName: userSession.name,
 			fromId: userId
 		}
-		for (let key in usersInRoom) {
-			usersInRoom[key].sendMessage(data);
+		if(toId){
+
+			self.userRegister.getById(userId).sendMessage(data);
+			self.userRegister.getById(fromId).sendMessage(data);
 		}
+		else{
+			let usersInRoom = room.participants;
+			for (let key in usersInRoom) {
+				usersInRoom[key].sendMessage(data);
+			}
+		}
+
 
 		return callback(null);
 
@@ -349,10 +357,10 @@ module.exports = class Helper {
 					}
 
 					console.log(`user: ${userSession.id} successfully create pipeline`);
-/*					incomingMedia.setMaxVideoRecvBandwidth(300);
-					incomingMedia.setMinVideoRecvBandwidth(100);*/
+					/*					incomingMedia.setMaxVideoRecvBandwidth(300);
+										incomingMedia.setMinVideoRecvBandwidth(100);*/
 					userSession.incomingMedia[sender.id] = incomingMedia;
-
+					incomingMedia.setTurnUrl("klassen.olga96@gmail.com:ufn5j88@158.69.221.198:3478");
 
 					// add ice candidate the get sent before endpoints is establlished
 					let iceCandidateQueue = userSession.iceCandidateQueue[sender.id];
@@ -446,8 +454,8 @@ module.exports = class Helper {
 			id: (offOrOnFlag === 'off') ? 'videoDisabled' : 'videoEnabled',
 			userId: userId
 		}
-		if (offOrOnFlag==='off'){
-			self.userRegister.getById(userId).videoBeforeEnterTheRoom=false;
+		if (offOrOnFlag === 'off') {
+			self.userRegister.getById(userId).videoBeforeEnterTheRoom = false;
 		}
 		for (let key in participants) {
 			if (participants[key].id !== userId) {

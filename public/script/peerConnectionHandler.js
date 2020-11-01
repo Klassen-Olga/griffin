@@ -15,18 +15,29 @@ window.onbeforeunload = () => {
 const peerConnections = {};
 //configuration for peer connection including stun and turn servers
 const config = {
-	iceServers: [
-		{
-			urls: ["stun:stun.l.google.com:19302"]
+		iceServers: [
 
-		}
-	]
-};
+			{
+
+				urls: ["stun:stun.l.google.com:19302",
+					"stun:stun1.l.google.com:19302",
+					"stun:stun2.l.google.com:19302",
+					"stun:stun3.l.google.com:19302",
+					"stun:stun4.l.google.com:19302"
+				]
+				/*{
+					urls: "turn:158.69.221.198",
+					username: "klassen.olga@fh-erfurt.de",
+					credential: "123"
+				}*/
+			}
+		]
+	}
+;
 
 let socket = null;
 //own window were users video and audio will be stored
 const selfVideoElement = document.getElementsByName("selfStream")[0];
-
 
 
 /*
@@ -100,6 +111,7 @@ function takePermissions() {
 	checkUsersDevicesAndAccessPermissions(selfVideoElement, 'peer');
 
 }
+
 /*
 *
 * The function initializes all socket event listeners for peer connection(ManyToMany)
@@ -108,7 +120,7 @@ function takePermissions() {
 * */
 function socketInit() {
 
-	if (!socket){
+	if (!socket) {
 		socket = io.connect();
 	}
 	/*
@@ -170,10 +182,12 @@ function socketInit() {
 		if (document.getElementById(newUserId) === null) {
 			let div = appendNewVideoWindow(fullName);
 			div.setAttribute('id', newUserId);
-			if (videoOn===false){
-				div.setAttribute('videoEnabled',false);
+			if (videoOn === false) {
+				div.setAttribute('videoEnabled', false);
 			}
 		}
+		//insert old user to the chat select element
+		//insertOptionToSelect(newUserId, fullName);
 	});
 
 
@@ -195,6 +209,8 @@ function socketInit() {
 				div.setAttribute('videoEnabled', false);
 			}
 		}
+		//insert old user to the chat select element
+		//insertOptionToSelect(oldUserId, fullName);
 	});
 
 	/*
@@ -223,8 +239,7 @@ function socketInit() {
 		if (foreignUserContainer === null) {
 			return;
 		}
-
-
+		//removeOptionFromSelect(id);
 		if (foreignUserContainer.tagName === 'VIDEO') {
 			div.removeChild(foreignUserContainer.parentNode);
 		}
@@ -297,11 +312,11 @@ function appendNewVideoWindow(fullName, video) {
 	}
 	div.appendChild(span);
 	document.getElementById('foreignVideoContainer').appendChild(div);
-	if (!video){
-		div.style.display='flex';
-		div.style.justifyContent='center';
-		div.style.alignItems='center';
-		span.style.fontSize='x-large';
+	if (!video) {
+		div.style.display = 'flex';
+		div.style.justifyContent = 'center';
+		div.style.alignItems = 'center';
+		span.style.fontSize = 'x-large';
 	}
 
 
@@ -378,10 +393,11 @@ function leaveRoom() {
 	enableNameInputAndRemoveSelfName();
 	selfVideoElement.srcObject = null;
 	clearRemoteVideos();
-	if(socket){
+	//clearAllSelectOptions();
+	if (socket) {
 		socket.emit('disconnect');
 		socket.close();
-		socket=null;
+		socket = null;
 		toggleEnterLeaveButtons();
 		buttonsOnLoadThePage();
 	}
@@ -394,7 +410,8 @@ function leaveRoom() {
 function sendMessageInChat() {
 	var textarea = document.getElementById('message');
 	let name = document.getElementById('fullName').innerText;
-	socket.emit('chat message', textarea.value, roomId, document.getElementById('fullName').innerText);
+	let participantTo = document.getElementById('participants').value;
+	socket.emit('chat message', textarea.value, roomId, name, participantTo);
 	textarea.value = '';
 }
 

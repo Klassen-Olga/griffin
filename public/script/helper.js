@@ -212,7 +212,7 @@ function requestMediaDevices(videoElement, useCase) {
 				acceptAudio = true;
 				audioBeforeEnterTheRoom = true;
 
-				if (useCase!=='kurento'){
+				if (useCase !== 'kurento') {
 					addTrackToSrcObject('audio', stream, videoElement);
 				}
 				toggleMediaButtons('audio', true);
@@ -308,7 +308,6 @@ function getTracksFromStream(stream, mediaType) {
 }
 
 
-
 function putNameOverVideo(video) {
 	let divAroundVideoAndSpan = video.parentNode;
 	let span = divAroundVideoAndSpan.childNodes[1];
@@ -343,4 +342,39 @@ function buttonsOnLoadThePage() {
 	document.getElementById('audioOn').style.display = 'none';
 	document.getElementById('audioOff').style.display = 'none';
 	document.getElementById('nameDiv').style.display = 'none';
+}
+
+/*
+*
+* functions for handling select DOM element of chat participants
+* */
+function insertOptionToSelect(userId, fullName) {
+	let participants = document.getElementById('participants');
+	appendNewOption(userId, fullName, participants)
+
+}
+
+function removeOptionFromSelect(userId) {
+	let participants = document.getElementById('participants');
+	for (var i = 0; i < participants.options.length; i++) {
+		if (participants[i].value === userId) {
+			participants.remove(i)
+		}
+	}
+
+}
+
+function clearAllSelectOptions() {
+	let participants = document.getElementById('participants');
+	var i, length = participants.options.length - 1;
+	for(i = length; i >= 0; i--) {
+		participants.remove(i);
+	}
+	appendNewOption('', 'Everyone', participants)
+}
+function appendNewOption(value, innerText, select) {
+	let option = document.createElement('option');
+	option.value = value;
+	option.innerHTML = innerText;
+	select.appendChild(option);
 }

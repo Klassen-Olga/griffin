@@ -208,13 +208,19 @@ function receiveVideoResponse(result) {
 * */
 function onExistingParticipants(msg) {
 	userId = msg.userId;
-
+	var iceServers = [
+		{
+			url: "turn:numb.viagenie.ca",
+			username: "klassen.olga@fh-erfurt.de",
+			credential: '123'
+		}
+	];
 	var constraints = {
 		audio: msg.audioOn,
 		video: msg.videoOn,
-		/*configurations: {
+		configurations: {
 			iceServers:iceServers
-		}*/
+		}
 
 	};
 	console.log(userId + " registered in room " + roomId);
@@ -263,6 +269,7 @@ function leaveRoom() {
 		delete participants[key];
 	}
 	clearRemoteVideos();
+	//clearAllSelectOptions();
 	enableNameInputAndRemoveSelfName();
 	toggleEnterLeaveButtons();
 
@@ -295,7 +302,7 @@ function receiveVideo(sender) {
 	participants[sender.userId] = participant;
 	var video = participant.getVideoElement();
 
-
+	//insertOptionToSelect(sender.userId, sender.name)
 	var options = {
 		remoteVideo: video,
 		onicecandidate: participant.onIceCandidate.bind(participant)
@@ -320,7 +327,7 @@ function onParticipantLeft(request) {
 	console.log('Participant ' + request.userId + ' left');
 	var participant = participants[request.userId];
 	participant.dispose();
-
+	//removeOptionFromSelect(request.userId);
 	delete participants[request.userId];
 }
 
@@ -333,10 +340,12 @@ function sendMessage(message) {
 
 function sendMessageInChat() {
 	var textarea = document.getElementById('message');
+	let participantTo=document.getElementById('participants').value;
 	let data = {
 		id: 'chatMessage',
 		message: textarea.value,
-		roomId: roomId
+		roomId: roomId,
+		toId:participantTo
 
 	}
 	sendMessage(data);

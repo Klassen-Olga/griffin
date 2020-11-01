@@ -1,11 +1,11 @@
-let Controller = require('./mainController');
+let Controller = require('../core/controller');
 const path = require('path');
 
 class PagesController extends Controller {
 	constructor(req, res, action, router) {
 		super(req, res, action, router);
 		const self = this;
-		self.before(['*', '-register', '-login'], (next) => {
+		/*self.before(['*', '-register', '-login', '-room'], (next) => {
 			if (self.req.authorized === true) {
 				next();
 			} else {
@@ -18,7 +18,7 @@ class PagesController extends Controller {
 			} else {
 				next();
 			}
-		});
+		});*/
 
 	}
 

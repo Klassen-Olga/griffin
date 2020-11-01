@@ -6,8 +6,9 @@ let layouts=require('express-ejs-layouts');
 
 app.use(express.static('public'));
 app.use('/bower_components',  express.static(__dirname + '/bower_components'));
-app.use(layouts);
-app.set('layout', 'layout');
+//app.use(layouts);
+// another layout can be set in render parameters for each action method e.g. layout: 'layout2'
+//app.set('layout', 'layout');
 app.set('view engine', 'ejs');
 
 

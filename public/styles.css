@@ -36,7 +36,7 @@ span{
     left: 2%;
 
 }*/
-.split {
+/*.split {
     height: 100%;
     width: 50%;
     position: fixed;
@@ -44,15 +44,15 @@ span{
     top: 0;
     overflow-x: hidden;
     padding-top: 20px;
-}
-.left {
+}*/
+/*.left {
     left: 0;
     background-color: #3596B5;
 }
 .right {
     right: 0;
     background-color: white;
-}
+}*/
 
  * {
      /*margin: 0;*/

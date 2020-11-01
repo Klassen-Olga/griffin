@@ -63,12 +63,17 @@ class SocketHandler {
 						});
 						break;
 					case 'chatMessage':
-						helper.sendChatMessageToRoomParticipants(message.message, message.roomId, socket.id, (err) => {
+						helper.sendChatMessageToRoomParticipants(message.message, message.roomId, socket.id, message.toId, socket.id, (err) => {
 							if (err) {
 								console.log(err);
 								return;
 							}
-							console.log('Sending chat message from ' + socket.id + " to the room " + message.roomId);
+							if (!message.toId) {
+								console.log('Sending chat message from ' + socket.id + " to the room " + message.roomId);
+							} else {
+								console.log('Sending chat message from ' + socket.id + 'to ' + message.toId + " to the room " + message.roomId);
+
+							}
 						})
 						break;
 					case 'requestForModerator':
@@ -128,13 +133,21 @@ class SocketHandler {
 				socket.to(id).emit("candidate", socket.id, message);
 			});
 
-			socket.on('chat message', (msg, roomId, fromName) => {
+			socket.on('chat message', (msg, roomId, fromName, toId) => {
 				console.log('message: ' + msg);
 				let data = {
 					message: msg,
 					fromName: fromName
 				}
-				self.io.in(roomId).emit('chat message', data);
+				// is id set, send to certain user and sender
+				if (toId) {
+					socket.to(toId).emit('chat message', data);
+					socket.emit('chat message', data);
+				}
+				//otherwise to everyone
+				else {
+					self.io.in(roomId).emit('chat message', data);
+				}
 			});
 			socket.on('requestForModeratorPeer', (fullName, roomId) => {
 				self.proceedRequestForModeratorPeer(fullName, roomId, socket)
@@ -193,7 +206,7 @@ class SocketHandler {
 
 			socket.on('disconnect', () => {
 				console.log('User ' + socket.id + ' disconnects');
-				let currentSocket=userRegister.getById(socket.id);
+				let currentSocket = userRegister.getById(socket.id);
 				if (currentSocket) {
 					helper.leaveRoom(socket, err => {
 						if (err) {

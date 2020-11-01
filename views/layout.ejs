@@ -1,15 +1,16 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link href="/styles.css" rel="stylesheet">
     <link href="favicon.ico" rel="shortcut icon" type="image/x-icon"/>
     <title> <%= title %> </title>
 
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+    <link href="/styles-bootstrap.css" rel="stylesheet">
 </head>
 <body>
 <nav class="navbar navbar-inverse">
@@ -27,24 +28,19 @@
         </ul>
     </div>
 </nav>
-<button onclick="logout()">Logout</button>
+
 
 <main><%- body %></main>
 
+<footer class="footer">
+    <div class="footerContainer">
+        <a href="#">Imprint</a>
+    </div>
 
+</footer>
 </body>
 </html>
 <script>
-	function getUuid() {
-
-		const socket = io.connect(window.location.origin);
-		socket.emit('uuid');
-		socket.on('uuid', (uuid) => {
-			let p = document.createElement('p');
-			p.innerText = window.location.href + 'room/' + uuid;
-			document.getElementById('link-container').appendChild(p);
-		});
-	}
 
 	function logout() {
 		var xhr = new XMLHttpRequest();

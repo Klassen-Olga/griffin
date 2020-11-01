@@ -1,3 +1,16 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="favicon.ico" rel="shortcut icon" type="image/x-icon"/>
+    <title> <%= title %> </title>
+
+
+    <link href="/styles.css" rel="stylesheet">
+</head>
+<body>
 <script>
     if (typeof participantsNumber!==null){
 	    var participantsNumber = "<%= participantsNumber %>"
@@ -5,6 +18,8 @@
 	var roomId = "<%= roomId %>"
 
 </script>
+<p id="<%=participantsNumber%>"></p>
+<p id="<%=roomId%>"></p>
 <div class="split left">
     <video name="selfStream" controls="false" playsinline muted autoplay></video>
 
@@ -32,11 +47,17 @@
 
     </div>
 </div>
-<div class="split right">
+<!--<div class="split right">
     <ul id="messages"></ul>
     <form class="room-form" action="">
         <input id="message" autocomplete="off"/>
         <button class="room-button" onclick="sendMessageInChat();return false;">Send</button>
+        <label>Send to: </label>
+        <select id="participants">
+            <option value=''>Everyone</option>
+        </select>
     </form>
-</div>
+</div>-->
 <script src="/script/roomScriptAppender.js"></script>
+</body>
+</html>

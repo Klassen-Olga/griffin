@@ -1,5 +1,3 @@
-
-
 <h3>Welcome To Griffin!</h3>
 <div id="link-container">
     Get link for new video conference
@@ -7,4 +5,15 @@
 </div>
 
 <script src="/socket.io/socket.io.js"></script>
+<script>
+	function getUuid() {
 
+		const socket = io.connect(window.location.origin);
+		socket.emit('uuid');
+		socket.on('uuid', (uuid) => {
+			let p = document.createElement('p');
+			p.innerText = window.location.href + 'room/' + uuid;
+			document.getElementById('link-container').appendChild(p);
+		});
+	}
+</script>
