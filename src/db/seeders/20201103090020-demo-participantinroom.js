@@ -2,9 +2,9 @@
 
 module.exports = {
 	up: (queryInterface, Sequelize) => {
-		return queryInterface.bulkInsert('userInRoom', [{
+		return queryInterface.bulkInsert('participantInRoom', [{
 			id: 1,
-			userId: 1,
+			participantId: 1,
 			roomId:1,
 			createdAt: new Date(),
 			updatedAt: new Date()
@@ -12,7 +12,7 @@ module.exports = {
 		},
 			{
 				id:2,
-				userId: 2,
+				participantId: 2,
 				roomId: 1,
 				createdAt: new Date(),
 				updatedAt: new Date()
@@ -20,6 +20,7 @@ module.exports = {
 		], {});
 	},
 	down: (queryInterface, Sequelize) => {
-		return queryInterface.bulkDelete('userInRoom', null, {});
+		return queryInterface.bulkDelete('participantInRoom', null, {});
 	}
 };
+

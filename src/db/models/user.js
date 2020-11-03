@@ -22,23 +22,9 @@ module.exports = (sequelize, DataTypes) => {
 	});
 	User.associate = function (models) {
 		// moderator
-		User.hasMany(models.Room, {
-			as: 'userCreatedRooms',
+		User.hasOne(models.Participant, {
+			as: 'moderatorIsParticipant',
 			foreignKey: 'moderatorId'
-		});
-
-		// can be in multiple rooms at the same time
-		User.hasMany(models.UserInRoom, {
-			as: 'allUsers',
-			foreignKey: 'userId'
-		});
-		User.hasMany(models.Message, {
-			as: 'messageTo',
-			foreignKey: 'toId'
-		});
-		User.hasMany(models.Message, {
-			as: 'messageFrom',
-			foreignKey: 'fromId'
 		});
 
 	};
