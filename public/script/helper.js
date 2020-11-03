@@ -140,7 +140,7 @@ function validateStrLength(str, length, appendElement, message) {
 /*
 * opposite function to enableNameInputAndRemoveSelfName
 * */
-function disableNameInputAndPrintSelfName() {
+function disableNameInput() {
 
 	let fullName = document.getElementsByName('fullName')[0].value;
 
@@ -192,8 +192,6 @@ function checkUsersDevicesAndAccessPermissions(videoElement, useCase) {
 			buttonsOnstart();
 			toggleMediaButtons('audio', false);
 			toggleMediaButtons('video', false);
-
-
 		});
 }
 
@@ -216,7 +214,12 @@ function requestMediaDevices(videoElement, useCase) {
 					addTrackToSrcObject('audio', stream, videoElement);
 				}
 				toggleMediaButtons('audio', true);
-				requestVideoDevice(videoElement);
+				if (videoDeviceNumber > 0) {
+					requestVideoDevice(videoElement);
+				} else {
+					buttonsOnstart();
+					toggleMediaButtons('video', false);
+				}
 
 
 			})
@@ -227,9 +230,22 @@ function requestMediaDevices(videoElement, useCase) {
 				audioBeforeEnterTheRoom = false;
 
 				toggleMediaButtons('audio', false);
-				requestVideoDevice(videoElement);
-
+				if (videoDeviceNumber > 0) {
+					requestVideoDevice(videoElement);
+				} else {
+					buttonsOnstart();
+					toggleMediaButtons('video', false);
+				}
 			});
+	}
+	else{
+		toggleMediaButtons('audio', false);
+		if (videoDeviceNumber > 0) {
+			requestVideoDevice(videoElement);
+		} else {
+			buttonsOnstart();
+			toggleMediaButtons('video', false);
+		}
 	}
 }
 
@@ -240,28 +256,28 @@ function requestMediaDevices(videoElement, useCase) {
  * @param {string} videoElement 'video' or 'audio'
  */
 function requestVideoDevice(videoElement) {
-	if (videoDeviceNumber > 0) {
-		navigator.mediaDevices.getUserMedia({video: true})
-			.then(stream => {
-				console.log('Got MediaStream:', stream);
 
-				acceptVideo = true;
-				videoBeforeEnterTheRoom = true;
+	navigator.mediaDevices.getUserMedia({video: true})
+		.then(stream => {
+			console.log('Got MediaStream:', stream);
 
-				addTrackToSrcObject('video', stream, videoElement);
-				toggleMediaButtons('video', true);
-				buttonsOnstart();
-			})
-			.catch(error => {
-				console.error('Error accessing media devices.', error);
+			acceptVideo = true;
+			videoBeforeEnterTheRoom = true;
 
-				acceptVideo = false;
-				videoBeforeEnterTheRoom = false;
+			addTrackToSrcObject('video', stream, videoElement);
+			toggleMediaButtons('video', true);
+			buttonsOnstart();
+		})
+		.catch(error => {
+			console.error('Error accessing media devices.', error);
 
-				toggleMediaButtons('video', false);
-				buttonsOnstart();
-			});
-	}
+			acceptVideo = false;
+			videoBeforeEnterTheRoom = false;
+
+			toggleMediaButtons('video', false);
+			buttonsOnstart();
+		});
+
 }
 
 /*
@@ -311,10 +327,19 @@ function getTracksFromStream(stream, mediaType) {
 function putNameOverVideo(video) {
 	let divAroundVideoAndSpan = video.parentNode;
 	let span = divAroundVideoAndSpan.childNodes[1];
-	span.style.position = 'relative';
-	span.style.bottom = '150px';
 	span.style.left = '50px';
 	span.style.fontSize = 'xx-large';
+	span.style.position = 'relative';
+
+	if (video.nodeName==='VIDEO'){
+		span.style.bottom = '150px';
+	}
+	//case audio tag
+	else{
+		span.style.top = '120px';
+
+	}
+
 }
 
 function putVideoOverName(video) {
@@ -367,11 +392,12 @@ function removeOptionFromSelect(userId) {
 function clearAllSelectOptions() {
 	let participants = document.getElementById('participants');
 	var i, length = participants.options.length - 1;
-	for(i = length; i >= 0; i--) {
+	for (i = length; i >= 0; i--) {
 		participants.remove(i);
 	}
 	appendNewOption('', 'Everyone', participants)
 }
+
 function appendNewOption(value, innerText, select) {
 	let option = document.createElement('option');
 	option.value = value;

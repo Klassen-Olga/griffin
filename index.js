@@ -27,7 +27,7 @@ let io = require('socket.io')(http);
 
 
 let SocketHandler = require('./core/socket');
-let socketHandler = new SocketHandler(io);
+let socketHandler = new SocketHandler(io,database);
 
 http.listen(3000, '127.0.0.1', function () {
 	console.log(

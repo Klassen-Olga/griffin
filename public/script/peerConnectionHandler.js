@@ -70,7 +70,7 @@ function requestForModerator() {
 function enter() {
 	var fullNameInput = document.getElementsByName('fullName')[0];
 
-	disableNameInputAndPrintSelfName();
+	disableNameInput();
 
 	socket.emit("newUser", roomId, fullNameInput.value);
 	toggleEnterLeaveButtons();
@@ -94,8 +94,11 @@ function enter2() {
 
 	}
 
-	disableNameInputAndPrintSelfName();
+	disableNameInput();
 
+	if (acceptVideo===false && acceptAudio===false){
+		document.getElementsByName('selfStream')[0].style.display='none';
+	}
 	socket.emit("newUser", roomId, fullNameInput.value);
 	toggleEnterLeaveButtons();
 

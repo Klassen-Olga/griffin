@@ -204,7 +204,9 @@ module.exports = class Helper {
 		});
 	}
 
+	saveMessage(){
 
+	}
 	sendChatMessageToRoomParticipants(message, roomId, userId, toId, callback) {
 		const self = this;
 		let userSession = self.userRegister.getById(userId);

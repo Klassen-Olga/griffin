@@ -6,9 +6,10 @@ let helper = new Helper(userRegister);
 
 class SocketHandler {
 
-	constructor(io) {
+	constructor(io, db) {
 		const self = this;
 		self.io = io;
+		self.database=db;
 		//object for sockets
 		self.sockets = {};
 		self.participantsById = {};
@@ -139,6 +140,7 @@ class SocketHandler {
 					message: msg,
 					fromName: fromName
 				}
+
 				// is id set, send to certain user and sender
 				if (toId) {
 					socket.to(toId).emit('chat message', data);

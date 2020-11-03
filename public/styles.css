@@ -12,12 +12,12 @@ html {
 video chat
 */
 video{
-    width: 280px;
-    height: 260px;
+    width: 320px;
+    height: 280px;
 }
 .videoDiv{
-    width: 290px;
-    height: 290px;
+    width: 350px;
+    height: 320px;
     background-color: black;
     margin: 6px;
 }
@@ -25,6 +25,8 @@ video[name= selfStream]{
     position: fixed;
     bottom: 3%;
     left: 2%;
+    width: 200px;
+    height: 260px;
 
 }
 span{
@@ -124,6 +126,11 @@ span{
     cursor: pointer;
     font-size: 25px;
     color: black;
+
+}
+.room-button:disabled{
+    background-color: darkgray;
+    cursor: auto;
 
 }
 .buttons-onload-room{

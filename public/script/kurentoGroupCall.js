@@ -151,7 +151,10 @@ function enter2() {
 
 	}
 
-	disableNameInputAndPrintSelfName();
+	disableNameInput();
+	if (acceptVideo===false && acceptAudio===false){
+		document.getElementsByName('selfStream')[0].style.display='none';
+	}
 	var message = {
 		id: 'joinRoom',
 		name: name,
@@ -172,7 +175,7 @@ function enter2() {
 * */
 function enter() {
 
-	disableNameInputAndPrintSelfName();
+	disableNameInput();
 	var message = {
 		id: 'joinRoom',
 		name: name,
