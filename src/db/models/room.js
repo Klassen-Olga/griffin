@@ -24,6 +24,10 @@ module.exports = (sequelize, DataTypes) => {
 			as: 'allMessagesInRoom',
 			foreignKey: 'roomId'
 		});
+		Room.belongsTo(models.User, {
+			as: 'roomOfModerator',
+			foreignKey: 'moderatorId'
+		});
 	};
 	return Room;
 };

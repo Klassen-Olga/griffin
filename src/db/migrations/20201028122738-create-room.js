@@ -16,6 +16,16 @@ module.exports = {
 				type: Sequelize.DATE,
 				allowNull: false
 			},
+			moderatorId:{
+				type:Sequelize.INTEGER,
+				references:{
+					model:{
+						tableName:'user'
+					},
+					key:'id'
+				},
+				allowNull:false
+			},
 			numberOfUsers: {
 				type: Sequelize.INTEGER,
 				allowNull: false

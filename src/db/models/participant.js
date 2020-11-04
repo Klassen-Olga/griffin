@@ -15,7 +15,7 @@ module.exports = (sequelize, DataTypes) => {
 	User.associate = function (models) {
 		// moderator
 		User.belongsTo(models.User, {
-			as: 'participantIsModerator',
+			as: 'participantIsUser',
 			foreignKey: 'userId'
 		});
 

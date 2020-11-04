@@ -23,8 +23,12 @@ module.exports = (sequelize, DataTypes) => {
 	User.associate = function (models) {
 		// moderator
 		User.hasOne(models.Participant, {
-			as: 'moderatorIsParticipant',
+			as: 'userIsParticipant',
 			foreignKey: 'userId'
+		});
+		User.hasMany(models.Room, {
+			as: 'userCreatedRooms',
+			foreignKey: 'moderatorId'
 		});
 
 	};
