@@ -1,7 +1,9 @@
 <h3>Welcome To Griffin!</h3>
 <div id="link-container">
     Get link for new video conference
-    <button onclick="getUuid()">Get</button>
+    <form action="<%=self.urlFor('api/rooms', 'newRoom', null, 'get')%>" method="get">
+        <button onclick="getUuid()">Get</button>
+    </form>
 </div>
 
 <script src="/socket.io/socket.io.js"></script>

@@ -16,7 +16,7 @@ module.exports = (sequelize, DataTypes) => {
 		// moderator
 		User.belongsTo(models.User, {
 			as: 'participantIsModerator',
-			foreignKey: 'moderatorId'
+			foreignKey: 'userId'
 		});
 
 		// can be in multiple rooms at the same time

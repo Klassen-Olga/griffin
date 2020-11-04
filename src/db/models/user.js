@@ -24,7 +24,7 @@ module.exports = (sequelize, DataTypes) => {
 		// moderator
 		User.hasOne(models.Participant, {
 			as: 'moderatorIsParticipant',
-			foreignKey: 'moderatorId'
+			foreignKey: 'userId'
 		});
 
 	};

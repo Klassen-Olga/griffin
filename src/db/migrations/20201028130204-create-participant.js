@@ -16,7 +16,7 @@ module.exports = {
 				type: Sequelize.STRING,
 				allowNull: false
 			},
-			moderatorId: {
+			userId: {
 				type: Sequelize.INTEGER,
 				references: {
 					model: {

@@ -7,7 +7,7 @@ module.exports = {
 				id: 1,
 				fullName: 'Bob Smith',
 				socketId: 'AAAA',
-				moderatorId: 1,
+				userId: 1,
 				createdAt: new Date(),
 				updatedAt: new Date()
 
@@ -16,7 +16,7 @@ module.exports = {
 				id: 2,
 				fullName: 'Margo Limb',
 				socketId: 'BBBB',
-				moderatorId: null,
+				userId: null,
 				createdAt: new Date(),
 				updatedAt: new Date()
 			}
