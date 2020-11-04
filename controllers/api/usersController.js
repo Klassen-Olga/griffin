@@ -11,6 +11,9 @@ class ApiUsersController extends Controller {
 	}
 
 	undefinedCheck(data) {
+		if (!data){
+			return false;
+		}
 		for (let i in data) {
 			if (typeof data[i] === 'undefined') {
 				return false;
@@ -22,7 +25,6 @@ class ApiUsersController extends Controller {
 	validateRegisterForm(user) {
 		const self = this;
 		let error = '';
-
 		if (self.undefinedCheck(user) === false) {
 			error = "Reload the page";
 		}
@@ -85,6 +87,7 @@ class ApiUsersController extends Controller {
 
 
 		try {
+
 			let validationError = self.validateRegisterForm(personalData);
 			if (validationError !== '') {
 				throw new ApiError(validationError, 400);

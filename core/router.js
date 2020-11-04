@@ -1,6 +1,7 @@
 let PagesController    = require('../controllers/pagesController');
 
 let ApiUsersController = require('../controllers/api/usersController');
+let ApiRoomsController = require('../controllers/api/roomsController');
 const path = require('path');
 let routes = {
 	'pages': {
@@ -26,6 +27,13 @@ let routes = {
 			{path: '/api/login', action: 'login', method: 'post'},
 			{path: '/api/logout', action: 'logout', method: 'post'},
 			]
+	},
+	'api/rooms':{
+		controllerName:ApiRoomsController,
+		actions:[
+			{path: '/api/rooms', action: 'newRoom', method: 'post'},
+
+		]
 	}
 };
 

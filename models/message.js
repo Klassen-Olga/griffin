@@ -17,5 +17,6 @@ module.exports=function (Model, database) {
 		if (typeof remoteData.roomId !== 'undefined') {
 			self.roomId = remoteData.roomId;
 		}
+
 	}
 }

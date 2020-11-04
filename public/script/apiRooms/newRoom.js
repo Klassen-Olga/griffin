@@ -1,15 +1,31 @@
 document.getElementById("submitNewRoom").addEventListener("click", function (e) {
 	e.preventDefault();
-	var newRoomForm=document.getElementById('newRoomForm');
-	xhrRequest('', newRoomForm, function (xhr) {
-		if (xhr.status >= 200 && xhr.status < 300) {
+	var error = document.getElementById('serverError');
+	let selectedValue = document.getElementById('participantsNum').value;
+	let participantsNum = null;
+	if (selectedValue === 'peer') {
+		participantsNum = 3;
+	} else if (selectedValue === 'kurento') {
+		participantsNum = 10;
 
-			let p = document.createElement('p');
-			p.innerText = window.location.href + 'room/' + uuid;
+	} else {
+		error.innerText = 'DOM-Element is modified, please reload the page';
+		return;
+	}
+	var data = {
+		room: {
+			participantsNumber: participantsNum
+		}
+	}
+	var newRoomForm = document.getElementById('newRoomForm');
+	xhrRequest(data, newRoomForm, function (xhr) {
+		if (xhr.status >= 200 && xhr.status < 300) {
+			let room=JSON.parse(xhr.response).room;
+			let p = document.getElementById('uuid');
+			p.innerText = window.location.href + 'room/' + room.uuid;
 			document.getElementById('link-container').appendChild(p);
 
 		} else {
-			var error = document.getElementById('serverError');
 			var errorMessage = JSON.parse(xhr.response);
 			error.innerText = errorMessage.error;
 

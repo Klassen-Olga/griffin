@@ -1,4 +1,3 @@
-const {v4: uuidv4} = require('uuid');
 const Register = require('../lib/register.js');
 let userRegister = new Register();
 const Helper = require('../helpers/socketKurentoHelper');
@@ -222,10 +221,6 @@ class SocketHandler {
 				}
 
 
-			});
-
-			socket.on('uuid', () => {
-				socket.emit('uuid', uuidv4());
 			});
 		})
 	}
