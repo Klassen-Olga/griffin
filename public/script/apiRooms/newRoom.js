@@ -22,7 +22,7 @@ document.getElementById("submitNewRoom").addEventListener("click", function (e) 
 		if (xhr.status >= 200 && xhr.status < 300) {
 			let room=JSON.parse(xhr.response).room;
 			let p = document.getElementById('uuid');
-			p.innerText = window.location.href + 'room/' + room.uuid;
+			p.innerText = window.location.href + 'room/' + room.uuid+'/'+room.participantsNumber;
 			document.getElementById('link-container').appendChild(p);
 
 		} else {

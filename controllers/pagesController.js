@@ -5,7 +5,7 @@ class PagesController extends Controller {
 	constructor(req, res, action, router) {
 		super(req, res, action, router);
 		const self = this;
-		self.before(['*', '-register', '-login', '-room'], (next) => {
+		self.before(['*', '-register', '-login', '-room', '-error'], (next) => {
 			if (self.req.authorized === true) {
 				next();
 			} else {
@@ -19,9 +19,41 @@ class PagesController extends Controller {
 				next();
 			}
 		});
+		self.before('room', async (next)=>{
+			let error=null;
+			try{
+				let dbRoom= await self.database.Room.findOne({
+					where:{
+						id:self.req.params.roomId
+					}
+				});
+				if (!dbRoom){
+					error= 'Please check if the url link is correct';
+				}
+
+			}catch (e) {
+				error=e;
+			}
+
+			if (error){
+				self.res.redirect(self.urlFor('pages', 'error', {errorMessage:error, statusCode:404}));
+			}
+			else{
+				next();
+			}
+		})
 
 	}
 
+	actionError(){
+		const self = this;
+
+		self.render({
+			title: "Error",
+			error:self.req.params.errorMessage,
+			statusCode:self.req.params.statusCode
+		},{statusCode: parseInt(self.req.params.statusCode)});
+	}
 	actionHome() {
 		const self = this;
 		self.render({
@@ -29,7 +61,7 @@ class PagesController extends Controller {
 		});
 	}
 
-	actionRoom() {
+	async actionRoom() {
 		const self = this;
 		self.render({
 			title: "Chat Room",

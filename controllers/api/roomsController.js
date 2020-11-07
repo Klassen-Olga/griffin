@@ -8,7 +8,15 @@ class ApiRoomsController extends Controller {
 		super(...args);
 		const self = this;
 		self.format = Controller.HTTP_FORMAT_JSON;
-
+		self.before(['*'], function (next) {
+			if (self.req.authorized === true) {
+				next();
+			} else {
+				self.render({}, {
+					statusCode: 401
+				});
+			}
+		});
 	}
 
 	async actionNewRoom() {

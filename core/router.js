@@ -11,6 +11,7 @@ let routes = {
 			{path: '/room/:roomId/:participantsNumber', action: 'room', method: 'get'},
 			{path: '/login', action: 'login', method: 'get'},
 			{path: '/register', action: 'register', method: 'get'},
+			{path: '/error/:errorMessage/:statusCode', action: 'error', method: 'get'},
 
 			{path: '/kurentoExampleHelloWorld', action: 'kurentoExampleHelloWorld', method: 'get'},
 			{path: '/kurentoOneToOne', action: 'kurentoOneToOne', method: 'get'},

@@ -7,7 +7,15 @@ class ApiUsersController extends Controller {
 		super(...args);
 		const self = this;
 		self.format = Controller.HTTP_FORMAT_JSON;
-
+		self.before(['*', '-register', '-login'], function (next) {
+			if (self.req.authorized === true) {
+				next();
+			} else {
+				self.render({}, {
+					statusCode: 401
+				});
+			}
+		});
 	}
 
 	undefinedCheck(data) {
@@ -60,7 +68,6 @@ class ApiUsersController extends Controller {
 			where: {
 				email: personalData.email
 			},
-			lock: true,
 			transaction: transaction
 		});
 
@@ -124,7 +131,6 @@ class ApiUsersController extends Controller {
 					where: {
 						email: personalData.email
 					},
-					lock: true,
 					transaction: t
 				});
 				if (!dbUser){
