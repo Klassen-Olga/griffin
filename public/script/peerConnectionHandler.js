@@ -61,18 +61,22 @@ function requestForModerator() {
 
 	}
 
-	socket.emit('requestForModeratorPeer', fullNameInput.value, roomId);
+	socket.emit('requestForModeratorPeer', fullNameInput.value, roomId, dbId);
 }
 
 /*
 * The function will be called if moderator allows new user to enter the room or for moderator self
+* @param {*} role moderator or participant
 * */
-function enter() {
+function enter(role) {
 	var fullNameInput = document.getElementsByName('fullName')[0];
 
 	disableNameInput();
 
-	socket.emit("newUser", roomId, fullNameInput.value);
+	if (acceptVideo===false && acceptAudio===false){
+		document.getElementsByName('selfStream')[0].style.display='none';
+	}
+	socket.emit("newUser", roomId, fullNameInput.value, role);
 	toggleEnterLeaveButtons();
 
 
@@ -253,7 +257,7 @@ function socketInit() {
 	// event fired when moderator enters the room or if the moderator is not available
 	socket.on('onEnterNotification', err => {
 		if (err === null) {
-			enter();
+			enter('moderator');
 		} else {
 			alert(err);
 		}
@@ -292,6 +296,15 @@ function socketInit() {
 		}
 		putVideoOverName(video);
 
+	});
+	/*
+	* error while database transactions or maximum number of users is reached
+	* */
+	socket.on('participantsNumberError', message=>{
+		alert(message);
+	});
+	socket.on('databaseError', message=>{
+		alert(message);
 	});
 
 }

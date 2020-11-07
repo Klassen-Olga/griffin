@@ -1,14 +1,18 @@
 const Register = require('../lib/register.js');
 let userRegister = new Register();
-const Helper = require('../helpers/socketKurentoHelper');
-let helper = new Helper(userRegister);
+const HelperKurento = require('../helpers/socketKurentoHelper');
+const HelperPeer = require('../helpers/socketPeerHelper');
+let helperKurento = new HelperKurento(userRegister);
+let helperPeer;
+
 
 class SocketHandler {
 
 	constructor(io, db) {
 		const self = this;
 		self.io = io;
-		self.database=db;
+		self.database = db;
+		helperPeer= new HelperPeer(db);
 		//object for sockets
 		self.sockets = {};
 		self.participantsById = {};
@@ -35,35 +39,35 @@ class SocketHandler {
 
 				switch (message.id) {
 					case 'joinRoom':
-						helper.joinRoom(socket, message, err => {
+						helperKurento.joinRoom(socket, message, err => {
 							if (err) {
 								console.log(`join Room error ${err}`);
 							}
 						});
 						break;
 					case 'receiveVideoFrom':
-						helper.receiveVideoFrom(socket, message.sender, message.sdpOffer, (err) => {
+						helperKurento.receiveVideoFrom(socket, message.sender, message.sdpOffer, (err) => {
 							if (err) {
 								console.error(err);
 							}
 						});
 						break;
 					case 'leaveRoom':
-						helper.leaveRoom(socket, err => {
+						helperKurento.leaveRoom(socket, err => {
 							if (err) {
 								console.error(err);
 							}
 						});
 						break;
 					case 'onIceCandidate':
-						helper.addIceCandidate(socket, message, err => {
+						helperKurento.addIceCandidate(socket, message, err => {
 							if (err) {
 								console.error(err);
 							}
 						});
 						break;
 					case 'chatMessage':
-						helper.sendChatMessageToRoomParticipants(message.message, message.roomId, socket.id, message.toId, (err) => {
+						helperKurento.sendChatMessageToRoomParticipants(message.message, message.roomId, socket.id, message.toId, (err) => {
 							if (err) {
 								console.log(err);
 								return;
@@ -77,34 +81,49 @@ class SocketHandler {
 						})
 						break;
 					case 'requestForModerator':
-						helper.proceedRequestForModerator(message, socket);
+						helperKurento.proceedRequestForModerator(message, socket);
 						break;
 					case 'moderatorResponse':
 						socket.to(message.userId).emit('message', message);
 						break;
 					case 'videoDisabled':
-						helper.sendVideoOffOrOnMessageToAllParticipants(message.roomId, socket.id, 'off');
+						helperKurento.sendVideoOffOrOnMessageToAllParticipants(message.roomId, socket.id, 'off');
 						break;
 					case 'videoEnabled':
-						helper.sendVideoOffOrOnMessageToAllParticipants(message.roomId, socket.id, 'on');
+						helperKurento.sendVideoOffOrOnMessageToAllParticipants(message.roomId, socket.id, 'on');
 						break;
 				}
 			});
 		});
 	}
 
+
 	initEventsPeerConnection() {
 		const self = this;
 		self.io.on('connection', (socket) => {
 			// 1)
-			socket.on("newUser", (roomId, fullName) => {
+			socket.on("newUser", async (roomId, fullName, role) => {
+				//insert in both tables participant and participantInRoom if not moderator
+				if (role === 'participant') {
+					let dbRoom = await helperPeer.findRoom(roomId);
+					if (dbRoom instanceof Error) {
+						socket.emit('databaseError', 'Database error:' + dbRoom);
+						return;
+					}
+					let error = await helperPeer.insertInBothTables(fullName, socket, dbRoom);
+					if (error) {
+						socket.emit('databaseError', 'Database error:' + error);
+						return;
+					}
+				}
+
 				console.log("newUser " + socket.id + " sends data to all users");
 				self.participantsById[socket.id] = fullName;
 				self.participantsByName[fullName] = socket.id;
 				socket.join(roomId);
+				console.log('Number of participants: ' + socket.adapter.rooms[roomId].length + ' in room ' + roomId);
 				socket.broadcast.to(roomId).emit("newUser", socket.id);
 				socket.on("disconnect", () => {
-
 					socket.leave(roomId);
 					socket.to(roomId).broadcast.emit("disconnectPeer", socket.id);
 				});
@@ -150,8 +169,8 @@ class SocketHandler {
 					self.io.in(roomId).emit('chat message', data);
 				}
 			});
-			socket.on('requestForModeratorPeer', (fullName, roomId) => {
-				self.proceedRequestForModeratorPeer(fullName, roomId, socket)
+			socket.on('requestForModeratorPeer', (fullName, roomId, dbId) => {
+				helperPeer.proceedRequestForModeratorPeer(fullName, roomId, socket, dbId)
 			});
 			socket.on('moderatorResponsePeer', (accepted, userId) => {
 				socket.to(userId).emit('moderatorResponsePeer', accepted);
@@ -166,39 +185,7 @@ class SocketHandler {
 		});
 	}
 
-	proceedRequestForModeratorPeer(fullName, roomId, socket) {
-		const self = this;
-		let error = null;
-		//does room exist in database
-		if (/*self.rooms.hasOwnProperty(message.roomName)*/true === false) {
-			socket.emit('onEnterNotification', error);
-			return;
-		}
-		let moderatorDb = 'Olga Klassen';
-		let roomDb = roomId;
 
-		//does user exists in db
-		if (true) {
-			// is current user moderator
-			if (moderatorDb === fullName) {
-				socket.emit('onEnterNotification', error);
-				return;
-			}
-		}
-
-
-		let moderator = self.participantsByName['Olga Klassen'];
-		let room = socket.adapter.rooms[roomId];
-		// after all is room empty or isn't moderator already registered
-		if (room.length === 0 || typeof moderator === 'undefined') {
-			error = 'No moderator present, please reenter later';
-			socket.emit('onEnterNotification', error);
-			return;
-		}
-
-		socket.emit('waitModeratorResponse');
-		socket.to(moderator).emit('requestForModerator', socket.id, fullName);
-	}
 
 	initOtherEvents() {
 		const self = this;
@@ -209,7 +196,7 @@ class SocketHandler {
 				console.log('User ' + socket.id + ' disconnects');
 				let currentSocket = userRegister.getById(socket.id);
 				if (currentSocket) {
-					helper.leaveRoom(socket, err => {
+					helperKurento.leaveRoom(socket, err => {
 						if (err) {
 							console.error(err);
 						}

@@ -3,9 +3,9 @@
 	    var participantsNumber = "<%= participantsNumber %>"
     }
 	var roomId = "<%= roomId %>"
-
+    var dbId= "<%= dbId%>"
 </script>
-
+<p id="serverError"></p>
 <div class="split left">
     <video name="selfStream" controls="false" playsinline muted autoplay></video>
 
@@ -19,7 +19,7 @@
 
 
         <button class="room-button" id="enterTheRoomStart" onclick="takePermissions()">Give media permissions</button>
-        <button class="buttons-onload-room room-button" id="enterTheRoomEnd" onclick="enter2()">Enter the room</button>
+        <button class="buttons-onload-room room-button" id="enterTheRoomEnd" onclick="requestForModerator()">Enter the room</button>
         <button class="buttons-onload-room room-button" id="leaveTheRoom" onclick="leaveRoom()">Leave the room</button>
 
     </div>

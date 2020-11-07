@@ -11,7 +11,7 @@ var argv = minimist(process.argv.slice(2), {
 	}
 });
 
-module.exports = class Helper {
+module.exports = class HelperKurento {
 
 	constructor(userRegister) {
 		const self = this;

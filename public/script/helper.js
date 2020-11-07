@@ -285,7 +285,7 @@ function requestVideoDevice(videoElement) {
 * */
 function moderatorResponse(accepted) {
 	if (accepted === true) {
-		enter();
+		enter('participant');
 	} else {
 		alert('Moderator does not accept your entry');
 	}

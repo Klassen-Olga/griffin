@@ -19,41 +19,40 @@ class PagesController extends Controller {
 				next();
 			}
 		});
-		self.before('room', async (next)=>{
-			let error=null;
-			try{
-				let dbRoom= await self.database.Room.findOne({
-					where:{
-						id:self.req.params.roomId
+		self.before('room', async (next) => {
+			let error = null;
+			try {
+				let dbRoom = await self.database.Room.findOne({
+					where: {
+						uuid: self.req.params.roomId
 					}
 				});
-				if (!dbRoom){
-					error= 'Please check if the url link is correct';
+				if (!dbRoom) {
+					error = 'Please check if the url link is correct';
 				}
-
-			}catch (e) {
-				error=e;
+			} catch (e) {
+				error = e;
 			}
 
-			if (error){
-				self.res.redirect(self.urlFor('pages', 'error', {errorMessage:error, statusCode:404}));
-			}
-			else{
+			if (error) {
+				self.res.redirect(self.urlFor('pages', 'error', {errorMessage: error, statusCode: 404}));
+			} else {
 				next();
 			}
 		})
 
 	}
 
-	actionError(){
+	actionError() {
 		const self = this;
 
 		self.render({
 			title: "Error",
-			error:self.req.params.errorMessage,
-			statusCode:self.req.params.statusCode
-		},{statusCode: parseInt(self.req.params.statusCode)});
+			error: self.req.params.errorMessage,
+			statusCode: self.req.params.statusCode
+		}, {statusCode: parseInt(self.req.params.statusCode)});
 	}
+
 	actionHome() {
 		const self = this;
 		self.render({
@@ -66,7 +65,8 @@ class PagesController extends Controller {
 		self.render({
 			title: "Chat Room",
 			roomId: self.req.params.roomId,
-			participantsNumber: self.req.params.participantsNumber
+			participantsNumber: self.req.params.participantsNumber,
+			dbId: self.req.user ? self.req.user.id : null
 		});
 	}
 
@@ -86,6 +86,7 @@ class PagesController extends Controller {
 	}
 
 }
+
 //1466211850
 
 module.exports = PagesController;

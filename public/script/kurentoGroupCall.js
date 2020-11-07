@@ -82,7 +82,7 @@ function socketInit() {
 			// event fired when moderator enters the room or if the moderator is not available
 			case 'onEnterNotification':
 				if (parsedMessage.error === null) {
-					enter();
+					enter('moderator');
 				} else {
 					alert(parsedMessage.error);
 				}
@@ -152,8 +152,8 @@ function enter2() {
 	}
 
 	disableNameInput();
-	if (acceptVideo===false && acceptAudio===false){
-		document.getElementsByName('selfStream')[0].style.display='none';
+	if (acceptVideo === false && acceptAudio === false) {
+		document.getElementsByName('selfStream')[0].style.display = 'none';
 	}
 	var message = {
 		id: 'joinRoom',
@@ -173,13 +173,14 @@ function enter2() {
 /*
 * The function will be called if moderator allows new user to enter the room or for moderator self
 * */
-function enter() {
+function enter(role) {
 
 	disableNameInput();
 	var message = {
 		id: 'joinRoom',
 		name: name,
 		roomName: roomId,
+		role: role,
 		// Flags for use cases, where user did not give the permissions to his media devices.
 		// Constraints to the connection to KMS should be in the same way e.g. audio:true; video:false.
 		audioOn: acceptAudio,
@@ -218,9 +219,9 @@ function onExistingParticipants(msg) {
 			credential: '123'
 		}
 	];
-	let videoConstraints=null;
-	if (msg.videoOn===true){
-		videoConstraints={
+	let videoConstraints = null;
+	if (msg.videoOn === true) {
+		videoConstraints = {
 			frameRate: {
 				min: 1, ideal: 15, max: 30
 			},
@@ -231,18 +232,16 @@ function onExistingParticipants(msg) {
 				min: 32, ideal: 50, max: 320
 			}
 		}
-	}
-	else{
-		videoConstraints=false;
+	} else {
+		videoConstraints = false;
 	}
 	var constraints = {
-
 
 
 		audio: msg.audioOn,
 		video: videoConstraints,
 		configurations: {
-			iceServers:iceServers
+			iceServers: iceServers
 		}
 
 	};
@@ -363,12 +362,12 @@ function sendMessage(message) {
 
 function sendMessageInChat() {
 	var textarea = document.getElementById('message');
-	let participantTo=document.getElementById('participants').value;
+	let participantTo = document.getElementById('participants').value;
 	let data = {
 		id: 'chatMessage',
 		message: textarea.value,
 		roomId: roomId,
-		toId:participantTo
+		toId: participantTo
 
 	}
 	sendMessage(data);
