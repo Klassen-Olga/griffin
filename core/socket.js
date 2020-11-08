@@ -39,10 +39,10 @@ class SocketHandler {
 				switch (message.id) {
 					case 'joinRoom':
 						//insert in both tables participant and participant in room
-						if (message.role==='participant'){
-							let dbRoom= await self.socketHelper.findRoom(message.roomName);
-							let error= await self.socketHelper.insertInBothTables(message.name, socket, dbRoom);
-							if (error){
+						if (message.role === 'participant') {
+							let dbRoom = await self.socketHelper.findRoom(message.roomName);
+							let error = await self.socketHelper.insertInBothTables(message.name, socket, dbRoom);
+							if (error) {
 								socket.emit('onEnterNotification', error);
 								return;
 							}
@@ -75,6 +75,11 @@ class SocketHandler {
 						});
 						break;
 					case 'chatMessage':
+						let error= await self.socketHelper.insertMessage(message.message, message.roomId, socket.id, message.toId);
+						if (error instanceof Error){
+							socket.emit('databaseError', error.message);
+							return;
+						}
 						helperKurento.sendChatMessageToRoomParticipants(message.message, message.roomId, socket.id, message.toId, (err) => {
 							if (err) {
 								console.log(err);
@@ -161,8 +166,13 @@ class SocketHandler {
 				socket.to(id).emit("candidate", socket.id, message);
 			});
 
-			socket.on('chat message', (msg, roomId, fromName, toId) => {
+			socket.on('chat message', async (msg, roomId, fromName, toId) => {
 				console.log('message: ' + msg);
+				let error= await self.socketHelper.insertMessage(msg, roomId, socket.id, toId);
+				if (error instanceof Error){
+					socket.emit('databaseError', error.message);
+					return;
+				}
 				let data = {
 					message: msg,
 					fromName: fromName
