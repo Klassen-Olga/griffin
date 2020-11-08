@@ -269,16 +269,20 @@ function socketInit() {
 	});
 	// event for new user to receive a response of moderator
 	socket.on('requestForModerator', (userId, fullName) => {
-
-		if (confirm('New user ' + fullName + ' want to join the conference room.' +
-			'\n Are you agree?')) {
+		var resp=myConfirm(fullName);
+		if (resp) {
 			socket.emit('moderatorResponsePeer', true, userId)
 		} else {
 			socket.emit('moderatorResponsePeer', false, userId)
 		}
 	});
+	function myConfirm(fullName){
+		return confirm('New user ' + fullName + ' want to join the conference room.' +
+			'\n Are you agree?');
+
+	}
 	socket.on('moderatorResponsePeer', (accepted) => {
-		moderatorResponse(accepted);
+		moderatorResponse(accepted, socket);
 	})
 	socket.on('videoDisabled', userId => {
 		let video = document.getElementById(userId);

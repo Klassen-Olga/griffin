@@ -31,7 +31,7 @@ let socketHandler = new SocketHandler(io,database);
 
 http.listen(3000, '127.0.0.1', function () {
 	console.log(
-		'\nApp listening at http://localhost:3000/room/5989c65b-092f-4883-946a-f3332fb12467/3' +
-		'\nApp listening at http://localhost:3000/room/a76f6b90-bea8-41b9-82fc-hhhhhhhdcd32a8dcf54/4' +
+		'\nApp listening at http://localhost:3000/room/47fce5c0-deae-4587-8aea-d6200ff742b7/3' +
+		'\nApp listening at http://localhost:3000/room/7408e0e1-f8c2-41e0-9f4c-fcecc351e0ad/10' +
 		'\nApp listening at http://localhost:3000/login' );
 });

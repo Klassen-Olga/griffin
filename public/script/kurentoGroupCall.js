@@ -62,33 +62,10 @@ function socketInit() {
 			case'chat message':
 				receiveChatMessage(parsedMessage);
 				break;
-			//  event for requesting permission from the moderator to log in a new user
-			case 'requestForModerator':
-				let data = {
-					id: 'moderatorResponse',
-					userId: parsedMessage.userId,
-					accepted: false
-				}
-				if (confirm('New user ' + parsedMessage.name + ' want to join the conference room.' +
-					'\n Are you agree?')) {
-					data.accepted = true;
-				}
-				sendMessage(data);
-				break;
+
 			// event for new user to receive a response of moderator
 			case 'moderatorResponse':
-				moderatorResponse(parsedMessage.accepted);
-				break;
-			// event fired when moderator enters the room or if the moderator is not available
-			case 'onEnterNotification':
-				if (parsedMessage.error === null) {
-					enter('moderator');
-				} else {
-					alert(parsedMessage.error);
-				}
-				break;
-			case 'waitModeratorResponse':
-				alert('Please wait until moderator accepts your entry');
+				moderatorResponse(parsedMessage.accepted, socket);
 				break;
 			case 'videoDisabled':
 				putNameOverVideo(document.getElementById(parsedMessage.userId));
@@ -98,6 +75,30 @@ function socketInit() {
 				break;
 
 		}
+	});
+	// event fired when moderator enters the room or if the moderator is not available
+	socket.on('onEnterNotification', error => {
+		if (error === null) {
+			enter('moderator');
+		} else {
+			alert(error);
+		}
+	});
+	//  event for requesting permission from the moderator to log in a new user
+	socket.on('requestForModerator', (socketId, fullName) => {
+		let data = {
+			id: 'moderatorResponse',
+			userId: socketId,
+			accepted: false
+		}
+		if (confirm('New user ' + fullName + ' want to join the conference room.' +
+			'\n Are you agree?')) {
+			data.accepted = true;
+		}
+		sendMessage(data);
+	});
+	socket.on('waitModeratorResponse', () => {
+		alert('Please wait until moderator accepts your entry');
 	});
 }
 
@@ -123,7 +124,8 @@ function requestForModerator() {
 	var message = {
 		id: 'requestForModerator',
 		name: document.getElementsByName('fullName')[0].value,
-		roomName: roomId
+		roomName: roomId,
+		dbId:dbId
 	}
 
 	sendMessage(message);

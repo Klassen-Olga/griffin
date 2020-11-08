@@ -18,10 +18,12 @@ module.exports = class HelperKurento {
 		self.rooms = {};
 		self.userRegister = userRegister;
 	}
-
+	getRooms(){
+		const self=this;
+		return self.rooms;
+	}
 	joinRoom(socket, message, callback) {
 		const self = this;
-
 		self.getRoom(message.roomName, (error, room) => {
 			if (error) {
 				callback(error);
@@ -29,6 +31,7 @@ module.exports = class HelperKurento {
 			}
 			self.join(socket, room, message, (err, user) => {
 				console.log(`join success : ${socket.id}`);
+
 				if (err) {
 					callback(err);
 					return;
@@ -400,51 +403,6 @@ module.exports = class HelperKurento {
 				callback(null, incoming);
 			});
 		}
-	}
-
-	proceedRequestForModerator(message, socket) {
-		const self = this;
-
-		let data1 = {
-			id: 'onEnterNotification',
-			error: null
-		}
-		//does room exist in database
-		//get moderator from db
-		if (/*self.rooms.hasOwnProperty(message.roomName)*/true === false) {
-			data1.error = 'Please check if the url is entered correctly';
-			socket.emit('message', data1);
-			return;
-		}
-
-		//vremenno, potom id brati iz rooms moderator
-		let moderatorDb = 'Olga Klassen';
-		let roomDb = message.roomName;
-
-		//does user exists in db
-		if (true) {
-			// is current user moderator
-			if (moderatorDb === message.name) {
-				socket.emit('message', data1);
-				return;
-			}
-		}
-
-		let moderator = self.userRegister.getByName(moderatorDb);
-		// after all is room empty or isn't moderator already registered
-		if (Object.keys(self.rooms).length === 0 || typeof moderator === 'undefined') {
-			data1.error = 'No moderator present, please reenter later';
-			socket.emit('message', data1);
-			return;
-		}
-
-		let data = {
-			id: 'requestForModerator',
-			userId: socket.id,
-			name: message.name
-		}
-		socket.emit('message', {id: 'waitModeratorResponse'});
-		socket.to(moderator.id).emit('message', data);
 	}
 
 	sendVideoOffOrOnMessageToAllParticipants(roomId, userId, offOrOnFlag) {

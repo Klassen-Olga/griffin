@@ -237,8 +237,7 @@ function requestMediaDevices(videoElement, useCase) {
 					toggleMediaButtons('video', false);
 				}
 			});
-	}
-	else{
+	} else {
 		toggleMediaButtons('audio', false);
 		if (videoDeviceNumber > 0) {
 			requestVideoDevice(videoElement);
@@ -283,10 +282,13 @@ function requestVideoDevice(videoElement) {
 /*
 * The function used to validate moderator response
 * */
-function moderatorResponse(accepted) {
+function moderatorResponse(accepted, socket) {
 	if (accepted === true) {
 		enter('participant');
+
 	} else {
+		socket.close();
+		socket = null;
 		alert('Moderator does not accept your entry');
 	}
 }
@@ -331,11 +333,11 @@ function putNameOverVideo(video) {
 	span.style.fontSize = 'xx-large';
 	span.style.position = 'relative';
 
-	if (video.nodeName==='VIDEO'){
+	if (video.nodeName === 'VIDEO') {
 		span.style.bottom = '150px';
 	}
 	//case audio tag
-	else{
+	else {
 		span.style.top = '120px';
 
 	}

@@ -1,9 +1,8 @@
 const Register = require('../lib/register.js');
 let userRegister = new Register();
 const HelperKurento = require('../helpers/socketKurentoHelper');
-const HelperPeer = require('../helpers/socketPeerHelper');
 let helperKurento = new HelperKurento(userRegister);
-let helperPeer;
+const SocketHelper = require('../helpers/socketHelper');
 
 
 class SocketHandler {
@@ -12,7 +11,7 @@ class SocketHandler {
 		const self = this;
 		self.io = io;
 		self.database = db;
-		helperPeer= new HelperPeer(db);
+		self.socketHelper = new SocketHelper(db);
 		//object for sockets
 		self.sockets = {};
 		self.participantsById = {};
@@ -34,11 +33,20 @@ class SocketHandler {
 			});
 
 
-			socket.on('message', message => {
+			socket.on('message', async message => {
 				console.log(`Connection: %s receive message`, message.id);
 
 				switch (message.id) {
 					case 'joinRoom':
+						//insert in both tables participant and participant in room
+						if (message.role==='participant'){
+							let dbRoom= await self.socketHelper.findRoom(message.roomName);
+							let error= await self.socketHelper.insertInBothTables(message.name, socket, dbRoom);
+							if (error){
+								socket.emit('onEnterNotification', error);
+								return;
+							}
+						}
 						helperKurento.joinRoom(socket, message, err => {
 							if (err) {
 								console.log(`join Room error ${err}`);
@@ -81,7 +89,8 @@ class SocketHandler {
 						})
 						break;
 					case 'requestForModerator':
-						helperKurento.proceedRequestForModerator(message, socket);
+						let uuid = message.roomName;
+						await self.socketHelper.proceedRequestForModerator(message.name, uuid, socket, message.dbId);
 						break;
 					case 'moderatorResponse':
 						socket.to(message.userId).emit('message', message);
@@ -105,12 +114,12 @@ class SocketHandler {
 			socket.on("newUser", async (roomId, fullName, role) => {
 				//insert in both tables participant and participantInRoom if not moderator
 				if (role === 'participant') {
-					let dbRoom = await helperPeer.findRoom(roomId);
+					let dbRoom = await self.socketHelper.findRoom(roomId);
 					if (dbRoom instanceof Error) {
 						socket.emit('databaseError', 'Database error:' + dbRoom);
 						return;
 					}
-					let error = await helperPeer.insertInBothTables(fullName, socket, dbRoom);
+					let error = await self.socketHelper.insertInBothTables(fullName, socket, dbRoom);
 					if (error) {
 						socket.emit('databaseError', 'Database error:' + error);
 						return;
@@ -169,8 +178,12 @@ class SocketHandler {
 					self.io.in(roomId).emit('chat message', data);
 				}
 			});
-			socket.on('requestForModeratorPeer', (fullName, roomId, dbId) => {
-				helperPeer.proceedRequestForModeratorPeer(fullName, roomId, socket, dbId)
+			socket.on('requestForModeratorPeer', async (fullName, roomId, dbId) => {
+				if (socket.adapter.rooms[roomId] && socket.adapter.rooms[roomId].length === config.maxUsersNumberPeerConnection) {
+					socket.emit('participantsNumberError', 'Maximum number of users in this chat is reached');
+					return;
+				}
+				await self.socketHelper.proceedRequestForModerator(fullName, roomId, socket, dbId);
 			});
 			socket.on('moderatorResponsePeer', (accepted, userId) => {
 				socket.to(userId).emit('moderatorResponsePeer', accepted);
@@ -184,7 +197,6 @@ class SocketHandler {
 
 		});
 	}
-
 
 
 	initOtherEvents() {
