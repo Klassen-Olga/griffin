@@ -41,6 +41,10 @@ class SocketHandler {
 						//insert in both tables participant and participant in room
 						if (message.role === 'participant') {
 							let dbRoom = await self.socketHelper.findRoom(message.roomName);
+							if (dbRoom instanceof Error){
+								socket.emit('onEnterNotification', dbRoom.message);
+								return;
+							}
 							let error = await self.socketHelper.insertInBothTables(message.name, socket, dbRoom);
 							if (error) {
 								socket.emit('onEnterNotification', error);

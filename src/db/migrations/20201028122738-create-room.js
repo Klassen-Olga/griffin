@@ -10,7 +10,8 @@ module.exports = {
 			},
 			uuid: {
 				type: Sequelize.STRING,
-				allowNull: false
+				allowNull: false,
+				unique:true
 			},
 			startDateTime: {
 				type: Sequelize.DATE,

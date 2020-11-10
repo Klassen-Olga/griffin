@@ -1,10 +1,11 @@
 let Controller = require('./mainController');
 const path = require('path');
-
+const SocketHelper=require('../helpers/socketHelper');
 class PagesController extends Controller {
 	constructor(req, res, action, router) {
 		super(req, res, action, router);
 		const self = this;
+		self.socketHelper=new SocketHelper(self.database);
 		self.before(['*', '-register', '-login', '-room', '-error'], (next) => {
 			if (self.req.authorized === true) {
 				next();
@@ -22,11 +23,8 @@ class PagesController extends Controller {
 		self.before('room', async (next) => {
 			let error = null;
 			try {
-				let dbRoom = await self.database.Room.findOne({
-					where: {
-						uuid: self.req.params.roomId
-					}
-				});
+				let dbRoom=await self.socketHelper.findRoom(self.req.params.roomId);
+
 				if (!dbRoom) {
 					error = 'Please check if the url link is correct';
 				}

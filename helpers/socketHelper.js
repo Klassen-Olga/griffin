@@ -146,10 +146,19 @@ module.exports = class SocketHelper {
 		const self = this;
 		try {
 			let dbRoom = await self.findRoom(uuid);
+			if (dbRoom instanceof Error){
+				return dbRoom;
+			}
 			let fromParticipant = await self.findParticipant(fromSocketId);
+			if (fromParticipant instanceof Error){
+				return fromParticipant;
+			}
 			let toParticipant = null;
 			if (toSocketId) {
 				toParticipant = await self.findParticipant(toSocketId);
+				if (toParticipant instanceof Error){
+					return toParticipant;
+				}
 			}
 			await self.database.sequelize.transaction(async (t) => {
 				let message = {
