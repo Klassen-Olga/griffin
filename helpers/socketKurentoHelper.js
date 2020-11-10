@@ -1,6 +1,5 @@
-var kurento = require('kurento-client');
-var minimist = require('minimist');
-
+const kurento = require('kurento-client');
+const minimist = require('minimist');
 
 const Session = require('../lib/session.js');
 
@@ -13,10 +12,11 @@ var argv = minimist(process.argv.slice(2), {
 
 module.exports = class HelperKurento {
 
-	constructor(userRegister) {
+	constructor(userRegister, cron) {
 		const self = this;
 		self.rooms = {};
 		self.userRegister = userRegister;
+		self.cron=cron;
 	}
 	getRooms(){
 		const self=this;
@@ -207,9 +207,6 @@ module.exports = class HelperKurento {
 		});
 	}
 
-	saveMessage(){
-
-	}
 	sendChatMessageToRoomParticipants(message, roomId, userId, toId, callback) {
 		const self = this;
 		let userSession = self.userRegister.getById(userId);
@@ -252,7 +249,6 @@ module.exports = class HelperKurento {
 			return;
 		}
 
-
 		var room = self.rooms[userSession.roomName];
 
 		if (!room) {
@@ -287,7 +283,10 @@ module.exports = class HelperKurento {
 		// Release pipeline and delete room when room is empty
 		if (Object.keys(room.participants).length === 0) {
 			room.pipeline.release();
-			delete self.rooms[userSession.roomName];
+			delete self.rooms[room.name];
+
+			// after last user left set cron job to remove database records
+			self.cron.setCronJobRemoveRoom(room.name);
 		}
 		delete userSession.roomName;
 

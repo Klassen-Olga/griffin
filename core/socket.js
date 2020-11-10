@@ -1,9 +1,8 @@
 const Register = require('../lib/register.js');
 let userRegister = new Register();
 const HelperKurento = require('../helpers/socketKurentoHelper');
-let helperKurento = new HelperKurento(userRegister);
 const SocketHelper = require('../helpers/socketHelper');
-
+const CronController=require('../controllers/cronController');
 
 class SocketHandler {
 
@@ -12,6 +11,8 @@ class SocketHandler {
 		self.io = io;
 		self.database = db;
 		self.socketHelper = new SocketHelper(db);
+		self.cron=new CronController(db, self.socketHelper);
+		self.helperKurento = new HelperKurento(userRegister, self.cron);
 		//object for sockets
 		self.sockets = {};
 		self.participantsById = {};
@@ -38,6 +39,13 @@ class SocketHandler {
 
 				switch (message.id) {
 					case 'joinRoom':
+						let room=self.helperKurento.getRooms()[message.roomName];
+						// room is removed from kurento registry after last user left
+						// if no room found there is either new room or empty old room
+						// if there is a empty room the cron job has already started
+						if (!room){
+							self.cron.destroyCronJobRemoveRoom(message.roomName);
+						}
 						//insert in both tables participant and participant in room
 						if (message.role === 'participant') {
 							let dbRoom = await self.socketHelper.findRoom(message.roomName);
@@ -51,28 +59,28 @@ class SocketHandler {
 								return;
 							}
 						}
-						helperKurento.joinRoom(socket, message, err => {
+						self.helperKurento.joinRoom(socket, message, err => {
 							if (err) {
 								console.log(`join Room error ${err}`);
 							}
 						});
 						break;
 					case 'receiveVideoFrom':
-						helperKurento.receiveVideoFrom(socket, message.sender, message.sdpOffer, (err) => {
+						self.helperKurento.receiveVideoFrom(socket, message.sender, message.sdpOffer, (err) => {
 							if (err) {
 								console.error(err);
 							}
 						});
 						break;
 					case 'leaveRoom':
-						helperKurento.leaveRoom(socket, err => {
+						self.helperKurento.leaveRoom(socket, err => {
 							if (err) {
 								console.error(err);
 							}
 						});
 						break;
 					case 'onIceCandidate':
-						helperKurento.addIceCandidate(socket, message, err => {
+						self.helperKurento.addIceCandidate(socket, message, err => {
 							if (err) {
 								console.error(err);
 							}
@@ -84,7 +92,7 @@ class SocketHandler {
 							socket.emit('databaseError', error.message);
 							return;
 						}
-						helperKurento.sendChatMessageToRoomParticipants(message.message, message.roomId, socket.id, message.toId, (err) => {
+						self.helperKurento.sendChatMessageToRoomParticipants(message.message, message.roomId, socket.id, message.toId, (err) => {
 							if (err) {
 								console.log(err);
 								return;
@@ -105,10 +113,10 @@ class SocketHandler {
 						socket.to(message.userId).emit('message', message);
 						break;
 					case 'videoDisabled':
-						helperKurento.sendVideoOffOrOnMessageToAllParticipants(message.roomId, socket.id, 'off');
+						self.helperKurento.sendVideoOffOrOnMessageToAllParticipants(message.roomId, socket.id, 'off');
 						break;
 					case 'videoEnabled':
-						helperKurento.sendVideoOffOrOnMessageToAllParticipants(message.roomId, socket.id, 'on');
+						self.helperKurento.sendVideoOffOrOnMessageToAllParticipants(message.roomId, socket.id, 'on');
 						break;
 				}
 			});
@@ -121,6 +129,11 @@ class SocketHandler {
 		self.io.on('connection', (socket) => {
 			// 1)
 			socket.on("newUser", async (roomId, fullName, role) => {
+				// if room is empty, the cron job can be already set
+				if (socket.adapter.rooms[roomId].length===0) {
+					self.cron.destroyCronJobRemoveRoom(roomId);
+				}
+
 				//insert in both tables participant and participantInRoom if not moderator
 				if (role === 'participant') {
 					let dbRoom = await self.socketHelper.findRoom(roomId);
@@ -144,6 +157,11 @@ class SocketHandler {
 				socket.on("disconnect", () => {
 					socket.leave(roomId);
 					socket.to(roomId).broadcast.emit("disconnectPeer", socket.id);
+
+					// after last user left set cron job to remove database records
+					if (socket.adapter.rooms[roomId].length===0){
+						self.cron.setCronJobRemoveRoom(roomId);
+					}
 				});
 			});
 			// 1)
@@ -222,7 +240,7 @@ class SocketHandler {
 				console.log('User ' + socket.id + ' disconnects');
 				let currentSocket = userRegister.getById(socket.id);
 				if (currentSocket) {
-					helperKurento.leaveRoom(socket, err => {
+					self.helperKurento.leaveRoom(socket, err => {
 						if (err) {
 							console.error(err);
 						}
