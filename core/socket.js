@@ -130,7 +130,7 @@ class SocketHandler {
 			// 1)
 			socket.on("newUser", async (roomId, fullName, role) => {
 				// if room is empty, the cron job can be already set
-				if (socket.adapter.rooms[roomId].length===0) {
+				if ( socket.adapter.rooms[roomId]  && socket.adapter.rooms[roomId].length===0) {
 					self.cron.destroyCronJobRemoveRoom(roomId);
 				}
 
@@ -159,7 +159,8 @@ class SocketHandler {
 					socket.to(roomId).broadcast.emit("disconnectPeer", socket.id);
 
 					// after last user left set cron job to remove database records
-					if (socket.adapter.rooms[roomId].length===0){
+					if (!socket.adapter.rooms[roomId]){
+						console.error('CROWN STARTED');
 						self.cron.setCronJobRemoveRoom(roomId);
 					}
 				});

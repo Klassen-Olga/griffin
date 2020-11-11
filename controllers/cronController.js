@@ -6,7 +6,7 @@ module.exports = class CronController {
 		self.database = database;
 		self.socketHelper = socketHelper;
 
-		self.roomsToRemove = [];
+		self.roomsToRemove = {};
 	}
 
 	setCronJobRemoveRoom(uuid) {
@@ -21,30 +21,25 @@ module.exports = class CronController {
 		let job = new CronJob(cronTime, async function () {
 			await self.removeAllRoomData(uuid);
 		}, null, true, config.cronTimeZone);
-		if (job instanceof Error){
+		if (job instanceof Error) {
 			return job;
 		}
-		let roomToRemove = {
-			uuid: uuid,
+		self.roomsToRemove[uuid] = {
 			when: now,
 			job: job
-		}
-		self.roomsToRemove.push(roomToRemove);
+		};
 
 		job.start();
 	}
 
 	destroyCronJobRemoveRoom(uuid) {
 		const self = this;
-		for (let i = 0; i < self.roomsToRemove.length; i++) {
-			if (self.roomsToRemove[i].uuid === uuid) {
+		let room=self.roomsToRemove[uuid];
+		if (room) {
+			room.job.stop();
+			room.job = null;
 
-				self.roomsToRemove[i].job.stop();
-				self.roomsToRemove[i].job=null;
-				delete self.roomsToRemove[i];
-
-				break;
-			}
+			delete self.roomsToRemove[uuid];
 		}
 	}
 

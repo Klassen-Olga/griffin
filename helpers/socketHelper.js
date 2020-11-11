@@ -30,7 +30,10 @@ module.exports = class SocketHelper {
 
 		//find room user wants in
 		let dbRoom = await self.findRoom(uuid);
-
+		if (dbRoom===null){
+			socket.emit('onEnterNotification', "The time in this room is expired");
+			return;
+		}
 		if (dbRoom instanceof Error) {
 			socket.emit('onEnterNotification', dbRoom);
 			return;

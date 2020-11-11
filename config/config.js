@@ -6,5 +6,5 @@ module.exports = {
 	cronTimeZone:'Europe/Berlin',
 	// remove room record, all message, participant, participantInRoom records related to the room
 	// after the last participant left the room in X minutes
-	cronRemoveRoomAfter: 60 // in 60 minutes
+	cronRemoveRoomAfter: 1 // in 60 minutes
 }

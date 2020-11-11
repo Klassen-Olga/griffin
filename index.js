@@ -33,13 +33,7 @@ let socketHandler = new SocketHandler(io,database);
 let SocketHelper= require('./helpers/socketHelper');
 let socketHelper=new SocketHelper(database);
 
-/*let Cron=require('./controllers/cronController');
-let contr=new Cron(database);
- contr.removeAllRoomData('47fce5c0-deae-4587-8aea-d6200ff742b7');*/
-/*const event1 = Date.now();
-let event= new Date('December 17, 1995 03:00:00');
-event.setMinutes(event.getMinutes()+60);
-let cronTime=event.getMinutes()+' '+event.getHours()+' * * *';*/
+
 
 http.listen(3000, '127.0.0.1', function () {
 	console.log(
