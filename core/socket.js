@@ -2,7 +2,7 @@ const Register = require('../lib/register.js');
 let userRegister = new Register();
 const HelperKurento = require('../helpers/socketKurentoHelper');
 const SocketHelper = require('../helpers/socketHelper');
-const CronController=require('../controllers/cronController');
+const Cron=require('../helpers/cron');
 
 class SocketHandler {
 
@@ -11,7 +11,7 @@ class SocketHandler {
 		self.io = io;
 		self.database = db;
 		self.socketHelper = new SocketHelper(db);
-		self.cron=new CronController(db, self.socketHelper);
+		self.cron=new Cron(db, self.socketHelper);
 		self.helperKurento = new HelperKurento(userRegister, self.cron);
 		//object for sockets
 		self.sockets = {};
@@ -130,7 +130,7 @@ class SocketHandler {
 			// 1)
 			socket.on("newUser", async (roomId, fullName, role) => {
 				// if room is empty, the cron job can be already set
-				if ( socket.adapter.rooms[roomId]  && socket.adapter.rooms[roomId].length===0) {
+				if (!socket.adapter.rooms[roomId]) {
 					self.cron.destroyCronJobRemoveRoom(roomId);
 				}
 
@@ -149,10 +149,14 @@ class SocketHandler {
 				}
 
 				console.log("newUser " + socket.id + " sends data to all users");
+
 				self.participantsById[socket.id] = fullName;
 				self.participantsByName[fullName] = socket.id;
+
 				socket.join(roomId);
+
 				console.log('Number of participants: ' + socket.adapter.rooms[roomId].length + ' in room ' + roomId);
+
 				socket.broadcast.to(roomId).emit("newUser", socket.id);
 				socket.on("disconnect", () => {
 					socket.leave(roomId);
@@ -160,7 +164,7 @@ class SocketHandler {
 
 					// after last user left set cron job to remove database records
 					if (!socket.adapter.rooms[roomId]){
-						console.error('CROWN STARTED');
+						console.error('CROWN STARTED FOR ROOM: '+roomId);
 						self.cron.setCronJobRemoveRoom(roomId);
 					}
 				});

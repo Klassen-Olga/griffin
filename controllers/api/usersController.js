@@ -11,9 +11,9 @@ class ApiUsersController extends Controller {
 			if (self.req.authorized === true) {
 				next();
 			} else {
-				self.render({}, {
-					statusCode: 401
-				});
+				self.render(
+					{error: "Reload the page and log in"},
+					{statusCode: 401});
 			}
 		});
 	}

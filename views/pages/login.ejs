@@ -1,24 +1,33 @@
-<h1>Login</h1>
-<p id="serverError"></p>
+<div class="container">
+    <div class="row justify-content-center align-items-center" style="height:90vh">
 
-<div class="signin-wrapper">
-    <form id="loginForm" action="<%= self.urlFor('api/users', 'login', null, 'post')%>" method="POST">
+        <div class="col-5">
+            <div class="card">
+                <div class="card-body">
+                    <p id="serverError"></p>
+                    <p id="serverError"></p>
+                    <form id="loginForm" action="<%= self.urlFor('api/users', 'login', null, 'post') %>" method="POST">
+                        <div class="form-group">
+                            <label for="email">E-Mail</label>
+                            <input id="email" class="form-control" name="email" type="email"
+                                   placeholder="E-Mail Address"/>
 
-        <div class="input-wrapper">
-            <label for="email">E-Mail</label>
-            <input id="email" name="email" type="email" placeholder="E-Mail Address"/><br>
+                        </div>
+                        <div class="form-group">
+                            <label for="password">Password</label>
+                            <input id="password" class="form-control" name="password" type="password"
+                                   placeholder="Password"/>
+                        </div>
+                        <button id="submitLogin" class="btn btn-primary btn-lg btn-block login-button" type="submit">
+                            Login
+                        </button>
+                        <p>No account yet? <a href="<%= self.urlFor('pages', 'register') %>">Register</a>.</p>
+
+                    </form>
+                </div>
+            </div>
         </div>
-        <div class="input-wrapper">
-            <label for="password">Password</label>
-            <input id="password" name="password" type="password" placeholder="Password"/>
-        </div>
-        <div class="button-wrapper">
-            <button id="submitLogin" type="submit">Login</button>
-        </div>
-        <div class="container register">
-            <p>No account yet? <a href="<%= self.urlFor('pages', 'register')%>">Register</a>.</p>
-        </div>
-    </form>
+    </div>
 </div>
 <script src="script/apiUsers/helper.js"></script>
 <script src="script/apiUsers/login.js"></script>

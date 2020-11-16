@@ -160,3 +160,12 @@ for toggling
 #enterTheRoom{
     display: block;
 }
+
+
+/*
+bootstrap
+*/
+
+.col-md-8{
+    margin-top: 5%;
+}

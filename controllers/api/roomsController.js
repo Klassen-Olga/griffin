@@ -12,9 +12,9 @@ class ApiRoomsController extends Controller {
 			if (self.req.authorized === true) {
 				next();
 			} else {
-				self.render({}, {
-					statusCode: 401
-				});
+				self.render(
+					{error: "Reload the page and log in"},
+					{statusCode: 401});
 			}
 		});
 	}
@@ -27,7 +27,7 @@ class ApiRoomsController extends Controller {
 			self.handleError(new ApiError('You must be logged in', 401));
 			return;
 		}
-		if (!remoteData){
+		if (!remoteData) {
 			self.handleError(new ApiError("Your data has not been sent. Please refresh the page and try again.", 400));
 			return;
 		}

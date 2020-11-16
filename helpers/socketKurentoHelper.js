@@ -286,6 +286,7 @@ module.exports = class HelperKurento {
 			delete self.rooms[room.name];
 
 			// after last user left set cron job to remove database records
+			console.error('CROWN STARTED FOR ROOM: '+room.name);
 			self.cron.setCronJobRemoveRoom(room.name);
 		}
 		delete userSession.roomName;

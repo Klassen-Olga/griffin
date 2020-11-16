@@ -1,5 +1,5 @@
 const CronJob = require('cron').CronJob;
-module.exports = class CronController {
+module.exports = class Cron {
 
 	constructor(database, socketHelper) {
 		const self = this;
@@ -17,13 +17,12 @@ module.exports = class CronController {
 		now.setMinutes(now.getMinutes() + config.cronRemoveRoomAfter);
 
 		let cronTime = now.getMinutes() + ' ' + now.getHours() + ' * * *';
-
 		let job = new CronJob(cronTime, async function () {
+
 			await self.removeAllRoomData(uuid);
+
 		}, null, true, config.cronTimeZone);
-		if (job instanceof Error) {
-			return job;
-		}
+
 		self.roomsToRemove[uuid] = {
 			when: now,
 			job: job
@@ -38,6 +37,7 @@ module.exports = class CronController {
 		if (room) {
 			room.job.stop();
 			room.job = null;
+			console.error("CRON DESTROYED FOR ROOM "+uuid);
 
 			delete self.roomsToRemove[uuid];
 		}
@@ -73,20 +73,27 @@ module.exports = class CronController {
 					participants.push(dbParticipant);
 				}
 				for (let index in messages) {
-					await messages[index].destroy();
+					await messages[index].destroy({
+						transaction:t
+					});
 				}
 				for (let index in participantsInRoom) {
-					await participantsInRoom[index].destroy();
+					await participantsInRoom[index].destroy({
+						transaction:t
+					});
 				}
 				for (let index in participants) {
-					await participants[index].destroy()
+					await participants[index].destroy({
+						transaction:t
+					})
 				}
-				await roomDb.destroy();
+				await roomDb.destroy({
+					transaction:t
+				});
 				self.destroyCronJobRemoveRoom(uuid);
 			})
 		} catch (e) {
-			console.error(e.message);
-			return e;
+			console.error(e);
 		}
 
 	}
