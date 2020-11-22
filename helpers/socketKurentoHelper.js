@@ -5,8 +5,8 @@ const Session = require('../lib/session.js');
 
 var argv = minimist(process.argv.slice(2), {
 	default: {
-		as_uri: 'http://localhost:3000',
-		ws_uri: 'ws://ec2-54-157-113-30.compute-1.amazonaws.com:8888/kurento'
+		as_uri: config.serverUrI,
+		ws_uri: config.kurentoMediaServerUrI
 	}
 });
 
@@ -96,7 +96,11 @@ module.exports = class HelperKurento {
 				return callback(error);
 			}
 
-			outgoingMedia.setTurnUrl("klassen.olga@fh-erfurt.de:123@158.69.221.198:3478");
+			if (config.turnServer){
+				// example "klassen.olga@fh-erfurt.de:123@158.69.221.198:3478"
+				let url=config.turnServer.userName+':'+config.turnServer.credential+'@'+config.turnServer.url;
+				outgoingMedia.setTurnUrl(url);
+			}
 			// else
 			outgoingMedia.setMaxVideoRecvBandwidth(100);
 			outgoingMedia.setMinVideoRecvBandwidth(20);
@@ -364,7 +368,11 @@ module.exports = class HelperKurento {
 					incomingMedia.setMaxVideoSendBandwidth(100);
 					incomingMedia.setMaxVideoSendBandwidth(20);
 					userSession.incomingMedia[sender.id] = incomingMedia;
-					incomingMedia.setTurnUrl("klassen.olga@fh-erfurt.de:123@158.69.221.198:3478");
+					if (config.turnServer){
+						//example "klassen.olga@fh-erfurt.de:123@158.69.221.198:3478"
+						let url=config.turnServer.userName+':'+config.turnServer.credential+'@'+config.turnServer.url;
+						incomingMedia.setTurnUrl(url);
+					}
 
 					// add ice candidate the get sent before endpoints is establlished
 					let iceCandidateQueue = userSession.iceCandidateQueue[sender.id];

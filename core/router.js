@@ -12,6 +12,7 @@ let routes = {
 			{path: '/login', action: 'login', method: 'get'},
 			{path: '/register', action: 'register', method: 'get'},
 			{path: '/error/:errorMessage/:statusCode', action: 'error', method: 'get'},
+			{path: '/imprint', action: 'imprint', method: 'get'},
 
 			{path: '/kurentoExampleHelloWorld', action: 'kurentoExampleHelloWorld', method: 'get'},
 			{path: '/kurentoOneToOne', action: 'kurentoOneToOne', method: 'get'},

@@ -18,14 +18,13 @@ const config = {
 		iceServers: [
 
 			{
-
-				urls: ["stun:stun.l.google.com:19302"]
+				urls: [config.stunServer.url]
 
 			},
 			{
-				urls: "turn:158.69.221.198",
-				username: "klassen.olga@fh-erfurt.de",
-				credential: '123'
+				urls: config.turnServer.url,
+				username:config.turnServer.userName ,
+				credential:config.turnServer.credential
 			}
 		]
 	}

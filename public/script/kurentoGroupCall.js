@@ -216,9 +216,9 @@ function onExistingParticipants(msg) {
 	userId = msg.userId;
 	var iceServers = [
 		{
-			url: "turn:158.69.221.198",
-			username: "klassen.olga@fh-erfurt.de",
-			credential: '123'
+			url: config.turnServer.url,
+			username: config.turnServer.userName,
+			credential: config.turnServer.credential
 		}
 	];
 	let videoConstraints = null;

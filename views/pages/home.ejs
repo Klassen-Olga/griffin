@@ -1,20 +1,28 @@
-<h3>Welcome To Griffin!</h3>
+<h1 class="text-center pt-3">Welcome To Griffin!</h1>
 
-<p id="serverError"></p>
+<div class="container">
+    <div class="row justify-content-center align-items-center" style="height:80vh">
 
-
-<div id="link-container">
-    Get link for new video conference
-    <form id="newRoomForm" action="<%=self.urlFor('api/rooms', 'newRoom', null, 'post')%>" method="post">
-        <label>Number of participants: </label>
-        <select id="participantsNum">
-            <option value="peer">Less than 4</option>
-            <option value="kurento">More than 4</option>
-        </select>
-        <button id="submitNewRoom">Get</button>
-    </form>
-    <p id="uuid"></p>
+        <div class="col-7  shadow p-3 mb-5 bg-white rounded">
+            <div class="card">
+                <div class="card-body" >
+                    <p id="serverError"></p>
+                    <div id="link-container">
+                        Get link for new video conference
+                        <form id="newRoomForm" action="<%=self.urlFor('api/rooms', 'newRoom', null, 'post')%>" method="post">
+                            <label>Number of participants: </label>
+                            <select id="participantsNum">
+                                <option value="peer">Less than 4</option>
+                                <option value="kurento">More than 4</option>
+                            </select>
+                            <button class="btn btn-primary " data-toggle="button" aria-pressed="false" autocomplete="off" id="submitNewRoom">Get Link</button>
+                        </form>
+                        <p class="pt-1" id="uuid"></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
-
 <script src="script/apiUsers/helper.js"></script>
 <script src="script/apiRooms/newRoom.js"></script>

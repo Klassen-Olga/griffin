@@ -6,7 +6,7 @@ class PagesController extends Controller {
 		super(req, res, action, router);
 		const self = this;
 		self.socketHelper=new SocketHelper(self.database);
-		self.before(['*', '-register', '-login', '-room', '-error'], (next) => {
+		self.before(['*', '-register', '-login', '-room', '-error', '-imprint'], (next) => {
 			if (self.req.authorized === true) {
 				next();
 			} else {
@@ -55,6 +55,12 @@ class PagesController extends Controller {
 		const self = this;
 		self.render({
 			title: "Home"
+		});
+	}
+	actionImprint() {
+		const self = this;
+		self.render({
+			title: "Imprint"
 		});
 	}
 
