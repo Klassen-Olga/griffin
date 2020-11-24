@@ -15,6 +15,6 @@ module.exports = {
 		userName:'klassen.olga@fh-erfurt.de',
 		credential:'123'
 	},
-	kurentoMediaServerUrI:'ws://ec2-54-157-113-30.compute-1.amazonaws.com:8888/kurento',
-	serverUrI:'http://localhost:3000'
+	kurentoMediaServerUrl:'ws://ec2-54-157-113-30.compute-1.amazonaws.com:8888/kurento',
+	serverUrl:'http://localhost:3000'
 }

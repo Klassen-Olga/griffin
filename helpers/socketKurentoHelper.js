@@ -5,8 +5,8 @@ const Session = require('../lib/session.js');
 
 var argv = minimist(process.argv.slice(2), {
 	default: {
-		as_uri: config.serverUrI,
-		ws_uri: config.kurentoMediaServerUrI
+		as_uri: config.serverUrl,
+		ws_uri: config.kurentoMediaServerUrl
 	}
 });
 

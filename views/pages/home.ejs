@@ -12,8 +12,8 @@
                         <form id="newRoomForm" action="<%=self.urlFor('api/rooms', 'newRoom', null, 'post')%>" method="post">
                             <label>Number of participants: </label>
                             <select id="participantsNum">
-                                <option value="peer">Less than 4</option>
-                                <option value="kurento">More than 4</option>
+                                <option value="peer">Less or equal to <%-config.maxUsersNumberPeerConnection%></option>
+                                <option value="kurento">More than <%-config.maxUsersNumberPeerConnection%></option>
                             </select>
                             <button class="btn btn-primary " data-toggle="button" aria-pressed="false" autocomplete="off" id="submitNewRoom">Get Link</button>
                         </form>
