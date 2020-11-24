@@ -22,7 +22,7 @@ const config = {
 
 			},
 			{
-				urls: config.turnServer.url,
+				urls: 'turn:'+config.turnServer.url,
 				username:config.turnServer.userName ,
 				credential:config.turnServer.credential
 			}

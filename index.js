@@ -11,7 +11,10 @@ app.use(layouts);
 app.set('layout', 'layout');
 app.set('view engine', 'ejs');
 
-
+var path = require('path')
+var favicon = require('serve-favicon');
+//app.use(favicon(path.join(__dirname, 'public', '/favicon.ico')));
+app.use(favicon(__dirname + '/favicon.ico'));
 
 app.use(bodyParser.urlencoded({extended: false}));
 app.use(bodyParser.json());

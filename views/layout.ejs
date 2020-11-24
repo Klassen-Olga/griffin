@@ -14,14 +14,14 @@
     <link href="/styles.css" rel="stylesheet">
 </head>
 <body class="h-100">
-<nav class="navbar navbar-expand-md navbar-dark bg-dark">
+<nav class="navbar navbar-expand-md custom-navbar bg-dark navbar-dark">
     <div class="navbar-collapse collapse w-100 order-3 dual-collapse2">
         <ul class="navbar-nav mr-auto">
             <li class="nav-item active">
-                <a class="navbar-brand mx-auto" href="<%= self.urlFor('pages', 'home')%>">Griffin</a>
+                <a class="navbar-brand" href="<%= self.urlFor('pages', 'home')%>">
+                    <img src="assets/griffin.png" width="35" height="35" alt=""> Griffin
+                </a>
             </li>
-        </ul>
-        <ul class="navbar-nav ml-auto">
             <% if(self.req.authorized){ %>
                 <li class="nav-item"><a class="nav-link" href="#" onclick="logout()"><span class="glyphicon glyphicon-log-in"></span> Logout</a></li>
             <% }else{ %>

@@ -216,7 +216,7 @@ function onExistingParticipants(msg) {
 	userId = msg.userId;
 	var iceServers = [
 		{
-			url: config.turnServer.url,
+			url: 'turn:'+ config.turnServer.url,
 			username: config.turnServer.userName,
 			credential: config.turnServer.credential
 		}

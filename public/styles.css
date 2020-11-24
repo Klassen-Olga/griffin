@@ -168,3 +168,14 @@ bootstrap
 .col-md-8{
     margin-top: 5%;
 }
+
+.custom-navbar, .btn-custom{
+    background: linear-gradient(90deg, rgba(2,0,36,1) 0%, rgba(9,9,121,1) 35%, rgba(0,212,255,1) 100%);
+}
+
+.nav-item{
+    font-size: 19px;
+}
+.navbar-brand{
+    padding-top: .4200rem;
+}
