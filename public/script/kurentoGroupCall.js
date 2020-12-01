@@ -216,9 +216,9 @@ function onExistingParticipants(msg) {
 	userId = msg.userId;
 	var iceServers = [
 		{
-			url: 'turn:'+ config.turnServer.url,
-			username: config.turnServer.userName,
-			credential: config.turnServer.credential
+			url: 'turn:'+ turnUrl,
+			username: turnUsername,
+			credential: turnCredential
 		}
 	];
 	let videoConstraints = null;

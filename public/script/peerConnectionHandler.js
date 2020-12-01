@@ -18,13 +18,13 @@ const config = {
 		iceServers: [
 
 			{
-				urls: [config.stunServer.url]
+				urls: [stunUrl]
 
 			},
 			{
-				urls: 'turn:'+config.turnServer.url,
-				username:config.turnServer.userName ,
-				credential:config.turnServer.credential
+				urls: 'turn:' + turnUrl,
+				username: turnUsername,
+				credential: turnCredential
 			}
 		]
 	}
@@ -72,8 +72,8 @@ function enter(role) {
 
 	disableNameInput();
 
-	if (acceptVideo===false && acceptAudio===false){
-		document.getElementsByName('selfStream')[0].style.display='none';
+	if (acceptVideo === false && acceptAudio === false) {
+		document.getElementsByName('selfStream')[0].style.display = 'none';
 	}
 	socket.emit("newUser", roomId, fullNameInput.value, role);
 	toggleEnterLeaveButtons();
@@ -99,8 +99,8 @@ function enter2() {
 
 	disableNameInput();
 
-	if (acceptVideo===false && acceptAudio===false){
-		document.getElementsByName('selfStream')[0].style.display='none';
+	if (acceptVideo === false && acceptAudio === false) {
+		document.getElementsByName('selfStream')[0].style.display = 'none';
 	}
 	socket.emit("newUser", roomId, fullNameInput.value);
 	toggleEnterLeaveButtons();
@@ -109,7 +109,7 @@ function enter2() {
 }
 
 function takePermissions() {
-	document.getElementById('enterTheRoomStart').style.display='none';
+	document.getElementById('enterTheRoomStart').style.display = 'none';
 	checkUsersDevicesAndAccessPermissions(selfVideoElement, 'peer');
 
 }
@@ -268,18 +268,20 @@ function socketInit() {
 	});
 	// event for new user to receive a response of moderator
 	socket.on('requestForModerator', (userId, fullName) => {
-		var resp=myConfirm(fullName);
+		var resp = myConfirm(fullName);
 		if (resp) {
 			socket.emit('moderatorResponsePeer', true, userId)
 		} else {
 			socket.emit('moderatorResponsePeer', false, userId)
 		}
 	});
-	function myConfirm(fullName){
+
+	function myConfirm(fullName) {
 		return confirm('New user ' + fullName + ' want to join the conference room.' +
 			'\n Are you agree?');
 
 	}
+
 	socket.on('moderatorResponsePeer', (accepted) => {
 		moderatorResponse(accepted, socket);
 	})
@@ -303,10 +305,10 @@ function socketInit() {
 	/*
 	* error while database transactions or maximum number of users is reached
 	* */
-	socket.on('participantsNumberError', message=>{
+	socket.on('participantsNumberError', message => {
 		alert(message);
 	});
-	socket.on('databaseError', message=>{
+	socket.on('databaseError', message => {
 		alert(message);
 	});
 

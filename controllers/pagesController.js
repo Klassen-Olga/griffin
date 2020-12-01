@@ -66,7 +66,12 @@ class PagesController extends Controller {
 
 	async actionRoom() {
 		const self = this;
+
 		self.render({
+			stunUrl:config.stunServer.url,
+			turnUrl:config.turnServer.url,
+			turnCredential:config.turnServer.credential,
+			turnUsername:config.turnServer.userName,
 			title: "Chat Room",
 			roomId: self.req.params.roomId,
 			participantsNumber: self.req.params.participantsNumber,

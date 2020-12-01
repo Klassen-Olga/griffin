@@ -2,25 +2,23 @@ html {
     height: 100%;
 }
 
-.video-container{
-    display: grid;
-    grid-template-columns: auto auto auto auto;
-}
 
 /*
 video chat
 */
-video{
+video {
     width: 320px;
     height: 280px;
 }
-.videoDiv{
+
+.videoDiv {
     width: 350px;
     height: 320px;
     background-color: black;
     margin: 6px;
 }
-video[name= selfStream]{
+
+video[name= selfStream] {
     position: fixed;
     bottom: 3%;
     left: 2%;
@@ -28,82 +26,35 @@ video[name= selfStream]{
     height: 260px;
 
 }
-span{
+
+span {
     color: white;
 }
-#videoTest{
+
+#videoTest {
     position: fixed;
     bottom: 3%;
     left: 2%;
 
 }
-.split {
-    height: 100%;
-    width: 50%;
-    position: fixed;
-    z-index: 1;
-    top: 0;
-    overflow-x: hidden;
-    padding-top: 20px;
-}
-.left {
-    left: 0;
-    background-color: #3596B5;
-}
-.right {
-    right: 0;
-    background-color: white;
+
+
+* {
+    /*margin: 0;*/
+    padding: 0;
+    box-sizing: border-box;
 }
 
- * {
-     /*margin: 0;*/
-     padding: 0;
-     box-sizing: border-box;
- }
 /* chat*/
 
-.room-form {
-    background: #000;
-    padding: 3px;
-    position: fixed;
-    bottom: 0;
-    width: 100%;
-}
 
-.room-form input {
-    border: 0;
-    padding: 14px;
-    width: 40%;
-    margin: 5px;
-    font-size: 20px;
-
-}
-
-/*.room-form button {
-    width: 9%;
-    background: rgb(130, 224, 255);
-    border: none;
-    padding: 10px;
-    font-size: 20px;
-    color: black;
-    margin: 5px;
-}*/
-
-#nameDiv{
+#nameDiv {
     display: none;
 }
-#messages {
-    list-style-type: none;
-    margin: 0;
-    padding: 10px;
-    font-size: x-large;
-}
-#foreignVideoContainer{
-    display: flex;
-}
-.buttonRoom{
-    display: flex;
-}
+
+
+
+
 #messages li {
     padding: 5px 10px;
 }
@@ -111,52 +62,38 @@ span{
 #messages li:nth-child(odd) {
     background: #eee;
 }
-#serverError{
+
+#serverError {
     color: darkred;
 }
-.room-button {
-    background-color: rgb(130, 224, 255);
-    border: none;
-    padding: 4px 4px;
-    text-align: center;
-    text-decoration: none;
-    display: inline-block;
-    margin: 4px 2px;
-    cursor: pointer;
-    font-size: 25px;
-    color: black;
 
-}
-.room-button:disabled{
+
+
+.room-button:disabled {
     background-color: darkgray;
     cursor: auto;
 
 }
-.buttons-onload-room{
+
+.buttons-onload-room {
     display: none;
 }
 
-.room-label{
-    color:white;
-    font-size: 30px;
 
-}
-#nameDiv{
-    color:white;
-}
-#fullName{
+
+#nameDiv {
     color: white;
-    font-size: 60px;
-    display: none;
-
 }
+
+
 /*
 for toggling
 */
-#leaveTheRoom{
+#leaveTheRoom {
     display: none;
 }
-#enterTheRoom{
+
+#enterTheRoom {
     display: block;
 }
 
@@ -165,17 +102,18 @@ for toggling
 bootstrap
 */
 
-.col-md-8{
+.col-md-8 {
     margin-top: 5%;
 }
 
-.custom-navbar, .btn-custom{
-    background: linear-gradient(90deg, rgba(2,0,36,1) 0%, rgba(9,9,121,1) 35%, rgba(0,212,255,1) 100%);
+.custom-navbar, .btn-custom {
+    background: linear-gradient(90deg, rgba(2, 0, 36, 1) 0%, rgba(9, 9, 121, 1) 35%, rgba(0, 212, 255, 1) 100%);
 }
 
-.nav-item{
+.nav-item {
     font-size: 19px;
 }
-.navbar-brand{
+
+.navbar-brand {
     padding-top: .4200rem;
 }
