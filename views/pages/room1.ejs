@@ -1,0 +1,56 @@
+<script>
+	if (typeof participantsNumber!==null){
+		var participantsNumber = "<%= participantsNumber %>"
+	}
+	var roomId = "<%= roomId %>"
+	var dbId= "<%= dbId%>"
+	var stunUrl="<%=stunUrl%>"
+	var turnUrl="<%=turnUrl%>"
+	var turnCredential="<%=turnCredential%>"
+	var turnUsername="<%=turnUsername%>"
+
+</script>
+<p id="serverError"></p>
+
+<div class="split left">
+    <video name="selfStream" controls="false" playsinline muted autoplay></video>
+
+    <br>
+    <p id="fullName"></p>
+    <div class="buttonRoom">
+        <button class="buttons-onload-room room-button" id="audioOn" onclick="addMediaTrack('audio')">Audio on</button>
+        <button class="buttons-onload-room room-button" id="audioOff" onclick="removeMediaTrack('audio')">Audio off</button>
+        <button class="buttons-onload-room room-button" id="videoOn" onclick="addMediaTrack('video')">Video on</button>
+        <button class="buttons-onload-room room-button" id="videoOff" onclick="removeMediaTrack('video')">Video off</button>
+
+
+        <button class="room-button" id="enterTheRoomStart" onclick="takePermissions()">Give media permissions</button>
+        <button class="buttons-onload-room room-button" id="enterTheRoomEnd" onclick="requestForModerator()">Enter the room</button>
+        <button class="buttons-onload-room room-button" id="leaveTheRoom" onclick="leaveRoom()">Leave the room</button>
+
+    </div>
+
+    <br>
+    <div id="nameDiv">
+        <label class="room-label" for="fullName">Full Name: </label>
+        <input name="fullName"/><br>
+
+    </div>
+
+    <br>
+    <div id="foreignVideoContainer" class="video-container">
+
+    </div>
+</div>
+<div class="split right">
+    <ul id="messages"></ul>
+    <form class="room-form" action="">
+        <input id="message" autocomplete="off"/>
+        <button class="room-button" onclick="sendMessageInChat();return false;">Send</button>
+        <label>Send to: </label>
+        <select id="participants">
+            <option value=''>Everyone</option>
+        </select>
+    </form>
+</div>
+<script src="/script/roomScriptAppender.js"></script>
