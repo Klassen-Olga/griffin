@@ -19,7 +19,6 @@ video {
 }
 
 
-
 span {
     color: white;
 }
@@ -46,8 +45,6 @@ span {
 }
 
 
-
-
 #messages li {
     padding: 5px 10px;
 }
@@ -61,7 +58,6 @@ span {
 }
 
 
-
 .room-button:disabled {
     background-color: darkgray;
     cursor: auto;
@@ -71,7 +67,6 @@ span {
 .buttons-onload-room {
     display: none;
 }
-
 
 
 #nameDiv {
@@ -119,8 +114,9 @@ bootstrap
     display: flex;
     width: 100%;
     align-items: stretch;
-    background-color:#163F58 ;
+    background-color: #163F58;
 }
+
 #sidebar {
     min-width: 250px;
     max-width: 250px;
@@ -130,6 +126,7 @@ bootstrap
 #sidebar.active {
     margin-left: -250px;
 }
+
 a[data-toggle="collapse"] {
     position: relative;
 }
@@ -141,7 +138,6 @@ a[data-toggle="collapse"] {
     right: 20px;
     transform: translateY(-50%);
 }
-
 
 
 a, a:hover, a:focus {
@@ -157,25 +153,40 @@ a, a:hover, a:focus {
 
 }
 
-.chat-div{
+.chat-div {
     max-width: 250px;
 }
-.videoBottomRight{
+
+.videoBottomRight {
     position: fixed;
     right: 0;
     bottom: 0;
     z-index: 1030;
-    margin:10px;
+    margin: 10px;
 }
-.chatOutput{
+
+.chatOutput {
     overflow-wrap: break-word;
     margin: 5px;
     font-size: large;
 }
-.chat-ul{
+
+.chat-ul {
     overflow: auto;
     max-height: 85vh;
 }
-#sidebarCollapse{
-    width: 25px
+
+@media (max-height: 600px) {
+    .chat-ul {
+        max-height: 79vh;
+    }
+}
+
+#sidebarCollapse {
+    padding: .25rem .75rem;
+    font-size: 1.25rem;
+    line-height: 1;
+    background-color: transparent;
+    border: 1px solid transparent;
+    border-radius: .25rem;
 }
