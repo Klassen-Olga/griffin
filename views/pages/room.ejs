@@ -1,13 +1,13 @@
 <script>
-	if (typeof participantsNumber!==null){
+	if (typeof participantsNumber !== null) {
 		var participantsNumber = "<%= participantsNumber %>"
 	}
 	var roomId = "<%= roomId %>"
-	var dbId= "<%= dbId%>"
-	var stunUrl="<%=stunUrl%>"
-	var turnUrl="<%=turnUrl%>"
-	var turnCredential="<%=turnCredential%>"
-	var turnUsername="<%=turnUsername%>"
+	var dbId = "<%= dbId %>"
+	var stunUrl = "<%= stunUrl %>"
+	var turnUrl = "<%= turnUrl %>"
+	var turnCredential = "<%= turnCredential %>"
+	var turnUsername = "<%= turnUsername %>"
 
 </script>
 <div class="wrapper">
@@ -16,87 +16,127 @@
         <!-- Sidebar -->
         <nav id="sidebar">
 
-                <ul class="chat-ul" id="messages">
-                    <div class="chatOutput">aaaaaaaaaaaaaaaaaaaTaaaWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWaaaaeagergwgefsdaaaaaaaaaaaaaaaaaaaaaaaaaTaaaaaaaaaaa</div>
-                    <div class="chatOutput">aaaaaaaaaaaaaaaaaaaTaaaWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWaaaaeagergwgefsdaaaaaaaaaaaaaaaaaaaaaaaaaTaaaaaaaaaaa</div>
-                </ul>
-            <form  id="chat" class="chat-div fixed-bottom">
+            <ul class="chat-ul" id="messages">
+                <div class="chatOutput">
+                    aaaaaaaaaaaaaaaaaaaTaaaWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWaaaaeagergwgefsdaaaaaaaaaaaaaaaaaaaaaaaaaTaaaaaaaaaaa
+                </div>
+                <div class="chatOutput">
+                    aaaaaaaaaaaaaaaaaaaTaaaWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWaaaaeagergwgefsdaaaaaaaaaaaaaaaaaaaaaaaaaTaaaaaaaaaaa
+                </div>
+            </ul>
+            <form id="chat" class="chat-div fixed-bottom">
                 <label>Send to: </label>
                 <select id="participants">
                     <option value=''>Everyone</option>
 
                 </select>
-                <input id="message" autocomplete="off"/>
-                <button class="room-button" onclick="sendMessageInChat();return false;">Send</button>
+                <textarea id="message" autocomplete="off"></textarea><br>
+                <button class=" btn-block send-message-button btn btn-primary room-button"
+                        onclick="sendMessageInChat();return false;">Send
+                </button>
             </form>
         </nav>
 
         <div id="content">
             <nav class="navbar-expand-lg navbar-light bg-light">
 
-
-                    <button type="button" id="sidebarCollapse"  onclick="toggleChat()">
-                        <span class="navbar-toggler-icon"></span>
-
-                    </button>
-
+                <button type="button" id="sidebarCollapse" onclick="toggleChat()">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
 
             </nav>
         </div>
 
-        <p id="serverError"></p>
 
-        <div>
+        <div class="container">
+            <div class="align-items-center row justify-content-center">
 
-            <br>
-            <p id="fullName"></p>
-            <div class="buttonRoom">
-                <button class="buttons-onload-room room-button" id="audioOn" onclick="addMediaTrack('audio')">Audio on</button>
-                <button class="buttons-onload-room room-button" id="audioOff" onclick="removeMediaTrack('audio')">Audio off</button>
-                <button class="buttons-onload-room room-button" id="videoOn" onclick="addMediaTrack('video')">Video on</button>
-                <button class="buttons-onload-room room-button" id="videoOff" onclick="removeMediaTrack('video')">Video off</button>
+                <button class="buttons-onload-room room-button btn btn-primary" id="audioOn"
+                        onclick="addMediaTrack('audio')"><i class="fa fa-volume-up" aria-hidden="true"></i> On
+                </button>
 
-
-                <button class="room-button" id="enterTheRoomStart" onclick="takePermissions()">Give media permissions</button>
-                <button class="buttons-onload-room room-button" id="enterTheRoomEnd" onclick="requestForModerator()">Enter the room</button>
-                <button class="buttons-onload-room room-button" id="leaveTheRoom" onclick="leaveRoom()">Leave the room</button>
-
-            </div>
-
-            <br>
-            <div id="nameDiv" style="display: none">
-                <label class="room-label" for="fullName">Full Name: </label>
-                <input name="fullName"/><br>
+                <button class="buttons-onload-room room-button btn btn-primary " id="audioOff"
+                        onclick="removeMediaTrack('audio')"><i class="fa fa-volume-up" aria-hidden="true"></i></span> Off
+                </button>
+                <button class="buttons-onload-room room-button btn btn-primary" id="videoOn"
+                        onclick="addMediaTrack('video')"><i class="fa fa-video-camera"></i> On
+                </button>
+                <button class=" buttons-onload-room room-button btn btn-primary" id="videoOff"
+                        onclick="removeMediaTrack('video')"><i class="fa fa-video-camera"></i> Off
+                </button>
+                <button class="buttons-onload-room room-button btn btn-primary" id="leaveTheRoom" onclick="leaveRoom()">
+                    Leave the room
+                </button>
 
             </div>
+            <div class="row justify-content-center align-items-center" style="height:90vh">
 
-            <br>
-            <div id="foreignVideoContainer" class="video-container">
+                <div class="col-5  p-3 mb-5 rounded">
+                    <div class="row justify-content-center align-items-center">
+                        <p id="serverError"></p>
 
+                        <div class="col-5 enter-full-name-col">
+                            <div  id="nameDiv">
+                                <label class="room-label" for="fullName">Full Name: </label><br>
+                                <input name="fullName"/>
+                            </div>
+
+                            <p style="display: none" id="fullName"></p>
+
+
+                            <button class="room-button btn btn-primary" id="enterTheRoomStart"
+                                    onclick="takePermissions()">Give media
+                                permissions
+                            </button>
+                            <button class="btn btn-primary btn-custom buttons-onload-room room-button" id="enterTheRoomEnd"
+                                    onclick="requestForModerator()">Enter the room
+                            </button>
+                        </div>
+
+
+
+
+
+
+
+                        <div id="foreignVideoContainer" class="video-container">
+
+                        </div>
+                        <video name="selfStream" class="videoBottomRight" controls="false" playsinline muted
+                               autoplay></video>
+                    </div>
+                </div>
             </div>
-            <video name="selfStream" class="videoBottomRight" controls="false" playsinline muted autoplay></video>
+
+
+
+
+
         </div>
+
+
     </div>
-    </div>
+
+
+</div>
 
 
 <script>
-    let sidebar=document.getElementById('sidebar');
+	let sidebar = document.getElementById('sidebar');
 
-    function toggleChat(){
+	function toggleChat() {
 
-    	let chatForm=document.getElementById('chat');
-    	if(sidebar.classList.contains('active')){
-    		sidebar.classList.remove('active');
-		    chatForm.classList.add('fixed-bottom');
-        }
-    	else{
-    		sidebar.classList.add('active');
-    		setTimeout(function (){
-    			chatForm.classList.remove('fixed-bottom')
-		    },90);
-        }
-    }
+		let chatForm = document.getElementById('chat');
+		if (sidebar.classList.contains('active')) {
+			sidebar.classList.remove('active');
+			chatForm.classList.add('fixed-bottom');
+		} else {
+			sidebar.classList.add('active');
+			setTimeout(function () {
+				chatForm.classList.remove('fixed-bottom')
+			}, 90);
+		}
+	}
 
 </script>
 <script src="/script/roomScriptAppender.js"></script>

@@ -40,9 +40,7 @@ span {
 /* chat*/
 
 
-#nameDiv {
-    display: none;
-}
+
 
 
 #messages li {
@@ -63,17 +61,30 @@ span {
     cursor: auto;
 
 }
+#enterTheRoomStart{
+    background: linear-gradient(90deg, rgba(2, 0, 36, 1) 0%, rgba(9, 9, 121, 1) 35%, rgba(0, 212, 255, 1) 100%);
 
+    color: white;
+}
+#enterTheRoomEnd{
+    margin-left: 0;
+    margin-top: 5px;
+}
 .buttons-onload-room {
     display: none;
+    background-color: rgba(9, 9, 121, 1);
+    color: white;
+    margin-left: 5px;
+
 }
-
-
 #nameDiv {
     color: white;
     display: none;
 }
 
+.enter-full-name-col{
+    max-width: 50%;
+}
 
 /*
 for toggling
@@ -95,7 +106,7 @@ bootstrap
     margin-top: 5%;
 }
 
-.custom-navbar, .btn-custom, .submit-new-room {
+.custom-navbar, .btn-custom, .submit-new-room, .send-message-button {
     background: linear-gradient(90deg, rgba(2, 0, 36, 1) 0%, rgba(9, 9, 121, 1) 35%, rgba(0, 212, 255, 1) 100%);
 }
 
@@ -173,12 +184,12 @@ a, a:hover, a:focus {
 
 .chat-ul {
     overflow: auto;
-    max-height: 85vh;
+    max-height: 78vh;
 }
 
 @media (max-height: 600px) {
     .chat-ul {
-        max-height: 79vh;
+        max-height: 65vh;
     }
 }
 
@@ -189,4 +200,7 @@ a, a:hover, a:focus {
     background-color: transparent;
     border: 1px solid transparent;
     border-radius: .25rem;
+}
+textarea{
+    width: 100%;
 }
