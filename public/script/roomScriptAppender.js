@@ -1,6 +1,7 @@
 var commonScripts=[
 	"/socket.io/socket.io.js",
-	"/script/helper.js"
+	"/script/helper.js",
+	"/script/roomFeatures.js"
 ]
 var kurentoScripts=[
 	"/bower_components/webrtc-adapter/release/adapter.js",

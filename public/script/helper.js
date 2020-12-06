@@ -25,16 +25,23 @@ function toggleEnterLeaveButtons() {
 	var enterButtonEnd = document.getElementById('enterTheRoomEnd');
 	var enterButtonStart = document.getElementById('enterTheRoomStart');
 	var leaveButton = document.getElementById('leaveTheRoom');
-
+	//display none for this block to besser display video grid
+	var fullnameEnterGiveMediaBlock=document.getElementById('fullname-giveMedia-enterRoom');
+	var foreignContainer=document.getElementById('foreignVideoContainer');
 	// from enter to leave
 	if (enterButtonEnd.style.display === 'block') {
 		enterButtonEnd.style.display = 'none';
 		leaveButton.style.display = 'block';
+		fullnameEnterGiveMediaBlock.style.display='none';
+		foreignContainer.style.display="block";
 	}
-	// from enter to leave
+	// from leave to enter
 	else {
 		leaveButton.style.display = 'none';
 		enterButtonStart.style.display = 'block';
+		fullnameEnterGiveMediaBlock.style.display='block';
+		foreignContainer.style.display="none";
+
 	}
 }
 
@@ -330,7 +337,7 @@ function getTracksFromStream(stream, mediaType) {
 function putNameOverVideo(video) {
 	let divAroundVideoAndSpan = video.parentNode;
 	let span = divAroundVideoAndSpan.childNodes[1];
-	span.style.left = '50px';
+
 	span.style.fontSize = 'xx-large';
 	span.style.position = 'relative';
 

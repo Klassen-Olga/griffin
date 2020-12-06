@@ -241,7 +241,7 @@ function socketInit() {
 		if (foreignUserContainer === null) {
 			return;
 		}
-		//removeOptionFromSelect(id);
+		removeOptionFromSelect(id);
 		if (foreignUserContainer.tagName === 'VIDEO') {
 			div.removeChild(foreignUserContainer.parentNode);
 		}
@@ -319,7 +319,7 @@ function socketInit() {
 * or if no video and no audio available remains as container for user presence
 *
 * */
-function appendNewVideoWindow(fullName, video) {
+function   appendNewVideoWindow(fullName, video) {
 	let div = document.createElement('div');
 	div.classList.add('videoDiv');
 	let span = document.createElement('span');

@@ -49,7 +49,8 @@
                 </button>
 
                 <button class="buttons-onload-room room-button btn btn-primary " id="audioOff"
-                        onclick="removeMediaTrack('audio')"><i class="fa fa-volume-up" aria-hidden="true"></i></span> Off
+                        onclick="removeMediaTrack('audio')"><i class="fa fa-volume-up" aria-hidden="true"></i></span>
+                    Off
                 </button>
                 <button class="buttons-onload-room room-button btn btn-primary" id="videoOn"
                         onclick="addMediaTrack('video')"><i class="fa fa-video-camera"></i> On
@@ -64,12 +65,12 @@
             </div>
             <div class="row justify-content-center align-items-center" style="height:90vh">
 
-                <div class="col-5  p-3 mb-5 rounded">
+                <div id="fullname-giveMedia-enterRoom" class="col-5  p-3 mb-5 rounded">
                     <div class="row justify-content-center align-items-center">
                         <p id="serverError"></p>
 
                         <div class="col-5 enter-full-name-col">
-                            <div  id="nameDiv">
+                            <div id="nameDiv">
                                 <label class="room-label" for="fullName">Full Name: </label><br>
                                 <input name="fullName"/>
                             </div>
@@ -81,44 +82,26 @@
                                     onclick="takePermissions()">Give media
                                 permissions
                             </button>
-                            <button class="btn btn-primary btn-custom buttons-onload-room room-button" id="enterTheRoomEnd"
+                            <button class="btn btn-primary btn-custom buttons-onload-room room-button"
+                                    id="enterTheRoomEnd"
                                     onclick="requestForModerator()">Enter the room
                             </button>
                         </div>
 
-                        <div id="foreignVideoContainer" class="video-container">
-
-                        </div>
-                        <video name="selfStream" class="videoBottomRight" controls="false" playsinline muted
-                               autoplay></video>
                     </div>
                 </div>
-            </div>
+                <div id="foreignVideoContainer"
+                     class="row justify-content-center align-items-center  video-container">
 
+                </div>
+            </div>
 
         </div>
 
     </div>
-
+    <div id="selfStreamDiv">
+        <video name="selfStream" class="videoBottomRight" playsinline muted
+               autoplay></video>
+    </div>
 </div>
-
-
-<script>
-	let sidebar = document.getElementById('sidebar');
-
-	function toggleChat() {
-
-		let chatForm = document.getElementById('chat');
-		if (sidebar.classList.contains('active')) {
-			sidebar.classList.remove('active');
-			chatForm.classList.add('fixed-bottom');
-		} else {
-			sidebar.classList.add('active');
-			setTimeout(function () {
-				chatForm.classList.remove('fixed-bottom')
-			}, 90);
-		}
-	}
-
-</script>
 <script src="/script/roomScriptAppender.js"></script>

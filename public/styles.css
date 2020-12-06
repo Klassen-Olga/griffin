@@ -6,16 +6,31 @@ html {
 /*
 video chat
 */
-video {
-    width: 180px;
-    height: 160px;
+@media (min-height: 600px) {
+    video{
+        width: 350px;
+    }
+    .videoDiv {
+        width: 350px;
+        height: 300px;
+        background-color: black;
+        margin: 6px;
+        float:left;
+        text-align: center;
+    }
 }
-
-.videoDiv {
-    width: 350px;
-    height: 320px;
-    background-color: black;
-    margin: 6px;
+@media (max-height: 600px) {
+    video{
+        width: 250px;
+    }
+    .videoDiv {
+        width: 250px;
+        float:left;
+        height: 220px;
+        background-color: black;
+        margin: 6px;
+        text-align: center;
+    }
 }
 
 
@@ -81,7 +96,11 @@ span {
     color: white;
     display: none;
 }
+#foreignVideoContainer{
+    display: none;
+    background-color: #163F58;
 
+}
 .enter-full-name-col{
     max-width: 50%;
 }
@@ -167,15 +186,24 @@ a, a:hover, a:focus {
 .chat-div {
     max-width: 250px;
 }
-
+/*
+    to make self video draggable
+*/
 .videoBottomRight {
-    position: fixed;
-    right: 0;
-    bottom: 0;
-    z-index: 1030;
-    margin: 10px;
+    width: 180px;
+    height: 160px;
+    padding: 10px;
+    cursor: move;
+    z-index: 10;
 }
-
+#selfStreamDiv {
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    z-index: 9;
+    width: 180px;
+    height: 160px;
+}
 .chatOutput {
     overflow-wrap: break-word;
     margin: 5px;
@@ -203,4 +231,7 @@ a, a:hover, a:focus {
 }
 textarea{
     width: 100%;
+}
+.container{
+    overflow: auto;
 }
