@@ -11,6 +11,7 @@ function receiveChatMessage(data) {
 	let chat = document.getElementById('messages');
 	let messagesDiv = document.createElement('DIV');
 	messagesDiv.innerText = data.fromName + ': ' + data.message;
+	messagesDiv.classList.add('chatOutput');
 	chat.appendChild(messagesDiv);
 	chat.scrollTop = chat.scrollHeight;
 }
