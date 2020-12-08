@@ -37,7 +37,7 @@ let SocketHelper= require('./helpers/socketHelper');
 let socketHelper=new SocketHelper(database);
 
 
-http.listen(3000, '127.0.0.1', function () {
+http.listen(process.env.PORT ||3000, '127.0.0.1', function () {
 	console.log(
 		'\nApp listening at http://localhost:3000/room/47fce5c0-deae-4587-8aea-d6200ff742b7/3' +
 		'\nApp listening at http://localhost:3000/room/7408e0e1-f8c2-41e0-9f4c-fcecc351e0ad/10' +
