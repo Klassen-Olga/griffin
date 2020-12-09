@@ -112,6 +112,7 @@ class ApiUsersController extends Controller {
 				return newUser;
 			});
 		} catch (e) {
+			console.log(e.message);
 			error = e;
 		}
 
@@ -149,6 +150,7 @@ class ApiUsersController extends Controller {
 				return dbUser;
 			});
 		} catch (e) {
+			console.log(e.message);
 			error = e;
 		}
 

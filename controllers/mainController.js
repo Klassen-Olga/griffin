@@ -58,7 +58,7 @@ class MainController extends Controller {
 
 	handleError(error){
 		const self = this;
-
+		console.log(error.message);
 		if (error instanceof ApiError) {
 			self.render({
 				error: error.message

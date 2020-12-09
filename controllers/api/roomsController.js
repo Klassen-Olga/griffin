@@ -53,6 +53,7 @@ class ApiRoomsController extends Controller {
 			});
 
 		} catch (e) {
+			console.log(e.message);
 			self.handleError(e);
 			return;
 		}

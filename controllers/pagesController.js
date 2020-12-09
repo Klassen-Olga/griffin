@@ -29,6 +29,7 @@ class PagesController extends Controller {
 					error = 'Please check if the url link is correct';
 				}
 			} catch (e) {
+				console.log(e.message);
 				error = e;
 			}
 
