@@ -141,9 +141,11 @@ class ApiUsersController extends Controller {
 					},
 					transaction: t
 				});
+				console.log(JSON.stringify(dbUser));
 				if (!dbUser){
 					throw new ApiError('User with this email does not exist', 404);
 				}
+				console.log("Comparing "+personalData.password +" and "+dbUser.passwordHash);
 				if (Passport.comparePassword(personalData.password, dbUser.passwordHash)===false){
 					throw new ApiError('Email or password is incorrect', 401);
 				}
