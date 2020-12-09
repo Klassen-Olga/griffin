@@ -78,6 +78,13 @@ class ApiUsersController extends Controller {
 		}
 
 		let newUser = self.database.User.build();
+
+		self.database.User.prototype.writeRemotes=function (remoteData) {
+			const self = this;
+			for (let i in remoteData) {
+				self[i] = remoteData[i];
+			}
+		}
 		newUser.writeRemotes(personalData);
 		await newUser.save({
 			transaction: transaction,
@@ -101,35 +108,7 @@ class ApiUsersController extends Controller {
 			}
 			user = await self.database.sequelize.transaction(async (t) => {
 
-
-
-
-				//let newUser = self.insertIfNotExist(personalData, t);
-
-
-
-
-
-				let sameUser = await self.database.User.findOne({
-					where: {
-						email: personalData.email
-					},
-					transaction: t
-				});
-
-
-				if (sameUser) {
-					throw new ApiError('User with this email already exists', 400);
-
-				}
-
-				let newUser = self.database.User.build();
-				newUser.writeRemotes(personalData);
-				await newUser.save({
-					transaction: t,
-					lock: true
-				});
-
+				let newUser = self.insertIfNotExist(personalData, t);
 				return newUser;
 			});
 		} catch (e) {
