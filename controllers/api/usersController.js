@@ -78,16 +78,6 @@ class ApiUsersController extends Controller {
 		}
 
 		let newUser = self.database.User.build();
-
-		self.database.User.prototype.writeRemotes=function (remoteData) {
-			const self = this;
-			for (let i in remoteData) {
-				if (i==='password'){
-					self.passwordHash=Passport.hashPassword(remoteData.password);
-				}
-				self[i] = remoteData[i];
-			}
-		}
 		newUser.writeRemotes(personalData);
 		await newUser.save({
 			transaction: transaction,
@@ -115,7 +105,6 @@ class ApiUsersController extends Controller {
 				return newUser;
 			});
 		} catch (e) {
-			console.log(e.message);
 			error = e;
 		}
 
@@ -144,18 +133,15 @@ class ApiUsersController extends Controller {
 					},
 					transaction: t
 				});
-				console.log(JSON.stringify(dbUser));
 				if (!dbUser){
 					throw new ApiError('User with this email does not exist', 404);
 				}
-				console.log("Comparing "+personalData.password +" and "+dbUser.passwordHash);
 				if (Passport.comparePassword(personalData.password, dbUser.passwordHash)===false){
 					throw new ApiError('Email or password is incorrect', 401);
 				}
 				return dbUser;
 			});
 		} catch (e) {
-			console.log(e.message);
 			error = e;
 		}
 
