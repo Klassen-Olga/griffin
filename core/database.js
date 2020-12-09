@@ -2,9 +2,9 @@ const Sequelize = require('sequelize');
 const fs =require('fs');
 const path=require('path');
 module.exports= function (){
-	const sequelize=new Sequelize('griffinDB', 'root', '', {
-		host:'localhost',
-		port:'3307',
+	const sequelize=new Sequelize(process.env.DB_NAME || 'griffinDB', process.env.DB_USER || 'root', process.env.DB_PASSWORD || '', {
+		host: process.env.DB_HOST || 'localhost',
+		port:process.env.DB_PORT ||'3307',
 		dialect:'mysql',
 		pool:{
 			max:5,//max 5 connections
