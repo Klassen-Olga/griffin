@@ -9,19 +9,19 @@ module.exports = {
 		port: process.env.DB_PORT || '3306'
 	},
 	test: {
-		username: 'root',
-		password: '',
-		database: 'griffinDB',
-		host: 'localhost',
+		username: 'lg2g812x6tpzhjyu',
+		password: 'g41yyeiv2nw2d1bv',
+		database: 'cs7b61hp4mb2wjxm',
+		host: 'lt80glfe2gj8p5n2.chr7pe7iynqr.eu-west-1.rds.amazonaws.com',
 		dialect: 'mysql',
-		port: '3307'
+		port: '3306'
 	},
 	production: {
-		username: 'root',
-		password: '',
-		database: 'griffinDB',
-		host: 'localhost',
+		username: 'lg2g812x6tpzhjyu',
+		password: 'g41yyeiv2nw2d1bv',
+		database: 'cs7b61hp4mb2wjxm',
+		host: 'lt80glfe2gj8p5n2.chr7pe7iynqr.eu-west-1.rds.amazonaws.com',
 		dialect: 'mysql',
-		port: '3307'
+		port: '3306'
 	}
 }
