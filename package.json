@@ -4,6 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
+    "build": "sequelize-cli db:migrate",
     "start": "node index.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
