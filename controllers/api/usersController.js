@@ -82,6 +82,9 @@ class ApiUsersController extends Controller {
 		self.database.User.prototype.writeRemotes=function (remoteData) {
 			const self = this;
 			for (let i in remoteData) {
+				if (i==='password'){
+					self.passwordHash=Passport.hashPassword(remoteData.password);
+				}
 				self[i] = remoteData[i];
 			}
 		}

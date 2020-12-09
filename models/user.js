@@ -1,6 +1,6 @@
 const Passport=require('../core/passport');
 module.exports=function (Model, database) {
-	Model.prototype.fullName=function(){
+	/*Model.prototype.fullName=function(){
 		return this.firstName+' '+this.lastName;
 	}
 	Model.prototype.writeRemotes=function (remoteData) {
@@ -11,5 +11,5 @@ module.exports=function (Model, database) {
 			}
 			self[i]=remoteData[i];
 		}
-	}
+	}*/
 }
