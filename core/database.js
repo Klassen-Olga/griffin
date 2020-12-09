@@ -22,13 +22,16 @@ module.exports= function (){
 	files=files.filter(file=>{
 		return (file.indexOf('.')!==0 && file.slice(-3)==='.js');
 	});
+
 	files.forEach(file=>{
 		const model=require(path.join(modelsPath, file))(sequelize, Sequelize.DataTypes);
 		db[model.name]=model;
 	});
+
 	Object.keys(db).forEach(modelName=>{
 		try{
-			let filePath=path.join(__dirname, '..', 'models', modelName + '.js');
+			let newModelName=modelName.charAt(0).toLowerCase() + modelName.slice(1);
+			let filePath=path.join(__dirname, '..', 'models', newModelName + '.js');
 			if(fs.existsSync(filePath)){
 				require(filePath)(db[modelName], db);
 			}
