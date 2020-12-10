@@ -14,6 +14,7 @@ module.exports = class Cron {
 
 		let timeStamp = Date.now();
 		let now = new Date(timeStamp);
+		console.log("NOW: "+now.toDateString());
 		now.setMinutes(now.getMinutes() + config.cronRemoveRoomAfter);
 
 		let cronTime = now.getMinutes() + ' ' + now.getHours() + ' * * *';
