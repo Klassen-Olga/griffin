@@ -6,7 +6,7 @@ module.exports = {
 	cronTimeZone: 'Europe/Berlin',
 	// removes room record, all message, participant, participantInRoom records related to the room
 	// after the last participant left the room in "cronRemoveRoomAfter" minutes
-	cronRemoveRoomAfter: 60, // in 60 minutes
+	cronRemoveRoomAfter: 2, // in 60 minutes
 	stunServer: {
 		url:'stun:stun.l.google.com:19302'
 	},
