@@ -435,7 +435,7 @@ function addModal(name, onclickYes, onclickNo) {
 	divModal.appendChild(modalContentDiv);
 
 	var containerDiv = document.createElement('DIV');
-	containerDiv.classList.add('container');
+	containerDiv.classList.add('containerM');
 	modalContentDiv.appendChild(containerDiv);
 
 	var h3_1 = document.createElement('H3');
