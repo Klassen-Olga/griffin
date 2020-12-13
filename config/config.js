@@ -6,7 +6,7 @@ module.exports = {
 	cronTimeZone: 'Europe/Berlin',
 	// removes room record, all message, participant, participantInRoom records related to the room
 	// after the last participant left the room in "cronRemoveRoomAfter" minutes
-	cronRemoveRoomAfter: 2, // in 60 minutes
+	cronRemoveRoomAfter: 60, // in 60 minutes
 	stunServer: {
 		url:'stun:stun.l.google.com:19302'
 	},
@@ -15,6 +15,7 @@ module.exports = {
 		userName:'klassen.olga@fh-erfurt.de',
 		credential:'123'
 	},
-	kurentoMediaServerUrl:'ws://ec2-54-157-113-30.compute-1.amazonaws.com:8888/kurento',
+	//kurentoMediaServerUrl:'ws://ec2-54-157-113-30.compute-1.amazonaws.com:8888/kurento',
+	kurentoMediaServerUrl:'ws://localhost:8888/kurento',
 	serverUrl:'http://localhost:3000'
 }

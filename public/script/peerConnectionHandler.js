@@ -268,20 +268,15 @@ function socketInit() {
 	});
 	// event for new user to receive a response of moderator
 	socket.on('requestForModerator', (userId, fullName) => {
-		var resp = myConfirm(fullName);
-		if (resp) {
+		addModal(fullName, (modalId)=>{
 			socket.emit('moderatorResponsePeer', true, userId)
-		} else {
+			document.getElementById(modalId).remove();
+		}, (modalId)=>{
 			socket.emit('moderatorResponsePeer', false, userId)
-		}
+			document.getElementById(modalId).remove();
+		});
+
 	});
-
-	function myConfirm(fullName) {
-		return confirm('New user ' + fullName + ' want to join the conference room.' +
-			'\n Are you agree?');
-
-	}
-
 	socket.on('moderatorResponsePeer', (accepted) => {
 		moderatorResponse(accepted, socket);
 	})

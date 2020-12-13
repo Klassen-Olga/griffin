@@ -414,3 +414,57 @@ function appendNewOption(value, innerText, select) {
 	option.innerHTML = innerText;
 	select.appendChild(option);
 }
+
+/*
+* creates modal for each new participant
+* modal appears on moderator side
+* */
+
+function addModal(name, onclickYes, onclickNo) {
+	var modalContainer = document.getElementById('modalContainer');
+	var modalsNumber = modalContainer.childNodes.length;
+
+	var divModal = document.createElement('DIV');
+	divModal.classList.add('modal');
+
+	divModal.setAttribute('id', 'modal_'+modalsNumber+1);
+	modalContainer.appendChild(divModal);
+
+	var modalContentDiv = document.createElement('DIV');
+	modalContentDiv.classList.add('modal-content');
+	divModal.appendChild(modalContentDiv);
+
+	var containerDiv = document.createElement('DIV');
+	containerDiv.classList.add('container');
+	modalContentDiv.appendChild(containerDiv);
+
+	var h3_1 = document.createElement('H3');
+	h3_1.innerHTML = `New user "${name}" wants to join the conference room`;
+	var h3_2 = document.createElement('H3');
+	h3_2.innerHTML = 'Are you agree?';
+
+	containerDiv.appendChild(h3_1);
+	containerDiv.appendChild(h3_2);
+
+	var clearfixDiv = document.createElement('DIV');
+	clearfixDiv.classList.add('clearfix');
+	containerDiv.appendChild(clearfixDiv);
+
+	var yesButton = document.createElement('BUTTON');
+	yesButton.classList.add('yesbtn');
+	yesButton.textContent = 'Yes';
+	var noButton = document.createElement('BUTTON');
+	noButton.classList.add('nobtn');
+	noButton.textContent = 'No';
+	yesButton.addEventListener('click', function (){
+		onclickYes(divModal.id);
+	});
+	noButton.addEventListener('click', function (){
+		onclickNo(divModal.id);
+	});
+	clearfixDiv.appendChild(yesButton);
+	clearfixDiv.appendChild(noButton);
+
+	divModal.style.display = 'block';
+	return divModal.id;
+}

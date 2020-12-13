@@ -95,7 +95,16 @@ function socketInit() {
 			'\n Are you agree?')) {
 			data.accepted = true;
 		}
-		sendMessage(data);
+
+		addModal(fullName, (modalId) => {
+			data.accepted = true;
+			document.getElementById(modalId).remove();
+			sendMessage(data);
+		}, (modalId) => {
+			document.getElementById(modalId).remove();
+			sendMessage(data);
+		});
+
 	});
 	socket.on('waitModeratorResponse', () => {
 		alert('Please wait until moderator accepts your entry');
@@ -125,7 +134,7 @@ function requestForModerator() {
 		id: 'requestForModerator',
 		name: document.getElementsByName('fullName')[0].value,
 		roomName: roomId,
-		dbId:dbId
+		dbId: dbId
 	}
 
 	sendMessage(message);
@@ -216,7 +225,7 @@ function onExistingParticipants(msg) {
 	userId = msg.userId;
 	var iceServers = [
 		{
-			url: 'turn:'+ turnUrl,
+			url: 'turn:' + turnUrl,
 			username: turnUsername,
 			credential: turnCredential
 		}

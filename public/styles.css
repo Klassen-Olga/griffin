@@ -7,25 +7,28 @@ html {
 video chat
 */
 @media (min-height: 600px) {
-    video{
+    video {
         width: 350px;
     }
+
     .videoDiv {
         width: 350px;
         height: 300px;
         background-color: black;
         margin: 6px;
-        float:left;
+        float: left;
         text-align: center;
     }
 }
+
 @media (max-height: 600px) {
-    video{
+    video {
         width: 250px;
     }
+
     .videoDiv {
         width: 250px;
-        float:left;
+        float: left;
         height: 220px;
         background-color: black;
         margin: 6px;
@@ -55,9 +58,6 @@ span {
 /* chat*/
 
 
-
-
-
 #messages li {
     padding: 5px 10px;
 }
@@ -76,15 +76,18 @@ span {
     cursor: auto;
 
 }
-#enterTheRoomStart{
+
+#enterTheRoomStart {
     background: linear-gradient(90deg, rgba(2, 0, 36, 1) 0%, rgba(9, 9, 121, 1) 35%, rgba(0, 212, 255, 1) 100%);
 
     color: white;
 }
-#enterTheRoomEnd{
+
+#enterTheRoomEnd {
     margin-left: 0;
     margin-top: 5px;
 }
+
 .buttons-onload-room {
     display: none;
     background-color: rgba(9, 9, 121, 1);
@@ -92,16 +95,19 @@ span {
     margin-left: 5px;
 
 }
+
 #nameDiv {
     color: white;
     display: none;
 }
-#foreignVideoContainer{
+
+#foreignVideoContainer {
     display: none;
     background-color: #163F58;
 
 }
-.enter-full-name-col{
+
+.enter-full-name-col {
     max-width: 50%;
 }
 
@@ -185,7 +191,9 @@ a, a:hover, a:focus {
 
 .chat-div {
     max-width: 250px;
+    z-index: 0;
 }
+
 /*
     to make self video draggable
 */
@@ -196,6 +204,7 @@ a, a:hover, a:focus {
     cursor: move;
     z-index: 10;
 }
+
 #selfStreamDiv {
     position: absolute;
     bottom: 0;
@@ -204,6 +213,7 @@ a, a:hover, a:focus {
     width: 180px;
     height: 160px;
 }
+
 .chatOutput {
     overflow-wrap: break-word;
     margin: 5px;
@@ -229,9 +239,75 @@ a, a:hover, a:focus {
     border: 1px solid transparent;
     border-radius: .25rem;
 }
-textarea{
+
+textarea {
     width: 100%;
 }
-.container{
+
+.container {
     overflow: auto;
+}
+
+/*
+*    MODAL FOR MODERATOR CHOICE
+*/
+
+.yesbtn, .nobtn {
+    float: left;
+    width: 50%;
+    font-size: large;
+    color: white;
+    padding: 14px 20px;
+    margin: 8px 0;
+    border: none;
+    cursor: pointer;
+    opacity: 0.9;
+}
+
+.yesbtn {
+    background-color: #ccc;
+    color: black;
+}
+
+.nobtn {
+    background-color: #f44336;
+}
+
+.container {
+    padding: 16px;
+    text-align: center;
+}
+
+.modal {
+
+    position: fixed; /* Stay in place */
+    z-index: 1;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: #163F58;
+    padding-top: 50px;
+}
+
+.modal-content {
+    background-color: #fefefe;
+    margin: 5% auto 15% auto;
+    border: 1px solid #888;
+    width: 80%;
+}
+
+
+.clearfix::after {
+    content: "";
+    clear: both;
+    display: table;
+}
+
+/* Change styles for cancel button and delete button on extra small screens */
+@media screen and (max-width: 300px) {
+    .yesbtn, .nobtn {
+        width: 100%;
+    }
 }
