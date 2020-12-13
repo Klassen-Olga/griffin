@@ -9,6 +9,7 @@ video chat
 @media (min-height: 600px) {
     video {
         width: 350px;
+        height: 262.5px;
     }
 
     .videoDiv {
@@ -24,6 +25,7 @@ video chat
 @media (max-height: 600px) {
     video {
         width: 250px;
+        height: 187.5px;
     }
 
     .videoDiv {

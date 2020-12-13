@@ -101,9 +101,7 @@ module.exports = class HelperKurento {
 				let url=config.turnServer.userName+':'+config.turnServer.credential+'@'+config.turnServer.url;
 				outgoingMedia.setTurnUrl(url);
 			}
-			// else
-			outgoingMedia.setMaxVideoRecvBandwidth(100);
-			outgoingMedia.setMinVideoRecvBandwidth(20);
+
 			userSession.setOutgoingMedia(outgoingMedia);
 
 			// add ice candidate the get sent before endpoint is established
@@ -365,8 +363,7 @@ module.exports = class HelperKurento {
 					}
 
 					console.log(`user: ${userSession.id} successfully create pipeline`);
-					incomingMedia.setMaxVideoSendBandwidth(100);
-					incomingMedia.setMaxVideoSendBandwidth(20);
+
 					userSession.incomingMedia[sender.id] = incomingMedia;
 					if (config.turnServer){
 						//example "klassen.olga@fh-erfurt.de:123@158.69.221.198:3478"

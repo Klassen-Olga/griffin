@@ -91,10 +91,6 @@ function socketInit() {
 			userId: socketId,
 			accepted: false
 		}
-		if (confirm('New user ' + fullName + ' want to join the conference room.' +
-			'\n Are you agree?')) {
-			data.accepted = true;
-		}
 
 		addModal(fullName, (modalId) => {
 			data.accepted = true;
@@ -234,18 +230,19 @@ function onExistingParticipants(msg) {
 	if (msg.videoOn === true) {
 		videoConstraints = {
 			frameRate: {
-				min: 1, ideal: 15, max: 30
+				min: 2, ideal: 15, max: 30
 			},
 			width: {
-				min: 32, ideal: 50, max: 320
+				min: 50, ideal: 250, max: 640
 			},
 			height: {
-				min: 32, ideal: 50, max: 320
+				min: 32, ideal: 250, max: 640
 			}
 		}
 	} else {
 		videoConstraints = false;
 	}
+
 	var constraints = {
 
 
