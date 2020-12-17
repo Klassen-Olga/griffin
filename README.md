@@ -29,16 +29,16 @@
 	npm install -g bower
 	bower install
 
-#	Docker installieren
+# Docker installieren
 	docker https://docs.docker.com/docker-for-windows/install/
 
-#	Kurento Media Server installieren
+# Kurento Media Server installieren
 	docker pull kurento/kurento-media-server:latest
 
-#	Kurento Media Server starten
+# Kurento Media Server starten
 	docker run --rm -p 8888:8888/tcp -p 5000-5050:5000-5050/udp -e KMS_MIN_PORT=5000 -e KMS_MAX_PORT=5050 kurento/kurento-media-server:latest
 
-#	STUN und TURN Server auf dem Server mit öffentlichen IP installieren
+# STUN und TURN Server auf dem Server mit öffentlichen IP installieren
 	https://github.com/coturn/coturn
 ```
 ### Weitere Anpassungen
