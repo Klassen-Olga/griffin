@@ -46,8 +46,7 @@ function dragElement(elmnt) {
 		document.onmousemove = elementDrag;
 	}
 
-	console.log("height "+window.screen.height);
-	console.log("width "+ window.screen.width);
+	
 	function elementDrag(e) {
 		e = e || window.event;
 		e.preventDefault();
