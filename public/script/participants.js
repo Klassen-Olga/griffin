@@ -1,6 +1,3 @@
-const PARTICIPANT_MAIN_CLASS = 'participant main';
-const PARTICIPANT_CLASS = 'participant';
-
 /**
  * Creates a video element for a new participant
  */

@@ -228,17 +228,20 @@ function onExistingParticipants(msg) {
 	];
 	let videoConstraints = null;
 	if (msg.videoOn === true) {
-		videoConstraints = {
-			frameRate: {
-				min: 2, ideal: 15, max: 30
-			},
-			width: {
-				min: 50, ideal: 250, max: 640
-			},
-			height: {
-				min: 32, ideal: 250, max: 640
+		if (reduceFramerateKurento==="true"){
+			videoConstraints = {
+				frameRate: {
+					min: 2, ideal: 15, max: 30
+				},
+				width: {
+					min: 50, ideal: 250, max: 640
+				},
+				height: {
+					min: 32, ideal: 250, max: 640
+				}
 			}
 		}
+
 	} else {
 		videoConstraints = false;
 	}

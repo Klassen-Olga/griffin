@@ -76,7 +76,8 @@ class PagesController extends Controller {
 			title: "Chat Room",
 			roomId: self.req.params.roomId,
 			participantsNumber: self.req.params.participantsNumber,
-			dbId: self.req.user ? self.req.user.id : null
+			dbId: self.req.user ? self.req.user.id : null,
+			reduceFramerateKurento:config.reduceFramerateKurento
 		});
 	}
 

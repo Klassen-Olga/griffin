@@ -17,5 +17,6 @@ module.exports = {
 	},
 	//kurentoMediaServerUrl:'ws://ec2-54-157-113-30.compute-1.amazonaws.com:8888/kurento',
 	kurentoMediaServerUrl: process.env.KMS || 'ws://localhost:8888/kurento',
-	serverUrl: process.env.APP || 'http://localhost:3000'
+	serverUrl: process.env.APP || 'http://localhost:3000',
+	reduceFramerateKurento:false
 }
